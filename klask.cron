@@ -1,0 +1,6 @@
+#
+# cron-jobs for klask
+#
+
+# m h dom mon dow    user    command
+0 9,12,15,18 * * *   root    if [ -x /usr/sbin/klask ] && [ -r /etc/klask.conf ]; then /usr/sbin/klask updatedb >> /dev/null 2>&1; fi
