@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
+use warnings;
 
 use Net::SNMP;
 use YAML qw(:all);
@@ -9,6 +10,7 @@ use Net::CIDR::Lite;
 use NetAddr::IP;
 
 # aptitude install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
+# libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
 
 our $KLASK_DB  = '/var/cache/klask/klaskdb';
 our $KLASK_CFG = '/etc/klask.conf';
@@ -82,6 +84,7 @@ sub fastping {
 sub resolve_ip_arp_host {
    my $param_ip_or_host = shift;
    my $interface = shift || '*';
+   my $type      = shift || 'fast';
 
    my %ret = (
       hostname_fq  => 'unknow',
@@ -106,6 +109,13 @@ sub resolve_ip_arp_host {
    $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
+
+   my $nowtimestamp = time();
+
+   if ( $type eq 'fast' and ( not defined $timestamp or $timestamp < ( $nowtimestamp - 3 * 3600 ) ) ) {
+      $ret{mac_address} = 'unknow';
+      return %ret;
+      }
 
   # resultat de la commande arp
    # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
@@ -156,15 +166,39 @@ sub initswitchnames {
 
    INIT_EACH_SWITCH:
    for my $sw (@switch) {
-      my ($session, $error) = Net::SNMP->session(
-         -hostname   => $sw->{hostname},
-         -community  => $sw->{community} || $default{community} || 'public',
-         -port       => $sw->{snmpport}  || $default{snmpport}  || 161,
-         );
+#print "$sw->{hostname} \n";
+      my %session = ( -hostname   => $sw->{hostname} );
+         $session{-version} = $sw->{version}   || 1;
+         $session{-port}    = $sw->{snmpport}  || $default{snmpport}  || 161;
+         if (exists $sw->{version} and $sw->{version} eq 3) {
+            $session{-username} = $sw->{username} || 'snmpadmin';
+#print "$sw->{hostname}  -- $session{-username}  \n";
+#for (keys %session) {
+#print "++ $_ -> $session{$_}\n";
+#}
+            }
+         else {
+            $session{-community} = $sw->{community} || $default{community} || 'public';
+            }
+
+      $sw->{local_session} = \%session;
+
+      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+#         -hostname   => $sw->{hostname},
+#         -version    => $sw->{version}   || 1,
+#         -community  => $sw->{community} || $default{community} || 'public',
+#         -username   => $sw->{username}  || 'snmpadmin',
+#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161,
+#         );
+#         if (exists $sw->{version} and $sw->{version} eq 3) {
+print "$error \n" if $error;
+#}
       my $result = $session->get_request(
          -varbindlist => ['1.3.6.1.2.1.1.5.0']
          );
       $sw->{description} = $result->{"1.3.6.1.2.1.1.5.0"} || $sw->{hostname};
+      #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
+      #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
       $session->close;
  
       my ($desc, $type) = split ':', $sw->{description}, 2;
@@ -229,16 +263,19 @@ sub find_switch_port {
    
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
-      my ($session, $error) = Net::SNMP->session(
-         -hostname   => $sw->{hostname},
-         -community  => $sw->{community} || $default{community} || 'public',
-         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
-         );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+print "$error \n" if $error;
+#         -hostname   => $sw->{hostname},
+#         -community  => $sw->{community} || $default{community} || 'public',
+#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
+#         );
+#print "$sw->{hostname} --  $research \n";
       my $result = $session->get_request(
          -varbindlist => [$research]
          );
 #      if(defined($result)) {
-      if (not defined($result)) {
+      if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
+#print "$sw->{hostname} --  $research --".$session->error()."\n";
          $session->close;
          next LOOP_ON_SWITCH;
          }
@@ -290,17 +327,21 @@ sub find_all_switch_port {
       }
 
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arphextodec($arp);
+#print " $arp -> $research\n";
    LOOP_ON_ALL_SWITCH:
    for my $sw (@switch) {
-      my ($session, $error) = Net::SNMP->session(
-         -hostname   => $sw->{hostname},
-         -community  => $sw->{community} || $default{community} || 'public',
-         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
-         );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+print "$error \n" if $error;
+#         -hostname   => $sw->{hostname},
+#         -community  => $sw->{community} || $default{community} || 'public',
+#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
+#         );
+#print "$sw->{hostname} --  $research \n";
       my $result = $session->get_request(
          -varbindlist => [$research]
          );
-      if(defined($result)){
+      if(defined($result) and $result->{$research} ne 'noSuchInstance'){
+#print "+++ $sw->{hostname} -> $result->{$research}\n" ;
          my $swport = $result->{$research};
 
          $ret->{$sw->{hostname}} = {};
@@ -311,9 +352,13 @@ sub find_all_switch_port {
          $switch_port_count{$sw->{hostname}}->{$swport}++;
 #         $sw->{_port}{$swport}++;
          }
+      else {
+#print "$sw->{hostname} --  $research --".$session->error()."\n";
+         }
 
       $session->close;
       }
+#print "end \n";
    return $ret;
    }
 
@@ -517,6 +562,12 @@ sub cmd_updatedb {
             $switch_proposal = $computerdb->{$resol_arp{ipv4_address}}{switch_hostname};
             }
 
+         # do not have a mac address
+         if ($resol_arp{mac_address} eq 'unknow' or (exists $resol_arp{timestamps} and $resol_arp{timestamps} < ($timestamp - 3 * 3600))) {
+            $computer_not_detected{$one_computer} = $current_interface;
+            next LOOP_ON_COMPUTER;
+            }
+
          my %where = find_switch_port($resol_arp{mac_address},$switch_proposal);
 
          #192.168.24.156:
@@ -527,10 +578,10 @@ sub cmd_updatedb {
          #  timestamp: 1164355525
 
          # do not have a mac address
-         if ($resol_arp{mac_address} eq 'unknow') {
-            $computer_not_detected{$one_computer} = $current_interface;
-            next LOOP_ON_COMPUTER;
-            }
+#         if ($resol_arp{mac_address} eq 'unknow') {
+#            $computer_not_detected{$one_computer} = $current_interface;
+#            next LOOP_ON_COMPUTER;
+#            }
 
          # detected on a switch
          if ($where{switch_description} ne 'unknow') {
@@ -653,7 +704,6 @@ sub cmd_iplocation {
 
       my $sw_hostname = $computerdb->{$ip}{switch_hostname} || '';
       next if $sw_hostname eq 'unknow';
-      next if $sw_hostname eq '';
   
       my $sw_location = '';
       for my $sw (@switch) {
@@ -701,12 +751,13 @@ sub cmd_switchmap {
 
    DETECT_ALL_ROUTER:
    for my $one_computer ('194.254.66.254') {
-      my %resol_arp = resolve_ip_arp_host($one_computer);            #resolution arp
+      my %resol_arp = resolve_ip_arp_host($one_computer,'*','low');            #resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
       
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); #retrouve les emplacements
       }
 
+print "etape 1\n";
    ALL_ROUTER_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address('194.254.66.254')) {
    
@@ -722,6 +773,7 @@ sub cmd_switchmap {
          $db_switch_output_port{$switch->{hostname}} = $switch->{port};
          }
       }   
+print "etape 2\n";
 
 #   print "Switch output port\n";  
 #   print "------------------\n";
@@ -739,9 +791,10 @@ sub cmd_switchmap {
       push @list_switch_ip, $sw->{hostname};
       }
 
+print "etape 3\n";
    ALL_SWITCH:
    for my $one_computer (@list_switch_ip) {
-      my %resol_arp = resolve_ip_arp_host($one_computer); # arp resolution
+      my %resol_arp = resolve_ip_arp_host($one_computer,'*','low'); # arp resolution
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
       
       push @list_switch_ipv4,$resol_arp{ipv4_address};
@@ -751,6 +804,7 @@ sub cmd_switchmap {
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
       }
       
+print "etape 4\n";
    ALL_SWITCH_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
    
@@ -773,6 +827,7 @@ sub cmd_switchmap {
 
       }
    
+print "etape 5\n";
    my %db_switch_connected_on_port = ();
    my $maybe_more_than_one_switch_connected = 'yes';
    
@@ -818,6 +873,7 @@ sub cmd_switchmap {
          }
       }
 
+print "etape 6\n";
    my %db_switch_parent =();
 
    for my $sw (keys %db_switch_link_with) {
