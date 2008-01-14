@@ -34,13 +34,14 @@ our %cmddb = (
    exportdb   => \&cmd_exportdb,
    updatedb   => \&cmd_updatedb,
    searchdb   => \&cmd_searchdb,
+   removedb   => \&cmd_removedb,
    search     => \&cmd_search,
    enable     => \&cmd_enable,
    disable    => \&cmd_disable,
    status     => \&cmd_status,
-   switchmap  => \&cmd_switchmap,
-   dotsw      => \&cmd_swdot,
-   removedb   => \&cmd_removedb,
+   updatesw   => \&cmd_updatesw,
+   exportsw   => \&cmd_exportsw,
+   dotsw      => \&cmd_exportsw_dot,
    iplocation => \&cmd_iplocation,
    );
 
@@ -158,7 +159,7 @@ sub resolve_ip_arp_host {
 
 ###
 # va rechercher le nom des switchs pour savoir qui est qui
-sub initswitchnames {
+sub init_switch_names {
    my $verbose = shift;
    
    print "Switch description\n" if $verbose;
@@ -210,14 +211,13 @@ print "$error \n" if $error;
 
 ###
 # convertit l'hexa (uniquement 2 chiffres) en decimal
-sub hextodec {
+sub hex_to_dec {
    #00:0F:1F:43:E4:2B
-   my $car = '00' . shift;
+   my $car = '00' . uc(shift);
 
-   return '00' if $car eq '00unknow';
+   return '00' if $car eq '00UNKNOW';
    my %table = (
       "0"=>"0",  "1"=>"1",  "2"=>"2",  "3"=>"3",  "4"=>"4",  "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9",
-      "a"=>"10", "b"=>"11", "c"=>"12", "d"=>"13", "e"=>"14", "f"=>"15",
       "A"=>"10", "B"=>"11", "C"=>"12", "D"=>"13", "E"=>"14", "F"=>"15"
       );
    my @chars = split(//, $car);
@@ -226,14 +226,14 @@ sub hextodec {
 
 ###
 # convertit l'@ arp en decimal
-sub arphextodec {
+sub arp_hex_to_dec {
    #00:0F:1F:43:E4:2B
    my $arp = shift;
 
    my @paquets = split /:/, $arp;
    my $return = '';
    foreach(@paquets) {
-      $return .= ".".hextodec($_);
+      $return .= ".".hex_to_dec($_);
       }
    return $return;
    }
@@ -259,7 +259,7 @@ sub find_switch_port {
          }
       }
 
-   my $research = "1.3.6.1.2.1.17.4.3.1.2".arphextodec($arp);
+   my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
    
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
@@ -326,7 +326,7 @@ sub find_all_switch_port {
 #      $sw->{_port} = {} if not exists $sw->{_port};
       }
 
-   my $research = "1.3.6.1.2.1.17.4.3.1.2".arphextodec($arp);
+   my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
 #print " $arp -> $research\n";
    LOOP_ON_ALL_SWITCH:
    for my $sw (@switch) {
@@ -389,7 +389,7 @@ sub get_list_ip {
          }
       }
 
-   my @res =();
+   my @res = ();
 
    for my $cidr ($cidrlist->list()) {
       my $net = new NetAddr::IP $cidr;
@@ -453,7 +453,7 @@ END
 sub cmd_search {
    my @computer = @_;
    
-   initswitchnames();    #nomme les switchs
+   init_switch_names();    #nomme les switchs
    fastping(@computer);
    for my $clientname (@computer) {
       my %resol_arp = resolve_ip_arp_host($clientname);          #resolution arp
@@ -506,7 +506,7 @@ sub cmd_updatedb {
    my $i = 0;
    my $detected_computer = 0;
    
-   initswitchnames('yes');    #nomme les switchs
+   init_switch_names('yes');    #nomme les switchs
 
    my %router_mac_ip = ();
    DETECT_ALL_ROUTER:
@@ -740,9 +740,9 @@ sub cmd_status {
    }
 
 
-sub cmd_switchmap {
+sub cmd_updatesw {
 
-   initswitchnames('yes');    #nomme les switchs
+   init_switch_names('yes');    #nomme les switchs
    print "\n";
 
    my %where = ();
@@ -757,7 +757,6 @@ sub cmd_switchmap {
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); #retrouve les emplacements
       }
 
-print "etape 1\n";
    ALL_ROUTER_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address('194.254.66.254')) {
    
@@ -773,7 +772,6 @@ print "etape 1\n";
          $db_switch_output_port{$switch->{hostname}} = $switch->{port};
          }
       }   
-print "etape 2\n";
 
 #   print "Switch output port\n";  
 #   print "------------------\n";
@@ -791,7 +789,6 @@ print "etape 2\n";
       push @list_switch_ip, $sw->{hostname};
       }
 
-print "etape 3\n";
    ALL_SWITCH:
    for my $one_computer (@list_switch_ip) {
       my %resol_arp = resolve_ip_arp_host($one_computer,'*','low'); # arp resolution
@@ -804,7 +801,6 @@ print "etape 3\n";
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
       }
       
-print "etape 4\n";
    ALL_SWITCH_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
    
@@ -827,7 +823,6 @@ print "etape 4\n";
 
       }
    
-print "etape 5\n";
    my %db_switch_connected_on_port = ();
    my $maybe_more_than_one_switch_connected = 'yes';
    
@@ -873,7 +868,6 @@ print "etape 5\n";
          }
       }
 
-print "etape 6\n";
    my %db_switch_parent =();
 
    for my $sw (keys %db_switch_link_with) {
@@ -924,7 +918,62 @@ print "etape 6\n";
    YAML::DumpFile("/var/cache/klask/switchdb", $switch_connection);
    }
 
-sub cmd_swdot {
+sub cmd_exportsw {
+   my @ARGV   = @_;
+
+   my $format = 'txt';
+   use Getopt::Long;
+
+   my $ret = GetOptions(
+      'format|f=s'  => \$format,
+      );
+
+   my %possible_format = (
+      txt => \&cmd_exportsw_txt,
+      dot => \&cmd_exportsw_dot,
+      );
+
+   $format = 'txt' if not defined $possible_format{$format};
+   
+   $possible_format{$format}->(@ARGV);
+   }
+
+sub cmd_exportsw_txt {
+
+   my $switch_connection = YAML::LoadFile("/var/cache/klask/switchdb");
+
+   my %db_switch_output_port       = %{$switch_connection->{output_port}};
+   my %db_switch_parent            = %{$switch_connection->{parent}};
+   my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
+
+   print "Switch output port and parent port connection\n";  
+   print "---------------------------------------------\n";
+   for my $sw (sort keys %db_switch_output_port) {
+      if (exists $db_switch_parent{$sw}) {
+         printf "%-25s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
+         }
+      else {
+         printf "%-25s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+         }
+      }
+   print "\n";
+
+   print "Switch parent and children port inter-connection\n";
+   print "------------------------------------------------\n";
+   for my $swport (sort keys %db_switch_connected_on_port) {        
+      my ($sw_connect,$port_connect) = split ':', $swport;
+      for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+         if (exists $db_switch_output_port{$sw}) {
+            printf "%-25s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            }
+         else {
+            printf "%-25s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
+            }
+         }
+      }
+   }
+
+sub cmd_exportsw_dot {
 
    my $switch_connection = YAML::LoadFile("/var/cache/klask/switchdb");
    
@@ -944,53 +993,30 @@ sub cmd_swdot {
  
    print "digraph G {\n";
 
-#print "size = \"11.4,8.2!\"; dpi = 600; orientation = landscape;\n";
-
-print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
-print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
+   print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
+   print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
 
    my $b=0;
    for my $building (keys %db_building) {
       $b++;
       
-#      print <<ENDB;
-#   subgraph "cluster_$b" {
-#      label = "$building";
-#      style = filled;
-#      color = yellow;
-#ENDB
-
-print "\"building$b\" [label = \"$building\", color = black, fillcolor = gold, style = filled];\n";
-print "site -> \"building$b\" [len = 2, color = firebrick];\n";
+      print "\"building$b\" [label = \"$building\", color = black, fillcolor = gold, style = filled];\n";
+      print "site -> \"building$b\" [len = 2, color = firebrick];\n";
 
       my $l = 0;
       for my $loc (keys %{$db_building{$building}}) {
          $l++;
  
-#         print <<ENDL;
-#      subgraph "cluster_$b-$l" {
-#         label = "$building / $loc";
-#         style = filled;
-#         color = purple;
-#ENDL
-
-print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
-print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
+         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
+         print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
-#            print <<ENDS;
-#         subgraph "cluster_$sw" {
-#            label = "$sw";
-#            style = filled;
-#            color = hot_pink;
-#ENDS
-# "sw-batB-legi:24" [label = 24, color = white,  peripheries = 3, style = filled];
             print "\"$sw:$db_switch_output_port{$sw}\" [label = $db_switch_output_port{$sw}, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
 
-print "\"$sw\" [label = \"$sw\", color = black, fillcolor = palegreen, shape = rect, style = filled];\n";
-print "\"location$b-$l\" -> \"$sw\" [len = 2, color = firebrick, arrowtail = dot]\n";
-print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]\n";
+            print "\"$sw\" [label = \"$sw\", color = black, fillcolor = palegreen, shape = rect, style = filled];\n";
+            print "\"location$b-$l\" -> \"$sw\" [len = 2, color = firebrick, arrowtail = dot]\n";
+            print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]\n";
 
 
             for my $swport (keys %db_switch_connected_on_port) {
@@ -998,25 +1024,10 @@ print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, arrowh
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                print "\"$sw:$port_connect\" [label = $port_connect, color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
-print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, arrowhead= normal, arrowtail = inv]\n";
+               print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, arrowhead= normal, arrowtail = inv]\n";
               }
-
-#            print <<ENDS;
-#            }
-#ENDS
-
             }
-
-#         print <<ENDL;
-#         }
-#ENDL
-        
          }
-
-#      print <<ENDB;
-#      }
-#ENDB
-
       }
 
 #   print "Switch output port and parent port connection\n";  
