@@ -13,6 +13,7 @@ use NetAddr::IP;
 # libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
 
 our $KLASK_DB  = '/var/cache/klask/klaskdb';
+our $KLASK_SW  = '/var/cache/klask/switchdb';
 our $KLASK_CFG = '/etc/klask.conf';
 
 my $switchdb = YAML::LoadFile("$KLASK_CFG");
@@ -915,7 +916,7 @@ sub cmd_updatesw {
       link_with         => \%db_switch_link_with,
       };
       
-   YAML::DumpFile("/var/cache/klask/switchdb", $switch_connection);
+   YAML::DumpFile("$KLASK_SW", $switch_connection);
    }
 
 sub cmd_exportsw {
@@ -940,7 +941,7 @@ sub cmd_exportsw {
 
 sub cmd_exportsw_txt {
 
-   my $switch_connection = YAML::LoadFile("/var/cache/klask/switchdb");
+   my $switch_connection = YAML::LoadFile("$KLASK_SW");
 
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
@@ -975,7 +976,7 @@ sub cmd_exportsw_txt {
 
 sub cmd_exportsw_dot {
 
-   my $switch_connection = YAML::LoadFile("/var/cache/klask/switchdb");
+   my $switch_connection = YAML::LoadFile("$KLASK_SW");
    
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
@@ -1185,7 +1186,7 @@ I think it's pretty easy to understand. The default section can be overide in an
 
  /etc/klask.conf
  /var/cache/klask/klaskdb
-
+ /var/cache/klask/switchdb
 
 =head1 SEE ALSO
 
