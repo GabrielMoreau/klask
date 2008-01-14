@@ -1071,7 +1071,10 @@ klask - ports manager and finder for switch
 =head1 SYNOPSIS
 
  klask updatedb
- klask exportdf
+ klask exportdb
+
+ klask updatesw
+ klask exportsw --format [txt|dot]
 
  klask searchdb computer
  klask search   computer
@@ -1119,6 +1122,20 @@ This command will scan networks and update a database. To know which are the cmp
 This command print the content of the database. There is actually only one format. It's very easy to have more format, it's just need times...
 
 
+=head2 updatesw
+
+This command build a map of your manageable switch on your network. The list of the switch must be given in the file /etc/klask.conf.
+
+
+=head2 exportsw --format [txt|dot]
+
+This command print the content of the switch database. There is actually two format. One is just txt for terminal and the other is the dot format from the graphviz environnement.
+
+ klask exportsw --format dot > /tmp/map.dot
+ dot -Tpng /tmp/map.dot > /tmp/map.png
+
+
+
 =head1 CONFIGURATION
 
 Because klask need many parameters, it's not possible actually to use command line parameters. The configuration is done in a /etc/klask.conf YAML file. This format have many advantage over XML, it's easier to read and to write !
@@ -1130,8 +1147,19 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
    snmpport: 161
 
  network:
-   - add: 192.168.1.0/24
-   - add: 192.168.2.0/24
+   labnet:
+     ip-subnet:
+       - add: 192.168.1.0/24
+       - add: 192.168.2.0/24
+     interface: eth0
+     main-router: gw1.labnet.local
+
+   schoolnet:
+     ip-subnet:
+       - add: 192.168.6.0/24
+       - add: 192.168.7.0/24
+     interface: eth0.38
+     main-router: gw2.schoolnet.local
 
  switch:
    - hostname: sw1.klask.local
@@ -1140,6 +1168,8 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
        - 2
 
    - hostname: sw2.klask.local
+     location: BatK / 2 / K203
+     type: HP2424
      portignore:
        - 1
        - 2
@@ -1160,17 +1190,17 @@ Net::SNMP, Net::Netmask, Net::CIDR::Lite, NetAddr::IP, YAML
 
 =head1 VERSION
 
-0.2
+0.4
 
 
 =head1 AUTHOR
 
-Written by Gabriel Moreau
+Written by Gabriel Moreau, Grenoble - France
 
 
 =head1 COPYRIGHT
        
-Copyright (C) 2005 Gabriel Moreau.
+Copyright (C) 2005-2008 Gabriel Moreau.
 
 
 =head1 LICENCE
