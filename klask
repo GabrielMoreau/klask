@@ -1086,7 +1086,11 @@ klask - ports manager and finder for switch
 
 =head1 DESCRIPTION
 
-klask is a small tool to find where is a host in a big network. klask mean search in brittany. 
+klask is a small tool to find where is a host in a big network. klask mean search in brittany.
+
+Klask has now a web site dedicated for it !
+
+ http://servforge.legi.inpg.fr/projects/klask
 
 
 =head1 COMMANDS
