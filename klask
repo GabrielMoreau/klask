@@ -9,7 +9,7 @@ use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
 
-# aptitude install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
+# apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
 
 our $KLASK_DB  = '/var/cache/klask/klaskdb';
