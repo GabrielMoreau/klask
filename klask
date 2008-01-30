@@ -403,6 +403,19 @@ sub get_list_ip {
    return @res;
    }
 
+# liste l'ensemble des routeurs du réseau
+sub get_list_main_router {
+   my @network = @_;
+
+   my @res = ();
+
+   for my $net (@network) {
+      push @res, $switchdb->{network}{$net}{'main-router'};
+      }
+
+   return @res;
+   }
+
 sub get_human_readable_port {
    my $sw = shift;
    my $port = shift;
@@ -511,7 +524,8 @@ sub cmd_updatedb {
 
    my %router_mac_ip = ();
    DETECT_ALL_ROUTER:
-   for my $one_router ('194.254.66.254') {
+#   for my $one_router ('194.254.66.254') {
+   for my $one_router ( get_list_main_router(@network) ) {
       my %resol_arp = resolve_ip_arp_host($one_router);
       $router_mac_ip{ $resol_arp{mac_address} } = $resol_arp{ipv4_address};
       }
@@ -546,13 +560,13 @@ sub cmd_updatedb {
 
          my %resol_arp = resolve_ip_arp_host($one_computer,$current_interface);
          
-         # do not search router connection
+         # do not search on router connection (why ?)
          if ( exists $router_mac_ip{$resol_arp{mac_address}}) {
             $computer_not_detected{$one_computer} = $current_interface;
             next LOOP_ON_COMPUTER;
             }
 
-         # do not search switch connection
+         # do not search on switch inter-connection
          if (exists $switch_level{$resol_arp{hostname_fq}}) {
             $computer_not_detected{$one_computer} = $current_interface;
             next LOOP_ON_COMPUTER;
@@ -751,7 +765,8 @@ sub cmd_updatesw {
    my %db_switch_ip_hostname = ();
 
    DETECT_ALL_ROUTER:
-   for my $one_computer ('194.254.66.254') {
+#   for my $one_computer ('194.254.66.254') {
+   for my $one_computer ( get_list_main_router(get_list_network()) ) {
       my %resol_arp = resolve_ip_arp_host($one_computer,'*','low');            #resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
       
