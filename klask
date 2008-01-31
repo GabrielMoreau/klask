@@ -628,7 +628,7 @@ sub cmd_updatedb {
 
    for my $one_computer (keys %computer_not_detected) {
       my $interface = $computer_not_detected{$one_computer};
-      system "arping -c 1 -w 1 -rR -i $interface $one_computer 2>/dev/null";
+      system "arping -c 1 -w 1 -rR -i $interface $one_computer &>/dev/null";
 #      print  "arping -c 1 -w 1 -rR -i $interface $one_computer 2>/dev/null\n";
       }
    }
