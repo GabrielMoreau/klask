@@ -16,17 +16,17 @@ my $KLASK_DB  = '/var/cache/klask/klaskdb';
 my $KLASK_SW  = '/var/cache/klask/switchdb';
 my $KLASK_CFG = '/etc/klask.conf';
 
-my $SWITCH_DB = YAML::LoadFile("$KLASK_CFG");
+my $KLASK_CFG = YAML::LoadFile("$KLASK_CFG");
 
-my %DEFAULT = %{$SWITCH_DB->{default}};
-my @SWITCH  = @{$SWITCH_DB->{switch}};
+my %DEFAULT = %{$KLASK_CFG->{default}};
+my @SWITCH  = @{$KLASK_CFG->{switch}};
 
 my %switch_level = ();
 LEVEL_OF_EACH_SWITCH:
 for my $sw (@SWITCH){
    $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    }
-@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$SWITCH_DB->{switch}};  
+@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};  
 
 my %switch_port_count = ();
 
@@ -365,13 +365,13 @@ print "$error \n" if $error;
 
 sub get_list_network {
 
-   return keys %{$SWITCH_DB->{network}};
+   return keys %{$KLASK_CFG->{network}};
    }
 
 sub get_current_interface {
    my $network = shift;
 
-   return $SWITCH_DB->{network}{$network}{interface};
+   return $KLASK_CFG->{network}{$network}{interface};
    }
   
 ###
@@ -382,7 +382,7 @@ sub get_list_ip {
    my $cidrlist = Net::CIDR::Lite->new;
 
    for my $net (@network) {
-      my @line  = @{$SWITCH_DB->{network}{$net}{'ip-subnet'}};
+      my @line  = @{$KLASK_CFG->{network}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
          for my $method (keys %$cmd){
             $cidrlist->add_any($cmd->{$method}) if $method eq 'add';
@@ -410,7 +410,7 @@ sub get_list_main_router {
    my @res = ();
 
    for my $net (@network) {
-      push @res, $SWITCH_DB->{network}{$net}{'main-router'};
+      push @res, $KLASK_CFG->{network}{$net}{'main-router'};
       }
 
    return @res;
