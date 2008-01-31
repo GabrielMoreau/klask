@@ -12,25 +12,25 @@ use NetAddr::IP;
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
 
-our $KLASK_DB  = '/var/cache/klask/klaskdb';
-our $KLASK_SW  = '/var/cache/klask/switchdb';
-our $KLASK_CFG = '/etc/klask.conf';
+my $KLASK_DB  = '/var/cache/klask/klaskdb';
+my $KLASK_SW  = '/var/cache/klask/switchdb';
+my $KLASK_CFG = '/etc/klask.conf';
 
-my $switchdb = YAML::LoadFile("$KLASK_CFG");
+my $SWITCH_DB = YAML::LoadFile("$KLASK_CFG");
 
-our %default = %{$switchdb->{default}};
-our @switch  = @{$switchdb->{switch}};
+my %DEFAULT = %{$SWITCH_DB->{default}};
+my @SWITCH  = @{$SWITCH_DB->{switch}};
 
-our %switch_level = ();
+my %switch_level = ();
 LEVEL_OF_EACH_SWITCH:
-for my $sw (@switch){
-   $switch_level{$sw->{hostname}} = $sw->{level} || $default{switch_level}  || 2;
+for my $sw (@SWITCH){
+   $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    }
-@switch  = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$switchdb->{switch}};  
+@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$SWITCH_DB->{switch}};  
 
-our %switch_port_count = ();
+my %switch_port_count = ();
 
-our %cmddb = (
+my %CMD_DB = (
    help       => \&cmd_help,
    exportdb   => \&cmd_exportdb,
    updatedb   => \&cmd_updatedb,
@@ -46,7 +46,7 @@ our %cmddb = (
    iplocation => \&cmd_iplocation,
    );
 
-our %INTERNALPORTMAP = (
+my %INTERNAL_PORT_MAP = (
    0 => 'A',
    1 => 'B',
    2 => 'C',
@@ -56,20 +56,20 @@ our %INTERNALPORTMAP = (
    6 => 'G',
    7 => 'H',
    );
-our %INTERNALPORTMAPREV = reverse %INTERNALPORTMAP;
+my %INTERNAL_PORT_MAP_REV = reverse %INTERNAL_PORT_MAP;
 
 
 ################
 # principal
 ################
 
-my $cmd = shift || 'help';
-if (defined $cmddb{$cmd}) {
-   $cmddb{$cmd}->(@ARGV);
+my $cmd = shift @ARGV || 'help';
+if (defined $CMD_DB{$cmd}) {
+   $CMD_DB{$cmd}->(@ARGV);
    }
 else {
    print STDERR "klask: command $cmd not found\n\n";
-   $cmddb{help}->();
+   $CMD_DB{help}->();
    exit 1;
    }
 
@@ -167,11 +167,11 @@ sub init_switch_names {
    print "------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
-   for my $sw (@switch) {
+   for my $sw (@SWITCH) {
 #print "$sw->{hostname} \n";
       my %session = ( -hostname   => $sw->{hostname} );
          $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $default{snmpport}  || 161;
+         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
          if (exists $sw->{version} and $sw->{version} eq 3) {
             $session{-username} = $sw->{username} || 'snmpadmin';
 #print "$sw->{hostname}  -- $session{-username}  \n";
@@ -180,7 +180,7 @@ sub init_switch_names {
 #}
             }
          else {
-            $session{-community} = $sw->{community} || $default{community} || 'public';
+            $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
             }
 
       $sw->{local_session} = \%session;
@@ -188,9 +188,9 @@ sub init_switch_names {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
 #         -hostname   => $sw->{hostname},
 #         -version    => $sw->{version}   || 1,
-#         -community  => $sw->{community} || $default{community} || 'public',
+#         -community  => $sw->{community} || $DEFAULT{community} || 'public',
 #         -username   => $sw->{username}  || 'snmpadmin',
-#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161,
+#         -port       => $sw->{snmpport}  || $DEFAULT{snmpport}  || 161,
 #         );
 #         if (exists $sw->{version} and $sw->{version} eq 3) {
 print "$error \n" if $error;
@@ -251,11 +251,11 @@ sub find_switch_port {
 
    return %ret if $arp eq 'unknow';;
 
-   my @switch_search = @switch;
+   my @SWITCH_search = @SWITCH;
    if ($switch_proposal ne '') {
-      for my $sw (@switch) {
+      for my $sw (@SWITCH) {
          next if $sw->{hostname} ne $switch_proposal;
-         unshift @switch_search, $sw;
+         unshift @SWITCH_search, $sw;
          last;
          }
       }
@@ -263,12 +263,12 @@ sub find_switch_port {
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
    
    LOOP_ON_SWITCH:
-   for my $sw (@switch_search) {
+   for my $sw (@SWITCH_search) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
 print "$error \n" if $error;
 #         -hostname   => $sw->{hostname},
-#         -community  => $sw->{community} || $default{community} || 'public',
-#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
+#         -community  => $sw->{community} || $DEFAULT{community} || 'public',
+#         -port       => $sw->{snmpport}  || $DEFAULT{snmpport}  || 161
 #         );
 #print "$sw->{hostname} --  $research \n";
       my $result = $session->get_request(
@@ -322,7 +322,7 @@ sub find_all_switch_port {
 
    return $ret if $arp eq 'unknow';
 
-   for my $sw (@switch) {
+   for my $sw (@SWITCH) {
       $switch_port_count{$sw->{hostname}} = {} if not exists $switch_port_count{$sw->{hostname}};
 #      $sw->{_port} = {} if not exists $sw->{_port};
       }
@@ -330,12 +330,12 @@ sub find_all_switch_port {
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
 #print " $arp -> $research\n";
    LOOP_ON_ALL_SWITCH:
-   for my $sw (@switch) {
+   for my $sw (@SWITCH) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
 print "$error \n" if $error;
 #         -hostname   => $sw->{hostname},
-#         -community  => $sw->{community} || $default{community} || 'public',
-#         -port       => $sw->{snmpport}  || $default{snmpport}  || 161
+#         -community  => $sw->{community} || $DEFAULT{community} || 'public',
+#         -port       => $sw->{snmpport}  || $DEFAULT{snmpport}  || 161
 #         );
 #print "$sw->{hostname} --  $research \n";
       my $result = $session->get_request(
@@ -365,13 +365,13 @@ print "$error \n" if $error;
 
 sub get_list_network {
 
-   return keys %{$switchdb->{network}};
+   return keys %{$SWITCH_DB->{network}};
    }
 
 sub get_current_interface {
    my $network = shift;
 
-   return $switchdb->{network}{$network}{interface};
+   return $SWITCH_DB->{network}{$network}{interface};
    }
   
 ###
@@ -382,7 +382,7 @@ sub get_list_ip {
    my $cidrlist = Net::CIDR::Lite->new;
 
    for my $net (@network) {
-      my @line  = @{$switchdb->{network}{$net}{'ip-subnet'}};
+      my @line  = @{$SWITCH_DB->{network}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
          for my $method (keys %$cmd){
             $cidrlist->add_any($cmd->{$method}) if $method eq 'add';
@@ -410,7 +410,7 @@ sub get_list_main_router {
    my @res = ();
 
    for my $net (@network) {
-      push @res, $switchdb->{network}{$net}{'main-router'};
+      push @res, $SWITCH_DB->{network}{$net}{'main-router'};
       }
 
    return @res;
@@ -425,7 +425,7 @@ sub get_human_readable_port {
    my $reste = (($port - 1) % 8) + 1;
    my $major = int( ($port - 1) / 8 );
 
-   return "$INTERNALPORTMAP{$major}$reste";
+   return "$INTERNAL_PORT_MAP{$major}$reste";
    }
 
 sub get_numerical_port {
@@ -440,7 +440,7 @@ sub get_numerical_port {
    
    my $reste =  substr($port, 1);
    
-   return $INTERNALPORTMAPREV{$letter} * 8 + $reste;
+   return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
    }
 
 ################
@@ -721,7 +721,7 @@ sub cmd_iplocation {
       next if $sw_hostname eq 'unknow';
   
       my $sw_location = '';
-      for my $sw (@switch) {
+      for my $sw (@SWITCH) {
          next if $sw_hostname ne $sw->{hostname};
          $sw_location = $sw->{location};
          last;
@@ -766,8 +766,8 @@ sub cmd_updatesw {
 
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
-   for my $one_computer ( get_list_main_router(get_list_network()) ) {
-      my %resol_arp = resolve_ip_arp_host($one_computer,'*','low');            #resolution arp
+   for my $one_router ( get_list_main_router(get_list_network()) ) {
+      my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            #resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
       
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); #retrouve les emplacements
@@ -801,7 +801,7 @@ sub cmd_updatesw {
 
    my @list_switch_ip = ();
    my @list_switch_ipv4 = ();
-   for my $sw (@switch){
+   for my $sw (@SWITCH){
       push @list_switch_ip, $sw->{hostname};
       }
 
@@ -999,7 +999,7 @@ sub cmd_exportsw_dot {
    my %db_switch_link_with         = %{$switch_connection->{link_with}};
       
    my %db_building= ();
-   for my $sw (@switch) {
+   for my $sw (@SWITCH) {
       my ($building, $location) = split /\//, $sw->{location}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
