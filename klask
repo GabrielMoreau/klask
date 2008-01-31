@@ -8,6 +8,7 @@ use YAML qw(:all);
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
+use Getopt::Long;
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
@@ -913,7 +914,6 @@ sub cmd_exportsw {
    my @ARGV   = @_;
 
    my $format = 'txt';
-   use Getopt::Long;
 
    my $ret = GetOptions(
       'format|f=s'  => \$format,
