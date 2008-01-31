@@ -63,7 +63,7 @@ our %INTERNALPORTMAPREV = reverse %INTERNALPORTMAP;
 # principal
 ################
 
-my $cmd = shift;
+my $cmd = shift || 'help';
 if (defined $cmddb{$cmd}) {
    $cmddb{$cmd}->(@ARGV);
    }
