@@ -12,11 +12,11 @@ use NetAddr::IP;
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
 
-my $KLASK_DB  = '/var/cache/klask/klaskdb';
-my $KLASK_SW  = '/var/cache/klask/switchdb';
-my $KLASK_CFG = '/etc/klask.conf';
+my $KLASK_DB_FILE  = '/var/cache/klask/klaskdb';
+my $KLASK_SW_FILE  = '/var/cache/klask/switchdb';
+my $KLASK_CFG_FILE = '/etc/klask.conf';
 
-my $KLASK_CFG = YAML::LoadFile("$KLASK_CFG");
+my $KLASK_CFG = YAML::LoadFile("$KLASK_CFG_FILE");
 
 my %DEFAULT = %{$KLASK_CFG->{default}};
 my @SWITCH  = @{$KLASK_CFG->{switch}};
@@ -316,33 +316,24 @@ sub find_all_switch_port {
    my $arp = shift;
 
    my $ret = {};
-#   $ret->{unknow} = {};
-#   $ret->{unknow}{description} = "unknow";
-#   $ret->{unknow}{port} = "0";
 
    return $ret if $arp eq 'unknow';
 
    for my $sw (@SWITCH) {
       $switch_port_count{$sw->{hostname}} = {} if not exists $switch_port_count{$sw->{hostname}};
-#      $sw->{_port} = {} if not exists $sw->{_port};
       }
 
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
-#print " $arp -> $research\n";
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
-print "$error \n" if $error;
-#         -hostname   => $sw->{hostname},
-#         -community  => $sw->{community} || $DEFAULT{community} || 'public',
-#         -port       => $sw->{snmpport}  || $DEFAULT{snmpport}  || 161
-#         );
-#print "$sw->{hostname} --  $research \n";
+      print "$error \n" if $error;
+
       my $result = $session->get_request(
          -varbindlist => [$research]
          );
+
       if(defined($result) and $result->{$research} ne 'noSuchInstance'){
-#print "+++ $sw->{hostname} -> $result->{$research}\n" ;
          my $swport = $result->{$research};
 
          $ret->{$sw->{hostname}} = {};
@@ -351,15 +342,10 @@ print "$error \n" if $error;
          $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{hostname}, $swport);
 
          $switch_port_count{$sw->{hostname}}->{$swport}++;
-#         $sw->{_port}{$swport}++;
-         }
-      else {
-#print "$sw->{hostname} --  $research --".$session->error()."\n";
          }
 
       $session->close;
       }
-#print "end \n";
    return $ret;
    }
 
@@ -481,7 +467,7 @@ sub cmd_searchdb {
    my @computer = @_;
 
    fastping(@computer);
-   my $computerdb = YAML::LoadFile("$KLASK_DB");
+   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
    
    LOOP_ON_COMPUTER:
    for my $clientname (@computer) {
@@ -509,7 +495,7 @@ sub cmd_updatedb {
    my @network = @_;
       @network = get_list_network() if not @network;
 
-   my $computerdb = YAML::LoadFile("$KLASK_DB");
+   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
    my $timestamp = time;
    
    my %computer_not_detected = ();
@@ -646,10 +632,10 @@ sub cmd_updatedb {
    # final end of line at the end of the loop
    printf "\n";
 
-   my $dirdb = $KLASK_DB;
+   my $dirdb = $KLASK_DB_FILE;
       $dirdb =~ s#/[^/]*$##;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::DumpFile("$KLASK_DB", $computerdb);
+   YAML::DumpFile("$KLASK_DB_FILE", $computerdb);
 
    for my $one_computer (keys %computer_not_detected) {
       my $interface = $computer_not_detected{$one_computer};
@@ -661,7 +647,7 @@ sub cmd_updatedb {
 sub cmd_removedb {
    my @computer = @_;
    
-   my $computerdb = YAML::LoadFile("$KLASK_DB");
+   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_COMPUTER:
    for my $one_computer (@computer) {
@@ -671,14 +657,14 @@ sub cmd_removedb {
       delete $computerdb->{$resol_arp{ipv4_address}} if exists $computerdb->{$resol_arp{ipv4_address}};
       }
 
-   my $dirdb = $KLASK_DB;
+   my $dirdb = $KLASK_DB_FILE;
       $dirdb =~ s#/[^/]*$##;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::DumpFile("$KLASK_DB", $computerdb);
+   YAML::DumpFile("$KLASK_DB_FILE", $computerdb);
    }
 
 sub cmd_exportdb {
-   my $computerdb = YAML::LoadFile("$KLASK_DB");
+   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
 
    printf "%-24s %-4s            %-30s %-15s %-18s %-s\n", qw(Switch Port Hostname IPv4-Address MAC-Address Date);
    print "---------------------------------------------------------------------------------------------------------------------------\n";
@@ -710,7 +696,7 @@ sub cmd_exportdb {
    }
 
 sub cmd_iplocation {
-   my $computerdb = YAML::LoadFile("$KLASK_DB");
+   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
@@ -767,16 +753,16 @@ sub cmd_updatesw {
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
-      my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            #resolution arp
+      my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            # resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
       
-      $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); #retrouve les emplacements
+      $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       }
 
    ALL_ROUTER_IP_ADDRESS:
-   for my $ip (Net::Netmask::sort_by_ip_address('194.254.66.254')) {
+   for my $ip (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
    
-      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip};
+      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip}; # /a priori/ idiot car ne sers à rien...
 
       ALL_SWITCH_CONNECTED:
       for my $switch_detected ( keys %{$where{$ip}} ) {
@@ -931,7 +917,7 @@ sub cmd_updatesw {
       link_with         => \%db_switch_link_with,
       };
       
-   YAML::DumpFile("$KLASK_SW", $switch_connection);
+   YAML::DumpFile("$KLASK_SW_FILE", $switch_connection);
    }
 
 sub cmd_exportsw {
@@ -956,7 +942,7 @@ sub cmd_exportsw {
 
 sub cmd_exportsw_txt {
 
-   my $switch_connection = YAML::LoadFile("$KLASK_SW");
+   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
 
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
@@ -991,7 +977,7 @@ sub cmd_exportsw_txt {
 
 sub cmd_exportsw_dot {
 
-   my $switch_connection = YAML::LoadFile("$KLASK_SW");
+   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
    
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
