@@ -28,7 +28,7 @@ for my $sw (@SWITCH){
    }
 @SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};  
 
-my %switch_port_count = ();
+my %SWITCH_PORT_COUNT = ();
 
 my %CMD_DB = (
    help       => \&cmd_help,
@@ -309,7 +309,7 @@ sub find_all_switch_port {
    return $ret if $arp eq 'unknow';
 
    for my $sw (@SWITCH) {
-      $switch_port_count{$sw->{hostname}} = {} if not exists $switch_port_count{$sw->{hostname}};
+      $SWITCH_PORT_COUNT{$sw->{hostname}} = {} if not exists $SWITCH_PORT_COUNT{$sw->{hostname}};
       }
 
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
@@ -330,7 +330,7 @@ sub find_all_switch_port {
          $ret->{$sw->{hostname}}{description} = $sw->{description};
          $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{hostname}, $swport);
 
-         $switch_port_count{$sw->{hostname}}->{$swport}++;
+         $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
          }
 
       $session->close;
@@ -800,7 +800,7 @@ sub cmd_updatesw {
       DETECTED_SWITCH:
       for my $switch_detected ( keys %{$where{$ip}} ) {
 
-         next DETECTED_SWITCH if not exists $switch_port_count{ $db_switch_ip_hostname{$ip}};
+         next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip}};
 
          my $switch = $where{$ip}->{$switch_detected};
 
