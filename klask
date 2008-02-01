@@ -59,6 +59,32 @@ my %INTERNAL_PORT_MAP = (
    );
 my %INTERNAL_PORT_MAP_REV = reverse %INTERNAL_PORT_MAP;
 
+my %SWITCH_CODE = (
+   J4120A   => 'HP J4120A ProCurve Switch 1600M',
+   J4093A   => 'HP J4093A ProCurve Switch 2424M',
+   J4813A   => 'HP J4813A ProCurve Switch 2524',
+   J4900A   => 'HP J4900A ProCurve Switch 2626',
+   J9021A   => 'ProCurve J9021A Switch 2810-24G',
+   J4903A   => 'HP J4903A ProCurve Switch 2824',
+   J4110A   => 'HP J4110A ProCurve Switch 8000M',
+   );
+
+my %SWITCH_TYPE = (
+   J4120A   => 'HP1600M  ',
+   J4093A   => 'HP2424M  ',
+   J4813A   => 'HP2524   ',
+   J4900A   => 'HP2626   ',
+   J9021A   => 'HP2810-24',
+   J4903A   => 'HP2824   ',
+   J4110A   => 'HP8000M  ',
+   );
+
+my %OID_NUMBER = (
+   sysDescr    => '1.3.6.1.2.1.1.1.0',
+   sysName     => '1.3.6.1.2.1.1.5.0',
+   sysContact  => '1.3.6.1.2.1.1.4.0',
+   sysLocation => '1.3.6.1.2.1.1.6.0',
+   )
 
 ################
 # principal
@@ -186,9 +212,14 @@ sub init_switch_names {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => ['1.3.6.1.2.1.1.5.0']
+         -varbindlist => [
+            $OID_NUMBER{sysDescr},
+            $OID_NUMBER{sysName},
+            $OID_NUMBER{sysContact},
+            $OID_NUMBER{sysLocation},
+            ]
          );
-      $sw->{description} = $result->{"1.3.6.1.2.1.1.5.0"} || $sw->{hostname};
+      $sw->{description} = $result->{$OID_NUMBER{sysName}} || $sw->{hostname};
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
       $session->close;
