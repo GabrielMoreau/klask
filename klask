@@ -59,26 +59,18 @@ my %INTERNAL_PORT_MAP = (
    );
 my %INTERNAL_PORT_MAP_REV = reverse %INTERNAL_PORT_MAP;
 
-my %SWITCH_CODE = (
-   J4120A   => 'HP J4120A ProCurve Switch 1600M',
-   J4093A   => 'HP J4093A ProCurve Switch 2424M',
-   J4813A   => 'HP J4813A ProCurve Switch 2524',
-   J4900A   => 'HP J4900A ProCurve Switch 2626',
-   J9021A   => 'ProCurve J9021A Switch 2810-24G',
-   J4903A   => 'HP J4903A ProCurve Switch 2824',
-   J4110A   => 'HP J4110A ProCurve Switch 8000M',
+my %SWITCH_KIND = (
+   J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
+   J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
+   J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
+   J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
+   J4900A => { model => 'HP2626',     match => 'HP J4900[A|B] ProCurve Switch 2626'  },
+   J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
+   J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
+   J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
+   BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    );
-
-my %SWITCH_TYPE = (
-   J4120A   => 'HP1600M  ',
-   J4093A   => 'HP2424M  ',
-   J4813A   => 'HP2524   ',
-   J4900A   => 'HP2626   ',
-   J9021A   => 'HP2810-24',
-   J4903A   => 'HP2824   ',
-   J4110A   => 'HP8000M  ',
-   );
-
+ 
 my %OID_NUMBER = (
    sysDescr    => '1.3.6.1.2.1.1.1.0',
    sysName     => '1.3.6.1.2.1.1.5.0',
@@ -185,6 +177,19 @@ sub resolve_ip_arp_host {
    return %ret;
    }
 
+# Find Surname of a switch
+sub get_switch_model {
+   my $sw_description = shift || '?';
+   
+   for my $sw_kind (keys %SWITCH_KIND) {
+      next if not $sw_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/;
+      
+      return $SWITCH_KIND{$sw_kind}->{model};
+      }
+      
+   return $sw_description;
+   }
+
 ###
 # va rechercher le nom des switchs pour savoir qui est qui
 sub init_switch_names {
@@ -220,12 +225,14 @@ sub init_switch_names {
             ]
          );
       $sw->{description} = $result->{$OID_NUMBER{sysName}} || $sw->{hostname};
+      $sw->{model} = get_switch_model( $result->{$OID_NUMBER{sysDescr}});
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
       $session->close;
  
       my ($desc, $type) = split ':', $sw->{description}, 2;
-      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, uc($type) if $verbose;
+#      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, uc($type)."**" if $verbose;
+      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
       }
 
    print "\n" if $verbose;
