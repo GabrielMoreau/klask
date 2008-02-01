@@ -84,7 +84,7 @@ my %OID_NUMBER = (
    sysName     => '1.3.6.1.2.1.1.5.0',
    sysContact  => '1.3.6.1.2.1.1.4.0',
    sysLocation => '1.3.6.1.2.1.1.6.0',
-   )
+   );
 
 ################
 # principal
