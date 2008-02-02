@@ -11,7 +11,8 @@ use NetAddr::IP;
 use Getopt::Long;
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
-# libcrypt-des-perl libcrypt-hcesha-perl   libdigest-hmac-perl
+# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl
+# arping fping bind9-host arpwatch
 
 my $KLASK_DB_FILE  = '/var/cache/klask/klaskdb';
 my $KLASK_SW_FILE  = '/var/cache/klask/switchdb';
