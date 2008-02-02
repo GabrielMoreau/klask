@@ -180,15 +180,15 @@ sub resolve_ip_arp_host {
 
 # Find Surname of a switch
 sub get_switch_model {
-   my $sw_description = shift || '?';
+   my $sw_snmp_description = shift || 'unknow';
    
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/;
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/;
       
       return $SWITCH_KIND{$sw_kind}->{model};
       }
       
-   return $sw_description;
+   return $sw_snmp_description;
    }
 
 ###
@@ -230,7 +230,8 @@ sub init_switch_names {
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
       $session->close;
- 
+
+      # Ligne à virer car on récupère maintenant le modèle du switch 
       my ($desc, $type) = split ':', $sw->{description}, 2;
 #      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, uc($type)."**" if $verbose;
       printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
@@ -280,11 +281,11 @@ sub find_switch_port {
 
    return %ret if $arp eq 'unknow';;
 
-   my @SWITCH_search = @SWITCH;
+   my @switch_search = @SWITCH;
    if ($switch_proposal ne '') {
       for my $sw (@SWITCH) {
          next if $sw->{hostname} ne $switch_proposal;
-         unshift @SWITCH_search, $sw;
+         unshift @switch_search, $sw;
          last;
          }
       }
@@ -292,20 +293,14 @@ sub find_switch_port {
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
    
    LOOP_ON_SWITCH:
-   for my $sw (@SWITCH_search) {
+   for my $sw (@switch_search) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
-print "$error \n" if $error;
-#         -hostname   => $sw->{hostname},
-#         -community  => $sw->{community} || $DEFAULT{community} || 'public',
-#         -port       => $sw->{snmpport}  || $DEFAULT{snmpport}  || 161
-#         );
-#print "$sw->{hostname} --  $research \n";
+      print "$error \n" if $error;
+
       my $result = $session->get_request(
          -varbindlist => [$research]
          );
-#      if(defined($result)) {
       if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
-#print "$sw->{hostname} --  $research --".$session->error()."\n";
          $session->close;
          next LOOP_ON_SWITCH;
          }
@@ -322,14 +317,14 @@ print "$error \n" if $error;
 #         my $flag = 0;
          SWITCH_PORT_IGNORE:
          foreach my $p (@{$sw->{portignore}}) {
-            next SWITCH_PORT_IGNORE if $swport ne get_numerical_port($sw->{hostname},$p);
+            next SWITCH_PORT_IGNORE if $swport ne get_numerical_port($sw->{model},$p);
 #            $flag = 1;
             next LOOP_ON_SWITCH;
             }
 #         if ($flag == 0) {
             $ret{switch_hostname}    = $sw->{hostname};
             $ret{switch_description} = $sw->{description};
-            $ret{switch_port}        = get_human_readable_port($sw->{hostname}, $swport); # $swport;
+            $ret{switch_port}        = get_human_readable_port($sw->{model}, $swport); # $swport;
             
             last LOOP_ON_SWITCH;
 #            }
@@ -368,7 +363,7 @@ sub find_all_switch_port {
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
-         $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{hostname}, $swport);
+         $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{model}, $swport);
 
          $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
          }
@@ -432,28 +427,28 @@ sub get_list_main_router {
    }
 
 sub get_human_readable_port {
-   my $sw = shift;
-   my $port = shift;
+   my $sw_model = shift;
+   my $sw_port  = shift;
    
-   return $port if not $sw eq 'sw8000-batA.hmg.priv';
+   return $sw_port if not $sw_model eq 'HP8000M';
    
-   my $reste = (($port - 1) % 8) + 1;
-   my $major = int( ($port - 1) / 8 );
+   my $reste = (($sw_port - 1) % 8) + 1;
+   my $major = int( ($sw_port - 1) / 8 );
 
    return "$INTERNAL_PORT_MAP{$major}$reste";
    }
 
 sub get_numerical_port {
-   my $sw   = shift;
-   my $port = shift;
+   my $sw_model = shift;
+   my $sw_port  = shift;
    
-   return $port if not $sw eq 'sw8000-batA.hmg.priv';
+   return $sw_port if not $sw_model eq 'HP8000';
 
-   my $letter = substr($port, 0, 1);
+   my $letter = substr($sw_port, 0, 1);
    
 #   return $port if $letter =~ m/\d/;
    
-   my $reste =  substr($port, 1);
+   my $reste =  substr($sw_port, 1);
    
    return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
    }
@@ -526,7 +521,7 @@ sub cmd_updatedb {
 
    my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
    my $timestamp = time;
-   
+
    my %computer_not_detected = ();
    my $timestamp_last_week = $timestamp - (3600 * 24 * 7);
 
@@ -534,8 +529,27 @@ sub cmd_updatedb {
    my $size_of_database   = keys %$computerdb;
    my $i = 0;
    my $detected_computer = 0;
-   
+
    init_switch_names('yes');    #nomme les switchs
+
+   { # Remplis le champs portignore des ports d'inter-connection pour chaque switch
+   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
+   my %db_switch_output_port       = %{$switch_connection->{output_port}};
+   my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
+   my %db_switch_chained_port = ();
+   for my $swport (keys %db_switch_connected_on_port) {        
+      my ($sw_connect,$port_connect) = split ':', $swport;
+      $db_switch_chained_port{$sw_connect} .= "$port_connect:";
+      }
+   for my $sw (@SWITCH){
+      push @{$sw->{portignore}}, $db_switch_output_port{$sw->{hostname}}  if exists $db_switch_output_port{$sw->{hostname}};
+      if ( exists $db_switch_chained_port{$sw->{hostname}} ) {
+         chop $db_switch_chained_port{$sw->{hostname}};
+         push @{$sw->{portignore}}, split(':',$db_switch_chained_port{$sw->{hostname}});
+         }
+#      print "$sw->{hostname} ++ @{$sw->{portignore}}\n";
+      }
+   }
 
    my %router_mac_ip = ();
    DETECT_ALL_ROUTER:
