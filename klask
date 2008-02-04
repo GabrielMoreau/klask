@@ -68,6 +68,7 @@ my %INTERNAL_PORT_MAP_REV = reverse %INTERNAL_PORT_MAP;
 my %SWITCH_KIND = (
    J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
    J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
+   J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
    J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
    J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
    J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'  },
