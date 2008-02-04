@@ -24,9 +24,11 @@ my %DEFAULT = %{$KLASK_CFG->{default}};
 my @SWITCH  = @{$KLASK_CFG->{switch}};
 
 my %switch_level = ();
+my %SWITCH_DB = ();
 LEVEL_OF_EACH_SWITCH:
 for my $sw (@SWITCH){
    $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
+   $SWITCH_DB{$sw->{hostname}} = $sw;
    }
 @SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};  
 
@@ -959,6 +961,7 @@ sub cmd_updatesw {
       parent            => \%db_switch_parent,
       connected_on_port => \%db_switch_connected_on_port,
       link_with         => \%db_switch_link_with,
+      switch_db         => \%SWITCH_DB,
       };
       
    YAML::DumpFile("$KLASK_SW_FILE", $switch_connection);
@@ -1026,7 +1029,8 @@ sub cmd_exportsw_dot {
    my %db_switch_parent            = %{$switch_connection->{parent}};
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_link_with         = %{$switch_connection->{link_with}};
-      
+   my %db_switch_global            = %{$switch_connection->{switch_db}};
+
    my %db_building= ();
    for my $sw (@SWITCH) {
       my ($building, $location) = split /\//, $sw->{location}, 2;
@@ -1059,7 +1063,9 @@ sub cmd_exportsw_dot {
 
             print "\"$sw:$db_switch_output_port{$sw}\" [label = $db_switch_output_port{$sw}, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
 
-            print "\"$sw\" [label = \"$sw\", color = black, fillcolor = palegreen, shape = rect, style = filled];\n";
+            my $swname  = $sw;
+               $swname .= '\n-\n'."$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
+            print "\"$sw\" [label = \"$swname\", color = black, fillcolor = palegreen, shape = rect, style = filled];\n";
             print "\"location$b-$l\" -> \"$sw\" [len = 2, color = firebrick, arrowtail = dot]\n";
             print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]\n";
 
