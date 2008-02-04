@@ -16,8 +16,8 @@ use Getopt::Long;
 
 my $KLASK_VAR      = '/var/cache/klask';
 my $KLASK_CFG_FILE = '/etc/klask.conf';
-my $KLASK_DB_FILE  = '$KLASK_VAR/klaskdb';
-my $KLASK_SW_FILE  = '$KLASK_VAR/switchdb';
+my $KLASK_DB_FILE  = "$KLASK_VAR/klaskdb";
+my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
 
 test_running_environnement();
 
