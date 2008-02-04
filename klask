@@ -14,9 +14,12 @@ use Getopt::Long;
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl
 # arping fping bind9-host arpwatch
 
-my $KLASK_DB_FILE  = '/var/cache/klask/klaskdb';
-my $KLASK_SW_FILE  = '/var/cache/klask/switchdb';
+my $KLASK_VAR      = '/var/cache/klask';
 my $KLASK_CFG_FILE = '/etc/klask.conf';
+my $KLASK_DB_FILE  = '$KLASK_VAR/klaskdb';
+my $KLASK_SW_FILE  = '$KLASK_VAR/switchdb';
+
+test_running_environnement();
 
 my $KLASK_CFG = YAML::LoadFile("$KLASK_CFG_FILE");
 
@@ -97,6 +100,11 @@ else {
    }
 
 exit;
+
+sub test_running_environnement {
+   die "Configuration file $KLASK_CFG_FILE does not exists. Klask need it !\n" if not -e "$KLASK_CFG_FILE";
+   die "Var folder $KLASK_VAR does not exists. Klask need it !\n"              if not -d "$KLASK_VAR";
+   }
 
 ###
 # fast ping dont l'objectif est de remplir la table arp de la machine
