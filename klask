@@ -134,7 +134,7 @@ sub resolve_ip_arp_host {
    # 0:13:d3:e1:92:d0        192.168.24.109  1163681980      theo8sv109
    #my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
 #   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
-   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort +2rn | head -1";
+   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 2 | head -1";
    my $cmd_arpwatch = `$cmd`;
    chomp $cmd_arpwatch;
    my ($arp, $ip, $timestamp, $host) = split /\s+/, $cmd_arpwatch;
