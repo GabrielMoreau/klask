@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use YAML qw(:all);
+use YAML;
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
