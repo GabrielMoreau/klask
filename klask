@@ -540,6 +540,7 @@ sub cmd_updatedb {
 
    my $number_of_computer = get_list_ip(@network); # + 1;
    my $size_of_database   = keys %$computerdb;
+      $size_of_database   = 1 if $size_of_database == 0;
    my $i = 0;
    my $detected_computer = 0;
 
