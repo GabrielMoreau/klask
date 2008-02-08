@@ -1071,7 +1071,8 @@ sub cmd_exportsw_dot {
       for my $loc (keys %{$db_building{$building}}) {
          $l++;
  
-         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
+         print "\"location$b-$l\" [label = \"$building".'/'.join('\n',split("/",$loc))."\", color = black, fillcolor = orange, style = filled];\n";
+#         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
          print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
