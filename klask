@@ -112,6 +112,14 @@ sub test_running_environnement {
    die "Var folder $KLASK_VAR does not exists. Klask need it !\n"              if not -d "$KLASK_VAR";
    }
 
+sub test_switchdb_environnement {
+   die "Switch database $KLASK_SW_FILE does not exists. Launch updatesw before this command !\n" if not -e "$KLASK_SW_FILE";
+   }
+
+sub test_maindb_environnement {
+   die "Main database $KLASK_DB_FILE does not exists. Launch updatedb before this command !\n" if not -e "$KLASK_DB_FILE";
+   }
+
 ###
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fastping {
@@ -536,7 +544,10 @@ sub cmd_updatedb {
    my @network = @_;
       @network = get_list_network() if not @network;
 
-   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
+   test_switchdb_environnement();
+
+   my $computerdb = {};
+      $computerdb = YAML::LoadFile("$KLASK_DB_FILE") if -e "$KLASK_DB_FILE";
    my $timestamp = time;
 
    my %computer_not_detected = ();
@@ -707,7 +718,9 @@ sub cmd_updatedb {
 
 sub cmd_removedb {
    my @computer = @_;
-   
+
+   test_maindb_environnement();
+
    my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_COMPUTER:
@@ -725,6 +738,8 @@ sub cmd_removedb {
    }
 
 sub cmd_exportdb {
+   test_maindb_environnement();
+
    my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
 
    printf "%-24s %-4s            %-30s %-15s %-18s %-s\n", qw(Switch Port Hostname IPv4-Address MAC-Address Date);
@@ -984,6 +999,8 @@ sub cmd_updatesw {
 
 sub cmd_exportsw {
    my @ARGV   = @_;
+
+   test_switchdb_environnement();
 
    my $format = 'txt';
 
