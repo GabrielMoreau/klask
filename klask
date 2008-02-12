@@ -43,6 +43,7 @@ my %SWITCH_PORT_COUNT = ();
 
 my %CMD_DB = (
    help       => \&cmd_help,
+   version    => \&cmd_version,
    exportdb   => \&cmd_exportdb,
    updatedb   => \&cmd_updatedb,
    searchdb   => \&cmd_searchdb,
@@ -498,6 +499,18 @@ klask - ports manager and finder for switch
  klask disable switch port
  klask status  switch port
 END
+   }
+
+sub cmd_version {
+
+print <<END;
+Klask - ports manager and finder for switch
+Copyright (C) 2005-2008 Gabriel Moreau
+
+END
+   print 'Version: $Ver$'."\n";
+   print 'Date: $Date$'."\n";
+   print 'Id: $Id$'."\n";
    }
 
 sub cmd_search {
@@ -1303,7 +1316,7 @@ Net::SNMP, Net::Netmask, Net::CIDR::Lite, NetAddr::IP, YAML
 
 =head1 VERSION
 
-0.4
+$Id$
 
 
 =head1 AUTHOR
