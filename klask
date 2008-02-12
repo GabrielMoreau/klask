@@ -508,9 +508,9 @@ Klask - ports manager and finder for switch
 Copyright (C) 2005-2008 Gabriel Moreau
 
 END
-   print 'Version: $Ver$'."\n";
-   print 'Date: $Date$'."\n";
-   print 'Id: $Id$'."\n";
+   print ' $Rev$'."\n";
+   print ' $Date$'."\n";
+   print ' $Id$'."\n";
    }
 
 sub cmd_search {
