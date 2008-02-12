@@ -55,6 +55,7 @@ my %CMD_DB = (
    exportsw   => \&cmd_exportsw,
    dotsw      => \&cmd_exportsw_dot,
    iplocation => \&cmd_iplocation,
+   'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    );
 
 my %INTERNAL_PORT_MAP = (
@@ -816,6 +817,30 @@ sub cmd_status {
    system "snmpget -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port";
    }
 
+sub cmd_search_mac_on_switch {
+   my $switch_name = shift;
+   my $mac_address = shift;
+   
+   my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($mac_address);
+   print "Klask search OID $research on switch $switch_name\n";
+
+   my ($session, $error) = Net::SNMP->session( -hostname => $switch_name );
+   print "$error \n" if $error;
+
+   my $result = $session->get_request(
+      -varbindlist => [$research]
+      );
+   
+   if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
+      print "Klask do not find MAC $mac_address on switch $switch_name\n";
+      $session->close;
+      }
+
+   my $swport = $result->{$research};
+   $session->close;
+
+   print "Klask find MAC $mac_address on switch $switch_name port $swport\n";
+   }
 
 sub cmd_updatesw {
 
