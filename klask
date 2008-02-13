@@ -835,14 +835,28 @@ sub cmd_search_mac_on_switch {
    my $mac_address = shift || '';
    
    if ($switch_name eq '' or $mac_address eq '') {
-      print "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
-      exit 1;
+      die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
-   
+
+   if (not defined $SWITCH_DB{$switch_name}) {
+      die "Switch $switch_name must be defined in klask configuration file\n"; 
+      }
+
+   my $sw = $SWITCH_DB{$switch_name};
+   my %session = ( -hostname => $sw->{hostname} );
+      $session{-version} = $sw->{version}   || 1;
+      $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
+   if (exists $sw->{version} and $sw->{version} eq 3) {
+      $session{-username} = $sw->{username} || 'snmpadmin';
+      }
+   else {
+      $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
+      }
+
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($mac_address);
    print "Klask search OID $research on switch $switch_name\n";
 
-   my ($session, $error) = Net::SNMP->session( -hostname => $switch_name );
+   my ($session, $error) = Net::SNMP->session( %session );
    print "$error \n" if $error;
 
    my $result = $session->get_request(
