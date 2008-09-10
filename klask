@@ -78,7 +78,7 @@ my %SWITCH_KIND = (
    J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
    J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
    J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'  },
-   J4900B => { model => 'HP2626B',    match => 'HP J4900B ProCurve Switch 2626'  },
+   J4900B => { model => 'HP2626B',    match => 'J4900B.+?Switch 2626'            },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
    J4899B => { model => 'HP2650',     match => 'ProCurve J4899B Switch 2650'     },
    J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
    J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G' },
