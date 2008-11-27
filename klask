@@ -83,6 +83,7 @@ my %SWITCH_KIND = (
    J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
    J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
+   J8692A => { model => 'HP3500-24G', match => 'J8692A'                          },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    );
