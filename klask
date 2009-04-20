@@ -8,7 +8,8 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use YAML;
+#use YAML;
+use YAML::Syck;
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
@@ -25,7 +26,7 @@ my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
 
 test_running_environnement();
 
-my $KLASK_CFG = YAML::LoadFile("$KLASK_CFG_FILE");
+my $KLASK_CFG = YAML::Syck::LoadFile("$KLASK_CFG_FILE");
 
 my %DEFAULT = %{$KLASK_CFG->{default}};
 my @SWITCH  = @{$KLASK_CFG->{switch}};
@@ -83,7 +84,6 @@ my %SWITCH_KIND = (
    J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
    J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
-   J8692A => { model => 'HP3500-24G', match => 'J8692A'                          },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    );
@@ -144,19 +144,24 @@ sub resolve_ip_arp_host {
       );
 
 #   my $cmdarping  = `arping -c 1 -w 1 -rR $param 2>/dev/null`;
+   if (not $param_ip_or_host =~ m/^\d+\.\d+\.\d+\.\d+$/) {
+      $param_ip_or_host =~ s/\..*//;
+      }
 
    # controler que arpwatch tourne !
    # resultat de la commande arpwatch
    # /var/lib/arpwatch/arp.dat
    # 0:13:d3:e1:92:d0        192.168.24.109  1163681980      theo8sv109
-   #my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
-#   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
-   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 2 | head -1";
+   # my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
+   # my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
+   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
    my $cmd_arpwatch = `$cmd`;
    chomp $cmd_arpwatch;
    my ($arp, $ip, $timestamp, $host) = split /\s+/, $cmd_arpwatch;
+
 #print "OOO $cmd\n";
 #print "TTT arp $arp -> $ip pour host $host\n";
+
    $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
@@ -170,12 +175,14 @@ sub resolve_ip_arp_host {
 
   # resultat de la commande arp
    # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
+   # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
    my $cmd_arp  = `arp -a $param_ip_or_host 2>/dev/null`;
    chomp $cmd_arp;
    $cmd_arp =~ /(\S*)\s\(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\)\sat\s([0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2})/;
    $ret{hostname_fq}  = $1 if(defined($1));
    $ret{ipv4_address} = $2 if(defined($2));
    $ret{mac_address}  = $3 if(defined($3));
+#print "RET1 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
 
 #   if ($ret{ipv4_address} eq '0.0.0.0' and $ret{mac_address} eq 'unknow'and $ret{hostname_fq} eq 'unknow') {
       # resultat de la commande host si le parametre est ip
@@ -187,14 +194,16 @@ sub resolve_ip_arp_host {
 
       # resultat de la commande host si parametre est hostname
       # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-      $cmd_host =~ m/\shas\saddress\s([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/;
-      $ret{ipv4_address} = $1 if defined $1;
+      $cmd_host =~ m/(\S*)\shas\saddress\s([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/;
+      $ret{hostname_fq}  = $1 if defined $1;
+      $ret{ipv4_address} = $2 if defined $2;
 
       $cmd_host =~ m/\b([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.in-addr\.arpa\s/;
       $ret{ipv4_address} = "$4.$3.$2.$1"     if defined $1 and  defined $2 and  defined $3 and  defined $4;
       $ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 #      }
 
+#print "RET2 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
    unless ($ret{mac_address} eq 'unknow') {
       my @paquets = ();
       foreach ( split(/:/, $ret{mac_address}) ) {
@@ -204,6 +213,7 @@ sub resolve_ip_arp_host {
       $ret{mac_address} = join ':', @paquets;
       }
 
+#print "RET3 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
    return %ret;
    }
 
@@ -532,7 +542,7 @@ sub cmd_searchdb {
    my @computer = @_;
 
    fastping(@computer);
-   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
    
    LOOP_ON_COMPUTER:
    for my $clientname (@computer) {
@@ -563,7 +573,7 @@ sub cmd_updatedb {
    test_switchdb_environnement();
 
    my $computerdb = {};
-      $computerdb = YAML::LoadFile("$KLASK_DB_FILE") if -e "$KLASK_DB_FILE";
+      $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE") if -e "$KLASK_DB_FILE";
    my $timestamp = time;
 
    my %computer_not_detected = ();
@@ -578,7 +588,7 @@ sub cmd_updatedb {
    init_switch_names('yes');    #nomme les switchs
 
    { # Remplis le champs portignore des ports d'inter-connection pour chaque switch
-   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
+   my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_chained_port = ();
@@ -723,7 +733,7 @@ sub cmd_updatedb {
    my $dirdb = $KLASK_DB_FILE;
       $dirdb =~ s#/[^/]*$##;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::DumpFile("$KLASK_DB_FILE", $computerdb);
+   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
 
    for my $one_computer (keys %computer_not_detected) {
       my $interface = $computer_not_detected{$one_computer};
@@ -737,7 +747,7 @@ sub cmd_removedb {
 
    test_maindb_environnement();
 
-   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_COMPUTER:
    for my $one_computer (@computer) {
@@ -750,13 +760,13 @@ sub cmd_removedb {
    my $dirdb = $KLASK_DB_FILE;
       $dirdb =~ s#/[^/]*$##;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::DumpFile("$KLASK_DB_FILE", $computerdb);
+   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
    }
 
 sub cmd_exportdb {
    test_maindb_environnement();
 
-   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    printf "%-24s %-4s            %-30s %-15s %-18s %-s\n", qw(Switch Port Hostname IPv4-Address MAC-Address Date);
    print "---------------------------------------------------------------------------------------------------------------------------\n";
@@ -788,7 +798,7 @@ sub cmd_exportdb {
    }
 
 sub cmd_iplocation {
-   my $computerdb = YAML::LoadFile("$KLASK_DB_FILE");
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
@@ -888,9 +898,10 @@ sub cmd_updatesw {
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
+print "TT$one_router\n";      
       my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            # resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
-      
+print "$one_router\n";      
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       }
 
@@ -1053,7 +1064,7 @@ sub cmd_updatesw {
       switch_db         => \%SWITCH_DB,
       };
       
-   YAML::DumpFile("$KLASK_SW_FILE", $switch_connection);
+   YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
    }
 
 sub cmd_exportsw {
@@ -1079,7 +1090,7 @@ sub cmd_exportsw {
 
 sub cmd_exportsw_txt {
 
-   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
+   my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
@@ -1114,7 +1125,7 @@ sub cmd_exportsw_txt {
 
 sub cmd_exportsw_dot {
 
-   my $switch_connection = YAML::LoadFile("$KLASK_SW_FILE");
+   my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
    
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
