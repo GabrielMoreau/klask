@@ -113,20 +113,24 @@ exit;
 sub test_running_environnement {
    die "Configuration file $KLASK_CFG_FILE does not exists. Klask need it !\n" if not -e "$KLASK_CFG_FILE";
    die "Var folder $KLASK_VAR does not exists. Klask need it !\n"              if not -d "$KLASK_VAR";
+   return;
    }
 
 sub test_switchdb_environnement {
    die "Switch database $KLASK_SW_FILE does not exists. Launch updatesw before this command !\n" if not -e "$KLASK_SW_FILE";
+   return;
    }
 
 sub test_maindb_environnement {
    die "Main database $KLASK_DB_FILE does not exists. Launch updatedb before this command !\n" if not -e "$KLASK_DB_FILE";
+   return;
    }
 
 ###
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fastping {
    system "fping -c 1 @_ >/dev/null 2>&1";
+   return;
    }
 
 ###
@@ -276,6 +280,7 @@ sub init_switch_names {
       }
 
    print "\n" if $verbose;
+   return;
    }
 
 ###
@@ -513,6 +518,7 @@ klask - ports manager and finder for switch
  klask disable switch port
  klask status  switch port
 END
+   return;
    }
 
 sub cmd_version {
@@ -525,6 +531,7 @@ END
    print ' $Rev$'."\n";
    print ' $Date$'."\n";
    print ' $Id$'."\n";
+   return;
    }
 
 sub cmd_search {
@@ -538,6 +545,7 @@ sub cmd_search {
       printf "%-22s %2i %-30s %-15s %18s", $where{switch_description}, $where{switch_port}, $resol_arp{hostname_fq}, $resol_arp{ipv4_address}, $resol_arp{mac_address}."\n"
          unless $where{switch_description} eq 'unknow' and $resol_arp{hostname_fq} eq 'unknow' and $resol_arp{mac_address} eq 'unknow';
       }
+   return;
    }
 
 sub cmd_searchdb {
@@ -566,6 +574,7 @@ sub cmd_searchdb {
          $computerdb->{$ip}{mac_address},
          $date;
       }
+   return;
    }
 
 sub cmd_updatedb {
@@ -744,6 +753,7 @@ sub cmd_updatedb {
       system "arping -c 1 -w 1 -rR -i $interface $one_computer &>/dev/null";
 #      print  "arping -c 1 -w 1 -rR -i $interface $one_computer 2>/dev/null\n";
       }
+   return;
    }
 
 sub cmd_removedb {
@@ -765,6 +775,7 @@ sub cmd_removedb {
       $dirdb =~ s#/[^/]*$##;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+   return;
    }
 
 sub cmd_exportdb {
@@ -784,6 +795,7 @@ sub cmd_exportdb {
    $format = 'txt' if not defined $possible_format{$format};
    
    $possible_format{$format}->(@ARGV);
+   return;
    }
 
 sub cmd_exportdb_txt {
@@ -818,6 +830,7 @@ sub cmd_exportdb_txt {
          $computerdb->{$ip}{mac_address},
          $date;
       }
+   return;
    }
 
 sub cmd_exportdb_html {
@@ -1024,6 +1037,7 @@ END
  </tbody>
 </table>
 END
+   return;
    }
 
 sub cmd_iplocation {
@@ -1046,6 +1060,7 @@ sub cmd_iplocation {
 
       printf "%s: \"%s\"\n", $ip, $sw_location if not $sw_location eq '';
       }
+   return;
    }
 
 sub cmd_enable {
@@ -1055,6 +1070,7 @@ sub cmd_enable {
    #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up) 
    #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 2 (down) 
    system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 1";
+   return;
    }
 
 sub cmd_disable {
@@ -1062,6 +1078,7 @@ sub cmd_disable {
    my $port   = shift;
    
    system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 2";
+   return;
    }
 
 sub cmd_status {
@@ -1069,6 +1086,7 @@ sub cmd_status {
    my $port   = shift;
    
    system "snmpget -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port";
+   return;
    }
 
 sub cmd_search_mac_on_switch {
@@ -1113,6 +1131,7 @@ sub cmd_search_mac_on_switch {
    $session->close;
 
    print "Klask find MAC $mac_address on switch $switch_name port $swport\n";
+   return;
    }
 
 sub cmd_updatesw {
@@ -1300,6 +1319,7 @@ sub cmd_updatesw {
       };
       
    YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
+   return;
    }
 
 sub cmd_exportsw {
@@ -1321,6 +1341,7 @@ sub cmd_exportsw {
    $format = 'txt' if not defined $possible_format{$format};
    
    $possible_format{$format}->(@ARGV);
+   return;
    }
 
 sub cmd_exportsw_txt {
@@ -1356,6 +1377,7 @@ sub cmd_exportsw_txt {
             }
          }
       }
+   return;
    }
 
 sub cmd_exportsw_dot {
@@ -1446,6 +1468,7 @@ sub cmd_exportsw_dot {
       }
 
 print "}\n";
+   return;
    }
 
 
