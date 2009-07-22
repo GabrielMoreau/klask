@@ -502,7 +502,7 @@ sub get_numerical_port {
 
 sub cmd_help {
 
-print <<END;
+print <<'END';
 klask - ports manager and finder for switch
 
  klask updatedb
@@ -523,7 +523,7 @@ END
 
 sub cmd_version {
 
-print <<END;
+print <<'END';
 Klask - ports manager and finder for switch
 Copyright (C) 2005-2008 Gabriel Moreau
 
@@ -841,7 +841,7 @@ sub cmd_exportdb_html {
 #<link rel="stylesheet" type="text/css" href="style-klask.css" />
 #<script src="sorttable-klask.js"></script>
 
-   print <<END;
+   print <<'END_HTML';
 <table class="sortable" summary="Klask export database">
  <caption>Klask database</caption>
  <thead>
@@ -867,7 +867,7 @@ sub cmd_exportdb_html {
   </tr>
  </tfoot>
  <tbody>
-END
+END_HTML
 
    my %mac_count = ();
    LOOP_ON_IP_ADDRESS:
@@ -907,7 +907,7 @@ END
       $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^\d+\.\d+\.\d+\.\d+$/;
       my ( $host_short ) = split /\./, $computerdb->{$ip}{hostname_fq};
 
-      print <<END;
+      print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
    <td class="bklask-port">$computerdb->{$ip}{switch_port}</td>
@@ -917,7 +917,7 @@ END
    <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{mac_address}</td>
    <td>$date</td>
   </tr>
-END
+END_HTML
       }
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -951,7 +951,7 @@ END
 
          my ( $host_short ) = sprintf "%s %3s" , split(/\./, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
 
-print <<END;
+print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</>
@@ -961,11 +961,11 @@ print <<END;
    <td sorttable_customkey="$mac_sort">$mac_address</td>
    <td>$date</td>
   </tr>
-END
+END_HTML
          }
       else {
 #         printf "%-25s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
-print <<END;
+print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</>
@@ -975,7 +975,7 @@ print <<END;
    <td sorttable_customkey="99999"></td>
    <td></td>
   </tr>
-END
+END_HTML
          }
       }
 
@@ -1004,7 +1004,7 @@ END
 
              my ( $host_short ) = sprintf "%s %3s" , split(/\./, $sw, 1), $db_switch_output_port{$sw};
 
-print <<END;
+print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$port_connect</>
@@ -1014,10 +1014,10 @@ print <<END;
    <td sorttable_customkey="$mac_sort">$mac_address</td>
    <td>$date</td>
   </tr>
-END
+END_HTML
             }
          else {
-print <<END;
+print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$port_connect</>
@@ -1027,16 +1027,16 @@ print <<END;
    <td sorttable_customkey="">$mac_address</td>
    <td>$date</td>
   </tr>
-END
+END_HTML
             }
          }
       }
 
 
-   print <<END;
+   print <<'END_HTML';
  </tbody>
 </table>
-END
+END_HTML
    return;
    }
 
