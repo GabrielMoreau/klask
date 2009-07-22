@@ -55,7 +55,6 @@ my %CMD_DB = (
    status     => \&cmd_status,
    updatesw   => \&cmd_updatesw,
    exportsw   => \&cmd_exportsw,
-   dotsw      => \&cmd_exportsw_dot,
    iplocation => \&cmd_iplocation,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    );
@@ -502,7 +501,10 @@ print <<END;
 klask - ports manager and finder for switch
 
  klask updatedb
- klask exportdf
+ klask exportdb
+
+ klask updatesw
+ klask exportsw
 
  klask searchdb computer
  klask search   computer
@@ -692,6 +694,7 @@ sub cmd_updatedb {
                switch_description => $where{switch_description},
                switch_port        => $where{switch_port},
                timestamp          => $timestamp,
+               network            => $net,
                };
             next LOOP_ON_COMPUTER;
             }
@@ -706,6 +709,7 @@ sub cmd_updatedb {
                switch_description => $where{switch_description},
                switch_port        => $where{switch_port},
                timestamp          => $resol_arp{timestamp},
+               network            => $net,
                };
             }
 
@@ -764,6 +768,25 @@ sub cmd_removedb {
    }
 
 sub cmd_exportdb {
+   my @ARGV   = @_;
+
+   my $format = 'txt';
+
+   my $ret = GetOptions(
+      'format|f=s'  => \$format,
+      );
+
+   my %possible_format = (
+      txt  => \&cmd_exportdb_txt,
+      html => \&cmd_exportdb_html,
+      );
+
+   $format = 'txt' if not defined $possible_format{$format};
+   
+   $possible_format{$format}->(@ARGV);
+   }
+
+sub cmd_exportdb_txt {
    test_maindb_environnement();
 
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
@@ -795,6 +818,212 @@ sub cmd_exportdb {
          $computerdb->{$ip}{mac_address},
          $date;
       }
+   }
+
+sub cmd_exportdb_html {
+   test_maindb_environnement();
+
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
+
+#<link rel="stylesheet" type="text/css" href="style-klask.css" />
+#<script src="sorttable-klask.js"></script>
+
+   print <<END;
+<table class="sortable" summary="Klask export database">
+ <caption>Klask database</caption>
+ <thead>
+  <tr>
+   <th scope="col" class="hklask-switch">Switch</th>
+   <th scope="col" class="sorttable_nosort">Port</th>
+   <th scope="col" class="sorttable_nosort">Link</th>
+   <th scope="col" class="sorttable_alpha">Hostname</th>
+   <th scope="col" class="hklask-ipv4">IPv4-Address</th>
+   <th scope="col" class="hklask-mac">MAC-Address</th>
+   <th scope="col" class="hklask-date">Date</th>
+  </tr>
+ </thead>
+ <tfoot>
+  <tr>
+   <th scope="col" class="fklask-switch">Switch</th>
+   <th scope="col" class="fklask-port">Port</th>
+   <th scope="col" class="fklask-link">Link</th>
+   <th scope="col" class="fklask-hostname">Hostname</th>
+   <th scope="col" class="fklask-ipv4">IPv4-Address</th>
+   <th scope="col" class="fklask-mac">MAC-Address</th>
+   <th scope="col" class="fklask-date">Date</th>
+  </tr>
+ </tfoot>
+ <tbody>
+END
+
+   my %mac_count = ();
+   LOOP_ON_IP_ADDRESS:
+   foreach my $ip (keys %$computerdb) {
+   
+      # to be improve in the future
+      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
+      
+      $mac_count{$computerdb->{$ip}{mac_address}}++;
+      }
+
+   my $typerow = 'even';
+
+   LOOP_ON_IP_ADDRESS:
+   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
+   
+      # to be improve in the future
+      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
+
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
+      $year += 1900;
+      $mon++;
+      my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
+
+#      $odd_or_even++;
+#      my $typerow = $odd_or_even % 2 ? 'odd' : 'even';
+      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+
+      my $switch_hostname = $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description} || 'unkown';
+      chomp $switch_hostname;
+      my $switch_hostname_sort = sprintf "%s %3s" ,$switch_hostname, $computerdb->{$ip}{switch_port};
+
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ip);
+
+      my $mac_sort = sprintf "%04i-%s", 9999 - $mac_count{$computerdb->{$ip}{mac_address}}, $computerdb->{$ip}{mac_address};
+
+      $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^\d+\.\d+\.\d+\.\d+$/;
+      my ( $host_short ) = split /\./, $computerdb->{$ip}{hostname_fq};
+
+      print <<END;
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
+   <td class="bklask-port">$computerdb->{$ip}{switch_port}</td>
+   <td><-------</td>
+   <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
+   <td sorttable_customkey="$ip_sort">$ip</td>
+   <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{mac_address}</td>
+   <td>$date</td>
+  </tr>
+END
+      }
+
+   my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
+
+   my %db_switch_output_port       = %{$switch_connection->{output_port}};
+   my %db_switch_parent            = %{$switch_connection->{parent}};
+   my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
+   my %db_switch                   = %{$switch_connection->{switch_db}};
+
+   for my $sw (sort keys %db_switch_output_port) {
+
+      my $switch_hostname_sort = sprintf "%s %3s" ,$sw, $db_switch_output_port{$sw};
+
+      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+
+      if (exists $db_switch_parent{$sw}) {
+
+      my $mac_address = $db_switch{$db_switch_parent{$sw}->{switch}}->{mac_address};
+      my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{switch}}->{ipv4_address};
+      my $timestamp = $db_switch{$db_switch_parent{$sw}->{switch}}->{timestamp};
+
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+      $year += 1900;
+      $mon++;
+      my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
+
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ipv4_address);
+
+      my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
+
+
+         my ( $host_short ) = sprintf "%s %3s" , split(/\./, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
+
+print <<END;
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$sw</td>
+   <td class="bklask-port">$db_switch_output_port{$sw}</>
+   <td>+--> $db_switch_parent{$sw}->{port}</td>
+   <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{switch}</>
+   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
+   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td>$date</td>
+  </tr>
+END
+         }
+      else {
+#         printf "%-25s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+print <<END;
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$sw</td>
+   <td class="bklask-port">$db_switch_output_port{$sw}</>
+   <td>+--></td>
+   <td sorttable_customkey="router">router</>
+   <td sorttable_customkey="999999999999"></td>
+   <td sorttable_customkey="99999"></td>
+   <td></td>
+  </tr>
+END
+         }
+      }
+
+   for my $swport (sort keys %db_switch_connected_on_port) {
+      my ($sw_connect,$port_connect) = split ':', $swport;
+      for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+
+         my $switch_hostname_sort = sprintf "%s %3s" ,$sw_connect, $port_connect;
+
+      my $mac_address = $db_switch{$sw}->{mac_address};
+      my $ipv4_address = $db_switch{$sw}->{ipv4_address};
+      my $timestamp = $db_switch{$sw}->{timestamp};
+
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+      $year += 1900;
+      $mon++;
+      my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
+
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ipv4_address);
+
+      my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
+
+      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+
+         if (exists $db_switch_output_port{$sw}) {
+
+             my ( $host_short ) = sprintf "%s %3s" , split(/\./, $sw, 1), $db_switch_output_port{$sw};
+
+print <<END;
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
+   <td class="bklask-port">$port_connect</>
+   <td>&lt;--+ $db_switch_output_port{$sw}</td>
+   <td sorttable_customkey="$host_short">$sw</>
+   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
+   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td>$date</td>
+  </tr>
+END
+            }
+         else {
+print <<END;
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
+   <td class="bklask-port">$port_connect</>
+   <td>&lt;--+</td>
+   <td sorttable_customkey="$sw">$sw</>
+   <td sorttable_customkey="">$ipv4_address</td>
+   <td sorttable_customkey="">$mac_address</td>
+   <td>$date</td>
+  </tr>
+END
+            }
+         }
+      }
+
+
+   print <<END;
+ </tbody>
+</table>
+END
    }
 
 sub cmd_iplocation {
@@ -898,10 +1127,10 @@ sub cmd_updatesw {
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
-print "TT$one_router\n";      
+#print "TT$one_router\n";      
       my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            # resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
-print "$one_router\n";      
+#print "$one_router\n";      
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       }
 
@@ -937,6 +1166,8 @@ print "$one_router\n";
       push @list_switch_ip, $sw->{hostname};
       }
 
+   my $timestamp = time;
+
    ALL_SWITCH:
    for my $one_computer (@list_switch_ip) {
       my %resol_arp = resolve_ip_arp_host($one_computer,'*','low'); # arp resolution
@@ -947,6 +1178,10 @@ print "$one_router\n";
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
 
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
+
+      $SWITCH_DB{$one_computer}->{ipv4_address} = $resol_arp{ipv4_address};
+      $SWITCH_DB{$one_computer}->{mac_address}  = $resol_arp{mac_address};
+      $SWITCH_DB{$one_computer}->{timestamp}    = $timestamp;
       }
       
    ALL_SWITCH_IP_ADDRESS:
@@ -1216,7 +1451,6 @@ print "}\n";
 
 __END__
 
-
 =head1 NAME
 
 klask - ports manager and finder for switch
@@ -1225,7 +1459,7 @@ klask - ports manager and finder for switch
 =head1 SYNOPSIS
 
  klask updatedb
- klask exportdb
+ klask exportdb --format [txt|html]
 
  klask updatesw
  klask exportsw --format [txt|dot]
@@ -1364,3 +1598,4 @@ Copyright (C) 2005-2008 Gabriel Moreau.
 =head1 LICENCE
 
 GPL version 2 or later and Perl equivalent
+
