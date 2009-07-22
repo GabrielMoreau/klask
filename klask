@@ -247,7 +247,7 @@ sub init_switch_names {
       my %session = ( -hostname   => $sw->{hostname} );
          $session{-version} = $sw->{version}   || 1;
          $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-         if (exists $sw->{version} and $sw->{version} eq 3) {
+         if (exists $sw->{version} and $sw->{version} eq '3') {
             $session{-username} = $sw->{username} || 'snmpadmin';
             }
          else {
@@ -1105,7 +1105,7 @@ sub cmd_search_mac_on_switch {
    my %session = ( -hostname => $sw->{hostname} );
       $session{-version} = $sw->{version}   || 1;
       $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-   if (exists $sw->{version} and $sw->{version} eq 3) {
+   if (exists $sw->{version} and $sw->{version} eq '3') {
       $session{-username} = $sw->{username} || 'snmpadmin';
       }
    else {
