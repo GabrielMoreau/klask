@@ -28,17 +28,17 @@ test_running_environnement();
 
 my $KLASK_CFG = YAML::Syck::LoadFile("$KLASK_CFG_FILE");
 
-my %DEFAULT = %{$KLASK_CFG->{default}};
-my @SWITCH  = @{$KLASK_CFG->{switch}};
+my %DEFAULT = %{ $KLASK_CFG->{default} };
+my @SWITCH  = @{ $KLASK_CFG->{switch}  };
 
 my %switch_level = ();
-my %SWITCH_DB = ();
+my %SWITCH_DB    = ();
 LEVEL_OF_EACH_SWITCH:
 for my $sw (@SWITCH){
    $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    $SWITCH_DB{$sw->{hostname}} = $sw;
    }
-@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};  
+@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};
 
 my %SWITCH_PORT_COUNT = ();
 
@@ -86,9 +86,9 @@ my %SWITCH_KIND = (
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    );
- 
+
 my %OID_NUMBER = (
-   sysDescr    => '1.3.6.1.2.1.1.1.0',
+   sysDescription    => '1.3.6.1.2.1.1.1.0',
    sysName     => '1.3.6.1.2.1.1.5.0',
    sysContact  => '1.3.6.1.2.1.1.4.0',
    sysLocation => '1.3.6.1.2.1.1.6.0',
@@ -162,9 +162,6 @@ sub resolve_ip_arp_host {
    chomp $cmd_arpwatch;
    my ($arp, $ip, $timestamp, $host) = split /\s+/, $cmd_arpwatch;
 
-#print "OOO $cmd\n";
-#print "TTT arp $arp -> $ip pour host $host\n";
-
    $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
@@ -176,7 +173,7 @@ sub resolve_ip_arp_host {
       return %ret;
       }
 
-  # resultat de la commande arp
+   # resultat de la commande arp
    # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
    # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
    my $cmd_arp  = `arp -a $param_ip_or_host 2>/dev/null`;
@@ -185,28 +182,24 @@ sub resolve_ip_arp_host {
    $ret{hostname_fq}  = $1 if(defined($1));
    $ret{ipv4_address} = $2 if(defined($2));
    $ret{mac_address}  = $3 if(defined($3));
-#print "RET1 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
 
-#   if ($ret{ipv4_address} eq '0.0.0.0' and $ret{mac_address} eq 'unknow'and $ret{hostname_fq} eq 'unknow') {
-      # resultat de la commande host si le parametre est ip
-      # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
-      my $cmd_host = `host $param_ip_or_host 2>/dev/null`;
-      chomp $cmd_host;
-      $cmd_host =~ m/domain\sname\spointer\s(\S+)\.$/;
-      $ret{hostname_fq} = $1 if defined $1;
+   # resultat de la commande host si le parametre est ip
+   # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
+   my $cmd_host = `host $param_ip_or_host 2>/dev/null`;
+   chomp $cmd_host;
+   $cmd_host =~ m/domain\sname\spointer\s(\S+)\.$/;
+   $ret{hostname_fq} = $1 if defined $1;
 
-      # resultat de la commande host si parametre est hostname
-      # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-      $cmd_host =~ m/(\S*)\shas\saddress\s([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/;
-      $ret{hostname_fq}  = $1 if defined $1;
-      $ret{ipv4_address} = $2 if defined $2;
+   # resultat de la commande host si parametre est hostname
+   # tech7meylan.hmg.inpg.fr has address 194.254.66.240
+   $cmd_host =~ m/(\S*)\shas\saddress\s([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/;
+   $ret{hostname_fq}  = $1 if defined $1;
+   $ret{ipv4_address} = $2 if defined $2;
 
-      $cmd_host =~ m/\b([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.in-addr\.arpa\s/;
-      $ret{ipv4_address} = "$4.$3.$2.$1"     if defined $1 and  defined $2 and  defined $3 and  defined $4;
-      $ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
-#      }
+   $cmd_host =~ m/\b([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.in-addr\.arpa\s/;
+   $ret{ipv4_address} = "$4.$3.$2.$1"     if defined $1 and  defined $2 and  defined $3 and  defined $4;
+   $ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 
-#print "RET2 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
    unless ($ret{mac_address} eq 'unknow') {
       my @paquets = ();
       foreach ( split(/:/, $ret{mac_address}) ) {
@@ -216,20 +209,19 @@ sub resolve_ip_arp_host {
       $ret{mac_address} = join ':', @paquets;
       }
 
-#print "RET3 $ret{ipv4_address} -> $ret{mac_address} : $ret{hostname_fq}\n";
    return %ret;
    }
 
 # Find Surname of a switch
 sub get_switch_model {
    my $sw_snmp_description = shift || 'unknow';
-   
+
    for my $sw_kind (keys %SWITCH_KIND) {
       next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/;
-      
+
       return $SWITCH_KIND{$sw_kind}->{model};
       }
-      
+
    return $sw_snmp_description;
    }
 
@@ -237,7 +229,7 @@ sub get_switch_model {
 # va rechercher le nom des switchs pour savoir qui est qui
 sub init_switch_names {
    my $verbose = shift;
-   
+
    printf "%-25s                %-25s %s\n",'Switch','Description','Type';
 #   print "Switch description\n" if $verbose;
    print "-------------------------------------------------------------------------\n" if $verbose;
@@ -261,21 +253,20 @@ sub init_switch_names {
 
       my $result = $session->get_request(
          -varbindlist => [
-            $OID_NUMBER{sysDescr},
+            $OID_NUMBER{sysDescription},
             $OID_NUMBER{sysName},
             $OID_NUMBER{sysContact},
             $OID_NUMBER{sysLocation},
             ]
          );
       $sw->{description} = $result->{$OID_NUMBER{sysName}} || $sw->{hostname};
-      $sw->{model} = get_switch_model( $result->{$OID_NUMBER{sysDescr}});
+      $sw->{model} = get_switch_model( $result->{$OID_NUMBER{sysDescription}});
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
       $session->close;
 
-      # Ligne à virer car on récupère maintenant le modèle du switch 
+      # Ligne à virer car on récupère maintenant le modèle du switch
       my ($desc, $type) = split ':', $sw->{description}, 2;
-#      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, uc($type)."**" if $verbose;
       printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
       }
 
@@ -291,10 +282,11 @@ sub hex_to_dec {
 
    return '00' if $car eq '00UNKNOW';
    my %table = (
-      "0"=>"0",  "1"=>"1",  "2"=>"2",  "3"=>"3",  "4"=>"4",  "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9",
+      "0"=>"0",  "1"=>"1",  "2"=>"2",  "3"=>"3",  "4"=>"4",
+      "5"=>"5",  "6"=>"6",  "7"=>"7",  "8"=>"8",  "9"=>"9",
       "A"=>"10", "B"=>"11", "C"=>"12", "D"=>"13", "E"=>"14", "F"=>"15"
       );
-   my @chars = split(//, $car);
+   my @chars = split //, $car;
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
    }
 
@@ -315,9 +307,9 @@ sub arp_hex_to_dec {
 ###
 # va rechercher le port et le switch sur lequel est la machine
 sub find_switch_port {
-   my $arp = shift;
+   my $arp             = shift;
    my $switch_proposal = shift || '';
-   
+
    my %ret;
    $ret{switch_description} = "unknow";
    $ret{switch_port} = "0";
@@ -334,7 +326,7 @@ sub find_switch_port {
       }
 
    my $research = "1.3.6.1.2.1.17.4.3.1.2".arp_hex_to_dec($arp);
-   
+
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
@@ -352,7 +344,7 @@ sub find_switch_port {
          $session->close;
 
          # IMPORTANT !!
-         # ceci empeche la detection sur certains port ... 
+         # ceci empeche la detection sur certains port ...
          # en effet les switch sont relies entre eux par un cable reseau et du coup
          # tous les arp de toutes les machines sont presentes sur ces ports (ceux choisis ici sont les miens)
          # cette partie est a ameliore, voir a configurer dans l'entete
@@ -368,7 +360,7 @@ sub find_switch_port {
             $ret{switch_hostname}    = $sw->{hostname};
             $ret{switch_description} = $sw->{description};
             $ret{switch_port}        = get_human_readable_port($sw->{model}, $swport); # $swport;
-            
+
             last LOOP_ON_SWITCH;
 #            }
 #         }
@@ -426,7 +418,7 @@ sub get_current_interface {
 
    return $KLASK_CFG->{network}{$network}{interface};
    }
-  
+
 ###
 # liste l'ensemble des adresses ip d'un réseau
 sub get_list_ip {
@@ -472,9 +464,9 @@ sub get_list_main_router {
 sub get_human_readable_port {
    my $sw_model = shift;
    my $sw_port  = shift;
-   
+
    return $sw_port if not $sw_model eq 'HP8000M';
-   
+
    my $reste = (($sw_port - 1) % 8) + 1;
    my $major = int( ($sw_port - 1) / 8 );
 
@@ -484,15 +476,15 @@ sub get_human_readable_port {
 sub get_numerical_port {
    my $sw_model = shift;
    my $sw_port  = shift;
-   
+
    return $sw_port if not $sw_model eq 'HP8000';
 
    my $letter = substr($sw_port, 0, 1);
-   
+
 #   return $port if $letter =~ m/\d/;
-   
+
    my $reste =  substr($sw_port, 1);
-   
+
    return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
    }
 
@@ -536,7 +528,7 @@ END
 
 sub cmd_search {
    my @computer = @_;
-   
+
    init_switch_names();    #nomme les switchs
    fastping(@computer);
    for my $clientname (@computer) {
@@ -553,14 +545,14 @@ sub cmd_searchdb {
 
    fastping(@computer);
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
-   
+
    LOOP_ON_COMPUTER:
    for my $clientname (@computer) {
       my %resol_arp = resolve_ip_arp_host($clientname);      #resolution arp
       my $ip = $resol_arp{ipv4_address};
-      
+
       next LOOP_ON_COMPUTER unless exists $computerdb->{$ip};
-      
+
       my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
       $year += 1900;
       $mon++;
@@ -603,7 +595,7 @@ sub cmd_updatedb {
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_chained_port = ();
-   for my $swport (keys %db_switch_connected_on_port) {        
+   for my $swport (keys %db_switch_connected_on_port) {
       my ($sw_connect,$port_connect) = split ':', $swport;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
@@ -636,7 +628,7 @@ sub cmd_updatedb {
       LOOP_ON_COMPUTER:
       for my $one_computer (@computer) {
          $i++;
-         
+
          my $total_percent = int(($i*100)/$number_of_computer);
 
          my $localtime = time - $timestamp;
@@ -654,7 +646,7 @@ sub cmd_updatedb {
          printf " %-14s", $one_computer;
 
          my %resol_arp = resolve_ip_arp_host($one_computer,$current_interface);
-         
+
          # do not search on router connection (why ?)
          if ( exists $router_mac_ip{$resol_arp{mac_address}}) {
             $computer_not_detected{$one_computer} = $current_interface;
@@ -724,19 +716,14 @@ sub cmd_updatedb {
 
          # mise a jour du nom de la machine si modification dans le dns
          $computerdb->{$resol_arp{ipv4_address}}{hostname_fq} = $resol_arp{hostname_fq};
-       
+
          # mise à jour de la date de détection si détection plus récente par arpwatch
          $computerdb->{$resol_arp{ipv4_address}}{timestamp}   = $resol_arp{timestamp} if exists $resol_arp{timestamp} and $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $resol_arp{timestamp};
 
-         # provisoire car changement de nom des attributs
-#         $computerdb->{$resol_arp{ipv4_address}}{mac_address}        = $computerdb->{$resol_arp{ipv4_address}}{arp};
-#         $computerdb->{$resol_arp{ipv4_address}}{switch_description} = $computerdb->{$resol_arp{ipv4_address}}{switch};
-#         $computerdb->{$resol_arp{ipv4_address}}{switch_port}        = $computerdb->{$resol_arp{ipv4_address}}{port};
-       
          # relance un arping sur la machine si celle-ci n'a pas été détectée depuis plus d'une semaine
 #         push @computer_not_detected, $resol_arp{ipv4_address} if $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $timestamp_last_week;
          $computer_not_detected{$resol_arp{ipv4_address}} = $current_interface if $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $timestamp_last_week;
-       
+
          }
       }
 
@@ -793,7 +780,7 @@ sub cmd_exportdb {
       );
 
    $format = 'txt' if not defined $possible_format{$format};
-   
+
    $possible_format{$format}->(@ARGV);
    return;
    }
@@ -808,7 +795,7 @@ sub cmd_exportdb_txt {
 
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
-   
+
 #      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq 'unknow';
 
       # to be improve in the future
@@ -816,7 +803,7 @@ sub cmd_exportdb_txt {
 
 # dans le futur
 #      next if $computerdb->{$ip}{hostname_fq} eq 'unknow';
-      
+
       my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
       $year += 1900;
       $mon++;
@@ -872,10 +859,10 @@ END_HTML
    my %mac_count = ();
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (keys %$computerdb) {
-   
+
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
-      
+
       $mac_count{$computerdb->{$ip}{mac_address}}++;
       }
 
@@ -883,7 +870,7 @@ END_HTML
 
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
-   
+
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
 
@@ -894,7 +881,7 @@ END_HTML
 
 #      $odd_or_even++;
 #      my $typerow = $odd_or_even % 2 ? 'odd' : 'even';
-      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+      $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       my $switch_hostname = $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description} || 'unkown';
       chomp $switch_hostname;
@@ -931,7 +918,7 @@ END_HTML
 
       my $switch_hostname_sort = sprintf "%s %3s" ,$sw, $db_switch_output_port{$sw};
 
-      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+      $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       if (exists $db_switch_parent{$sw}) {
 
@@ -948,10 +935,9 @@ END_HTML
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
+      my ( $host_short ) = sprintf "%s %3s" , split(/\./, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
 
-         my ( $host_short ) = sprintf "%s %3s" , split(/\./, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
-
-print <<"END_HTML";
+      print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</>
@@ -964,8 +950,7 @@ print <<"END_HTML";
 END_HTML
          }
       else {
-#         printf "%-25s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
-print <<"END_HTML";
+         print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</>
@@ -998,13 +983,13 @@ END_HTML
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
-      $typerow = $typerow eq 'even' ? 'odd' : 'even'; 
+      $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
          if (exists $db_switch_output_port{$sw}) {
 
-             my ( $host_short ) = sprintf "%s %3s" , split(/\./, $sw, 1), $db_switch_output_port{$sw};
+            my ( $host_short ) = sprintf "%s %3s" , split(/\./, $sw, 1), $db_switch_output_port{$sw};
 
-print <<"END_HTML";
+            print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$port_connect</>
@@ -1017,7 +1002,7 @@ print <<"END_HTML";
 END_HTML
             }
          else {
-print <<"END_HTML";
+            print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$port_connect</>
@@ -1031,7 +1016,6 @@ END_HTML
             }
          }
       }
-
 
    print <<'END_HTML';
  </tbody>
@@ -1050,7 +1034,7 @@ sub cmd_iplocation {
 
       my $sw_hostname = $computerdb->{$ip}{switch_hostname} || '';
       next if $sw_hostname eq 'unknow';
-  
+
       my $sw_location = '';
       for my $sw (@SWITCH) {
          next if $sw_hostname ne $sw->{hostname};
@@ -1066,9 +1050,9 @@ sub cmd_iplocation {
 sub cmd_enable {
    my $switch = shift;
    my $port   = shift;
-   
-   #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up) 
-   #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 2 (down) 
+
+   #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)
+   #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 2 (down)
    system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 1";
    return;
    }
@@ -1076,7 +1060,7 @@ sub cmd_enable {
 sub cmd_disable {
    my $switch = shift;
    my $port   = shift;
-   
+
    system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 2";
    return;
    }
@@ -1084,7 +1068,7 @@ sub cmd_disable {
 sub cmd_status {
    my $switch = shift;
    my $port   = shift;
-   
+
    system "snmpget -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port";
    return;
    }
@@ -1092,13 +1076,13 @@ sub cmd_status {
 sub cmd_search_mac_on_switch {
    my $switch_name = shift || '';
    my $mac_address = shift || '';
-   
+
    if ($switch_name eq '' or $mac_address eq '') {
       die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
 
    if (not defined $SWITCH_DB{$switch_name}) {
-      die "Switch $switch_name must be defined in klask configuration file\n"; 
+      die "Switch $switch_name must be defined in klask configuration file\n";
       }
 
    my $sw = $SWITCH_DB{$switch_name};
@@ -1121,7 +1105,7 @@ sub cmd_search_mac_on_switch {
    my $result = $session->get_request(
       -varbindlist => [$research]
       );
-   
+
    if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
       print "Klask do not find MAC $mac_address on switch $switch_name\n";
       $session->close;
@@ -1146,16 +1130,14 @@ sub cmd_updatesw {
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
-#print "TT$one_router\n";      
       my %resol_arp = resolve_ip_arp_host($one_router,'*','low');            # resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
-#print "$one_router\n";      
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       }
 
    ALL_ROUTER_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
-   
+
       next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip}; # /a priori/ idiot car ne sers à rien...
 
       ALL_SWITCH_CONNECTED:
@@ -1164,18 +1146,10 @@ sub cmd_updatesw {
          my $switch = $where{$ip}->{$switch_detected};
 
          next ALL_SWITCH_CONNECTED if $switch->{port} eq '0';
-         
+
          $db_switch_output_port{$switch->{hostname}} = $switch->{port};
          }
-      }   
-
-#   print "Switch output port\n";  
-#   print "------------------\n";
-#   for my $sw (sort keys %db_switch_output_port) {
-#      printf "%-25s %2s\n", $sw, $db_switch_output_port{$sw};
-#      }
-#   print "\n";
-
+      }
 
    my %db_switch_link_with = ();
 
@@ -1191,9 +1165,9 @@ sub cmd_updatesw {
    for my $one_computer (@list_switch_ip) {
       my %resol_arp = resolve_ip_arp_host($one_computer,'*','low'); # arp resolution
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
-      
+
       push @list_switch_ipv4,$resol_arp{ipv4_address};
-      
+
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
 
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
@@ -1202,10 +1176,10 @@ sub cmd_updatesw {
       $SWITCH_DB{$one_computer}->{mac_address}  = $resol_arp{mac_address};
       $SWITCH_DB{$one_computer}->{timestamp}    = $timestamp;
       }
-      
+
    ALL_SWITCH_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
-   
+
       next ALL_SWITCH_IP_ADDRESS if not exists $where{$ip};
 
       DETECTED_SWITCH:
@@ -1224,16 +1198,16 @@ sub cmd_updatesw {
          }
 
       }
-   
+
    my %db_switch_connected_on_port = ();
    my $maybe_more_than_one_switch_connected = 'yes';
-   
+
    while ($maybe_more_than_one_switch_connected eq 'yes') {
       for my $sw (keys %db_switch_link_with) {
          for my $connect (keys %{$db_switch_link_with{$sw}}) {
-         
+
             my $port = $db_switch_link_with{$sw}->{$connect};
-         
+
             $db_switch_connected_on_port{"$connect:$port"} ||= {};
             $db_switch_connected_on_port{"$connect:$port"}->{$sw}++; # Just to define the key
             }
@@ -1243,9 +1217,9 @@ sub cmd_updatesw {
 
       SWITCH_AND_PORT:
       for my $swport (keys %db_switch_connected_on_port) {
-         
+
          next if keys %{$db_switch_connected_on_port{$swport}} == 1;
-         
+
          $maybe_more_than_one_switch_connected = 'yes';
 
          my ($sw_connect,$port_connect) = split ':', $swport;
@@ -1253,17 +1227,17 @@ sub cmd_updatesw {
 
          CONNECTED:
          for my $sw_connected (@sw_on_same_port) {
-            
+
             next CONNECTED if not keys %{$db_switch_link_with{$sw_connected}} == 1;
-            
+
             $db_switch_connected_on_port{$swport} = {$sw_connected => 1};
-            
+
             for my $other_sw (@sw_on_same_port) {
                next if $other_sw eq $sw_connected;
-               
+
                delete $db_switch_link_with{$other_sw}->{$sw_connect};
                }
-            
+
             # We can not do better for this switch for this loop
             next SWITCH_AND_PORT;
             }
@@ -1274,17 +1248,17 @@ sub cmd_updatesw {
 
    for my $sw (keys %db_switch_link_with) {
       for my $connect (keys %{$db_switch_link_with{$sw}}) {
-      
+
          my $port = $db_switch_link_with{$sw}->{$connect};
-      
+
          $db_switch_connected_on_port{"$connect:$port"} ||= {};
          $db_switch_connected_on_port{"$connect:$port"}->{$sw} = $port;
-        
+
          $db_switch_parent{$sw} = {switch => $connect, port => $port};
          }
       }
 
-   print "Switch output port and parent port connection\n";  
+   print "Switch output port and parent port connection\n";
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
@@ -1298,7 +1272,7 @@ sub cmd_updatesw {
 
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
-   for my $swport (sort keys %db_switch_connected_on_port) {        
+   for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect,$port_connect) = split ':', $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
@@ -1317,7 +1291,7 @@ sub cmd_updatesw {
       link_with         => \%db_switch_link_with,
       switch_db         => \%SWITCH_DB,
       };
-      
+
    YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
    return;
    }
@@ -1339,7 +1313,7 @@ sub cmd_exportsw {
       );
 
    $format = 'txt' if not defined $possible_format{$format};
-   
+
    $possible_format{$format}->(@ARGV);
    return;
    }
@@ -1352,7 +1326,7 @@ sub cmd_exportsw_txt {
    my %db_switch_parent            = %{$switch_connection->{parent}};
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
 
-   print "Switch output port and parent port connection\n";  
+   print "Switch output port and parent port connection\n";
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
@@ -1366,7 +1340,7 @@ sub cmd_exportsw_txt {
 
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
-   for my $swport (sort keys %db_switch_connected_on_port) {        
+   for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect,$port_connect) = split ':', $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
@@ -1383,7 +1357,7 @@ sub cmd_exportsw_txt {
 sub cmd_exportsw_dot {
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
-   
+
    my %db_switch_output_port       = %{$switch_connection->{output_port}};
    my %db_switch_parent            = %{$switch_connection->{parent}};
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
@@ -1397,8 +1371,8 @@ sub cmd_exportsw_dot {
       $db_building{$building}->{$location} ||= {};
       $db_building{$building}->{$location}{ $sw->{hostname} } = 'y';
       }
- 
- 
+
+
    print "digraph G {\n";
 
    print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
@@ -1407,14 +1381,14 @@ sub cmd_exportsw_dot {
    my $b=0;
    for my $building (keys %db_building) {
       $b++;
-      
+
       print "\"building$b\" [label = \"$building\", color = black, fillcolor = gold, style = filled];\n";
       print "site -> \"building$b\" [len = 2, color = firebrick];\n";
 
       my $l = 0;
       for my $loc (keys %{$db_building{$building}}) {
          $l++;
- 
+
          print "\"location$b-$l\" [label = \"$building".'/'.join('\n',split("/",$loc))."\", color = black, fillcolor = orange, style = filled];\n";
 #         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
          print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
@@ -1441,7 +1415,7 @@ sub cmd_exportsw_dot {
          }
       }
 
-#   print "Switch output port and parent port connection\n";  
+#   print "Switch output port and parent port connection\n";
 #   print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
@@ -1455,7 +1429,7 @@ sub cmd_exportsw_dot {
 
 #   print "Switch parent and children port inter-connection\n";
 #   print "------------------------------------------------\n";
-   for my $swport (sort keys %db_switch_connected_on_port) {        
+   for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect,$port_connect) = split ':', $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
@@ -1614,8 +1588,8 @@ Written by Gabriel Moreau, Grenoble - France
 
 
 =head1 COPYRIGHT
-       
-Copyright (C) 2005-2008 Gabriel Moreau.
+
+Copyright (C) 2005-2009 Gabriel Moreau.
 
 
 =head1 LICENCE
