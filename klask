@@ -8,6 +8,7 @@ use strict;
 use warnings;
 
 use Readonly;
+use Filehandle;
 use Net::SNMP;
 #use YAML;
 use YAML::Syck;
@@ -138,6 +139,17 @@ sub fastping {
    return;
    }
 
+sub shell_command {
+   my $cmd = shift;
+
+   my $fh = new Filehandle;
+   open $fh, '-|', "$cmd" or die "Can't exec $cmd\n";
+   my $result = <$fh>;
+   close $fh;
+   chomp $result;
+   return $result;
+   }
+
 ###
 # donne l'@ ip, dns, arp en fonction du dns OU de l'ip
 sub resolve_ip_arp_host {
@@ -163,9 +175,8 @@ sub resolve_ip_arp_host {
    # my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
    # my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
    my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
-   my $cmd_arpwatch = `$cmd`;
-   chomp $cmd_arpwatch;
-   my ($arp, $ip, $timestamp, $host) = split m/ \s+ /x, $cmd_arpwatch;
+   my $cmd_arpwatch = shell_command $cmd;
+   my ($arp, $ip, $timestamp, $host) = split m/ \s+ /xms, $cmd_arpwatch;
 
    $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
@@ -181,16 +192,14 @@ sub resolve_ip_arp_host {
    # resultat de la commande arp
    # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
    # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
-   my $cmd_arp  = `arp -a $param_ip_or_host 2> /dev/null`;
-   chomp $cmd_arp;
+   my $cmd_arp  = shell_command "arp -a $param_ip_or_host";
    if ( $cmd_arp =~ m{ (\S*) \s \( ( $RE_IPv4_ADDRESS ) \) \s at \s ( $RE_MAC_ADDRESS ) }xms ) {
       ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
       }
 
    # resultat de la commande host si le parametre est ip
    # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
-   my $cmd_host = `host $param_ip_or_host 2> /dev/null`;
-   chomp $cmd_host;
+   my $cmd_host = shell_command "host $param_ip_or_host";
    if ( $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/xms ) {
       $ret{hostname_fq} = $1;
       }
