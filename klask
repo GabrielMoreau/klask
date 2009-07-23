@@ -6,6 +6,7 @@
 
 use strict;
 use warnings;
+use version; our $VERSION = qv('0.5.5');
 
 use Readonly;
 use Filehandle;
