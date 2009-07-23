@@ -7,6 +7,7 @@
 use strict;
 use warnings;
 
+use Readonly;
 use Net::SNMP;
 #use YAML;
 use YAML::Syck;
@@ -59,7 +60,7 @@ my %CMD_DB = (
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    );
 
-my %INTERNAL_PORT_MAP = (
+Readonly my %INTERNAL_PORT_MAP => (
    0 => 'A',
    1 => 'B',
    2 => 'C',
@@ -69,9 +70,9 @@ my %INTERNAL_PORT_MAP = (
    6 => 'G',
    7 => 'H',
    );
-my %INTERNAL_PORT_MAP_REV = reverse %INTERNAL_PORT_MAP;
+Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
 
-my %SWITCH_KIND = (
+Readonly my %SWITCH_KIND => (
    J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
    J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
    J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
@@ -87,12 +88,16 @@ my %SWITCH_KIND = (
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    );
 
-my %OID_NUMBER = (
-   sysDescription    => '1.3.6.1.2.1.1.1.0',
-   sysName     => '1.3.6.1.2.1.1.5.0',
-   sysContact  => '1.3.6.1.2.1.1.4.0',
-   sysLocation => '1.3.6.1.2.1.1.6.0',
+Readonly my %OID_NUMBER => (
+   sysDescription  => '1.3.6.1.2.1.1.1.0',
+   sysName         => '1.3.6.1.2.1.1.5.0',
+   sysContact      => '1.3.6.1.2.1.1.4.0',
+   sysLocation     => '1.3.6.1.2.1.1.6.0',
    );
+
+Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
+Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} }xms;
+
 
 ################
 # principal
@@ -176,34 +181,35 @@ sub resolve_ip_arp_host {
    # resultat de la commande arp
    # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
    # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
-   my $cmd_arp  = `arp -a $param_ip_or_host 2>/dev/null`;
+   my $cmd_arp  = `arp -a $param_ip_or_host 2> /dev/null`;
    chomp $cmd_arp;
-   $cmd_arp =~ /(\S*)\s\(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\)\sat\s([0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2})/x;
-   $ret{hostname_fq}  = $1 if(defined($1));
-   $ret{ipv4_address} = $2 if(defined($2));
-   $ret{mac_address}  = $3 if(defined($3));
+   if ( $cmd_arp =~ m{ (\S*) \s \( ( $RE_IPv4_ADDRESS ) \) \s at \s ( $RE_MAC_ADDRESS ) }xms ) {
+      ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
+      }
 
    # resultat de la commande host si le parametre est ip
    # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
-   my $cmd_host = `host $param_ip_or_host 2>/dev/null`;
+   my $cmd_host = `host $param_ip_or_host 2> /dev/null`;
    chomp $cmd_host;
-   $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/x;
-   $ret{hostname_fq} = $1 if defined $1;
+   if ( $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/xms ) {
+      $ret{hostname_fq} = $1;
+      }
 
    # resultat de la commande host si parametre est hostname
    # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-   $cmd_host =~ m/(\S*) \s has \s address \s ( [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} )$/x;
-   $ret{hostname_fq}  = $1 if defined $1;
-   $ret{ipv4_address} = $2 if defined $2;
+   if ( $cmd_host =~ m/(\S*) \s has \s address \s ( $RE_IPv4_ADDRESS )$/xms ) {
+      ( $ret{hostname_fq}, $ret{ipv4_address} ) = ($1, $2);
+      }
 
-   $cmd_host =~ m/ \b ([0-9]{1,3}) \. ([0-9]{1,3}) \. ([0-9]{1,3}) \. ([0-9]{1,3}) \. in-addr \. arpa \s/x;
-   $ret{ipv4_address} = "$4.$3.$2.$1"     if defined $1 and  defined $2 and  defined $3 and  defined $4;
-   $ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
+   if ( $cmd_host =~ m/ \b ( $RE_IPv4_ADDRESS ) \. in-addr \. arpa \s/xms ) {
+      $ret{ipv4_address} = $1;
+      }
+   #$ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 
    unless ($ret{mac_address} eq 'unknow') {
       my @paquets = ();
       foreach ( split m/ : /x, $ret{mac_address} ) {
-         my @chars = split m//x, uc("00$_");
+         my @chars = split m//xms, uc("00$_");
          push @paquets, "$chars[-2]$chars[-1]";
          }
       $ret{mac_address} = join ':', @paquets;
