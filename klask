@@ -247,7 +247,6 @@ sub init_switch_names {
    my $verbose = shift;
 
    printf "%-25s                %-25s %s\n",'Switch','Description','Type';
-#   print "Switch description\n" if $verbose;
    print "-------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
@@ -1469,7 +1468,7 @@ __END__
 klask - ports manager and finder for switch
 
 
-=head1 SYNOPSIS
+=head1 USAGE
 
  klask updatedb
  klask exportdb --format [txt|html]
@@ -1603,12 +1602,8 @@ $Id$
 Written by Gabriel Moreau, Grenoble - France
 
 
-=head1 COPYRIGHT
-
-Copyright (C) 2005-2009 Gabriel Moreau.
-
-
-=head1 LICENCE
+=head1 LICENSE AND COPYRIGHT
 
 GPL version 2 or later and Perl equivalent
 
+Copyright (C) 2005-2009 Gabriel Moreau.
