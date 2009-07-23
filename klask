@@ -147,8 +147,8 @@ sub resolve_ip_arp_host {
       );
 
 #   my $cmdarping  = `arping -c 1 -w 1 -rR $param 2>/dev/null`;
-   if (not $param_ip_or_host =~ m/^\d+\.\d+\.\d+\.\d+$/) {
-      $param_ip_or_host =~ s/\..*//;
+   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/x ) {
+      $param_ip_or_host =~ s/ \. .* //x;
       }
 
    # controler que arpwatch tourne !
@@ -160,7 +160,7 @@ sub resolve_ip_arp_host {
    my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
    my $cmd_arpwatch = `$cmd`;
    chomp $cmd_arpwatch;
-   my ($arp, $ip, $timestamp, $host) = split /\s+/, $cmd_arpwatch;
+   my ($arp, $ip, $timestamp, $host) = split m/ \s+ /x, $cmd_arpwatch;
 
    $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
@@ -178,7 +178,7 @@ sub resolve_ip_arp_host {
    # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
    my $cmd_arp  = `arp -a $param_ip_or_host 2>/dev/null`;
    chomp $cmd_arp;
-   $cmd_arp =~ /(\S*)\s\(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\)\sat\s([0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2})/;
+   $cmd_arp =~ /(\S*)\s\(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\)\sat\s([0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2}:[0-9,A-Z]{2})/x;
    $ret{hostname_fq}  = $1 if(defined($1));
    $ret{ipv4_address} = $2 if(defined($2));
    $ret{mac_address}  = $3 if(defined($3));
@@ -187,23 +187,23 @@ sub resolve_ip_arp_host {
    # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
    my $cmd_host = `host $param_ip_or_host 2>/dev/null`;
    chomp $cmd_host;
-   $cmd_host =~ m/domain\sname\spointer\s(\S+)\.$/;
+   $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/x;
    $ret{hostname_fq} = $1 if defined $1;
 
    # resultat de la commande host si parametre est hostname
    # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-   $cmd_host =~ m/(\S*)\shas\saddress\s([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/;
+   $cmd_host =~ m/(\S*) \s has \s address \s ( [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} )$/x;
    $ret{hostname_fq}  = $1 if defined $1;
    $ret{ipv4_address} = $2 if defined $2;
 
-   $cmd_host =~ m/\b([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.in-addr\.arpa\s/;
+   $cmd_host =~ m/ \b ([0-9]{1,3}) \. ([0-9]{1,3}) \. ([0-9]{1,3}) \. ([0-9]{1,3}) \. in-addr \. arpa \s/x;
    $ret{ipv4_address} = "$4.$3.$2.$1"     if defined $1 and  defined $2 and  defined $3 and  defined $4;
    $ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 
    unless ($ret{mac_address} eq 'unknow') {
       my @paquets = ();
-      foreach ( split(/:/, $ret{mac_address}) ) {
-         my @chars = split //, uc("00$_");
+      foreach ( split m/ : /x, $ret{mac_address} ) {
+         my @chars = split m//x, uc("00$_");
          push @paquets, "$chars[-2]$chars[-1]";
          }
       $ret{mac_address} = join ':', @paquets;
@@ -217,7 +217,7 @@ sub get_switch_model {
    my $sw_snmp_description = shift || 'unknow';
 
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/;
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/x;
 
       return $SWITCH_KIND{$sw_kind}->{model};
       }
@@ -286,7 +286,7 @@ sub hex_to_dec {
       "5"=>"5",  "6"=>"6",  "7"=>"7",  "8"=>"8",  "9"=>"9",
       "A"=>"10", "B"=>"11", "C"=>"12", "D"=>"13", "E"=>"14", "F"=>"15"
       );
-   my @chars = split //, $car;
+   my @chars = split m//x, $car;
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
    }
 
@@ -296,7 +296,7 @@ sub arp_hex_to_dec {
    #00:0F:1F:43:E4:2B
    my $arp = shift;
 
-   my @paquets = split /:/, $arp;
+   my @paquets = split m/ : /x, $arp;
    my $return = '';
    foreach(@paquets) {
       $return .= ".".hex_to_dec($_);
@@ -440,7 +440,7 @@ sub get_list_ip {
    for my $cidr ($cidrlist->list()) {
       my $net = new NetAddr::IP $cidr;
       for my $ip (@$net) {
-         $ip =~ s#/32##;
+         $ip =~ s{ /32 }{}x;
          push @res,  $ip;
          }
       }
@@ -731,7 +731,7 @@ sub cmd_updatedb {
    printf "\n";
 
    my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s#/[^/]*$##;
+      $dirdb =~ s{ / [^/]* $}{}x;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
 
@@ -759,7 +759,7 @@ sub cmd_removedb {
       }
 
    my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s#/[^/]*$##;
+      $dirdb =~ s{ / [^/]* $}{}x;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
    return;
@@ -887,12 +887,12 @@ END_HTML
       chomp $switch_hostname;
       my $switch_hostname_sort = sprintf "%s %3s" ,$switch_hostname, $computerdb->{$ip}{switch_port};
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ip);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ip);
 
       my $mac_sort = sprintf "%04i-%s", 9999 - $mac_count{$computerdb->{$ip}{mac_address}}, $computerdb->{$ip}{mac_address};
 
-      $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^\d+\.\d+\.\d+\.\d+$/;
-      my ( $host_short ) = split /\./, $computerdb->{$ip}{hostname_fq};
+      $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/x;
+      my ( $host_short ) = split m/ \. /x, $computerdb->{$ip}{hostname_fq};
 
       print <<"END_HTML";
   <tr class="$typerow">
@@ -931,11 +931,11 @@ END_HTML
       $mon++;
       my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ipv4_address);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ipv4_address);
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
-      my ( $host_short ) = sprintf "%s %3s" , split(/\./, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
+      my ( $host_short ) = sprintf "%s %3s" , split(m/ \. /x, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
 
       print <<"END_HTML";
   <tr class="$typerow">
@@ -979,7 +979,7 @@ END_HTML
       $mon++;
       my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( /\./, $ipv4_address);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ipv4_address);
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
@@ -987,7 +987,7 @@ END_HTML
 
          if (exists $db_switch_output_port{$sw}) {
 
-            my ( $host_short ) = sprintf "%s %3s" , split(/\./, $sw, 1), $db_switch_output_port{$sw};
+            my ( $host_short ) = sprintf "%s %3s" , split( m/\./x , $sw, 1), $db_switch_output_port{$sw};
 
             print <<"END_HTML";
   <tr class="$typerow">
@@ -1366,7 +1366,7 @@ sub cmd_exportsw_dot {
 
    my %db_building= ();
    for my $sw (@SWITCH) {
-      my ($building, $location) = split /\//, $sw->{location}, 2;
+      my ($building, $location) = split m/ \/ /x, $sw->{location}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
       $db_building{$building}->{$location}{ $sw->{hostname} } = 'y';
