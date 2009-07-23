@@ -281,7 +281,7 @@ sub init_switch_names {
       $session->close;
 
       # Ligne à virer car on récupère maintenant le modèle du switch
-      my ($desc, $type) = split ':', $sw->{description}, 2;
+      my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
       printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
       }
 
@@ -301,7 +301,7 @@ sub hex_to_dec {
       "5"=>"5",  "6"=>"6",  "7"=>"7",  "8"=>"8",  "9"=>"9",
       "A"=>"10", "B"=>"11", "C"=>"12", "D"=>"13", "E"=>"14", "F"=>"15"
       );
-   my @chars = split m//x, $car;
+   my @chars = split m//xms, $car;
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
    }
 
@@ -311,7 +311,7 @@ sub arp_hex_to_dec {
    #00:0F:1F:43:E4:2B
    my $arp = shift;
 
-   my @paquets = split m/ : /x, $arp;
+   my @paquets = split m/ : /xms, $arp;
    my $return = '';
    foreach(@paquets) {
       $return .= ".".hex_to_dec($_);
@@ -611,14 +611,14 @@ sub cmd_updatedb {
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_chained_port = ();
    for my $swport (keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split ':', $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
    for my $sw (@SWITCH){
       push @{$sw->{portignore}}, $db_switch_output_port{$sw->{hostname}}  if exists $db_switch_output_port{$sw->{hostname}};
       if ( exists $db_switch_chained_port{$sw->{hostname}} ) {
          chop $db_switch_chained_port{$sw->{hostname}};
-         push @{$sw->{portignore}}, split(':',$db_switch_chained_port{$sw->{hostname}});
+         push @{$sw->{portignore}}, split(m/ : /xms, $db_switch_chained_port{$sw->{hostname}});
          }
 #      print "$sw->{hostname} ++ @{$sw->{portignore}}\n";
       }
@@ -902,12 +902,12 @@ END_HTML
       chomp $switch_hostname;
       my $switch_hostname_sort = sprintf "%s %3s" ,$switch_hostname, $computerdb->{$ip}{switch_port};
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ip);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /xms, $ip);
 
       my $mac_sort = sprintf "%04i-%s", 9999 - $mac_count{$computerdb->{$ip}{mac_address}}, $computerdb->{$ip}{mac_address};
 
       $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/x;
-      my ( $host_short ) = split m/ \. /x, $computerdb->{$ip}{hostname_fq};
+      my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{hostname_fq};
 
       print <<"END_HTML";
   <tr class="$typerow">
@@ -946,11 +946,11 @@ END_HTML
       $mon++;
       my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ipv4_address);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /xms, $ipv4_address);
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
-      my ( $host_short ) = sprintf "%s %3s" , split(m/ \. /x, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
+      my ( $host_short ) = sprintf "%s %3s" , split(m/ \. /xms, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
 
       print <<"END_HTML";
   <tr class="$typerow">
@@ -980,7 +980,7 @@ END_HTML
       }
 
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split ':', $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
 
          my $switch_hostname_sort = sprintf "%s %3s" ,$sw_connect, $port_connect;
@@ -994,7 +994,7 @@ END_HTML
       $mon++;
       my $date = sprintf "%04i-%02i-%02i %02i:%02i", $year,$mon,$mday,$hour,$min;
 
-      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /x, $ipv4_address);
+      my $ip_sort = sprintf "%03i%03i%03i%03i", split( m/ \. /xms, $ipv4_address);
 
       my $mac_sort = sprintf "%04i-%s", 9999, $mac_address;
 
@@ -1002,7 +1002,7 @@ END_HTML
 
          if (exists $db_switch_output_port{$sw}) {
 
-            my ( $host_short ) = sprintf "%s %3s" , split( m/\./x , $sw, 1), $db_switch_output_port{$sw};
+            my ( $host_short ) = sprintf "%s %3s" , split( m/\./xms, $sw, 1), $db_switch_output_port{$sw};
 
             print <<"END_HTML";
   <tr class="$typerow">
@@ -1237,7 +1237,7 @@ sub cmd_updatesw {
 
          $maybe_more_than_one_switch_connected = 'yes';
 
-         my ($sw_connect,$port_connect) = split ':', $swport;
+         my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
          my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
 
          CONNECTED:
@@ -1288,7 +1288,7 @@ sub cmd_updatesw {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split ':', $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "%-25s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
@@ -1356,7 +1356,7 @@ sub cmd_exportsw_txt {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split ':', $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "%-25s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
@@ -1381,7 +1381,7 @@ sub cmd_exportsw_dot {
 
    my %db_building= ();
    for my $sw (@SWITCH) {
-      my ($building, $location) = split m/ \/ /x, $sw->{location}, 2;
+      my ($building, $location) = split m/ \/ /xms, $sw->{location}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
       $db_building{$building}->{$location}{ $sw->{hostname} } = 'y';
@@ -1404,7 +1404,7 @@ sub cmd_exportsw_dot {
       for my $loc (keys %{$db_building{$building}}) {
          $l++;
 
-         print "\"location$b-$l\" [label = \"$building".'/'.join('\n',split("/",$loc))."\", color = black, fillcolor = orange, style = filled];\n";
+         print "\"location$b-$l\" [label = \"$building".'/'.join('\n',split(m{ / }xms, $loc))."\", color = black, fillcolor = orange, style = filled];\n";
 #         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
          print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
 
@@ -1420,7 +1420,7 @@ sub cmd_exportsw_dot {
 
 
             for my $swport (keys %db_switch_connected_on_port) {
-               my ($sw_connect,$port_connect) = split ':', $swport;
+               my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                print "\"$sw:$port_connect\" [label = $port_connect, color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
@@ -1445,7 +1445,7 @@ sub cmd_exportsw_dot {
 #   print "Switch parent and children port inter-connection\n";
 #   print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split ':', $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "   \"%s:%s\" -> \"%s:%s\" [color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
