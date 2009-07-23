@@ -164,8 +164,8 @@ sub resolve_ip_arp_host {
       );
 
 #   my $cmdarping  = `arping -c 1 -w 1 -rR $param 2>/dev/null`;
-   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/x ) {
-      $param_ip_or_host =~ s/ \. .* //x;
+   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/xms ) {
+      $param_ip_or_host =~ s/ \. .* //xms;
       }
 
    # controler que arpwatch tourne !
@@ -215,9 +215,9 @@ sub resolve_ip_arp_host {
       }
    #$ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 
-   unless ($ret{mac_address} eq 'unknow') {
+   if ($ret{mac_address} ne 'unknow') {
       my @paquets = ();
-      foreach ( split m/ : /x, $ret{mac_address} ) {
+      foreach ( split m/ : /xms, $ret{mac_address} ) {
          my @chars = split m//xms, uc("00$_");
          push @paquets, "$chars[-2]$chars[-1]";
          }
@@ -232,7 +232,7 @@ sub get_switch_model {
    my $sw_snmp_description = shift || 'unknow';
 
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/x;
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/xms;
 
       return $SWITCH_KIND{$sw_kind}->{model};
       }
@@ -444,7 +444,7 @@ sub get_list_ip {
    for my $net (@network) {
       my @line  = @{$KLASK_CFG->{network}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
-         for my $method (keys %$cmd){
+         for my $method (keys %{$cmd}){
             $cidrlist->add_any($cmd->{$method}) if $method eq 'add';
             }
          }
@@ -454,8 +454,8 @@ sub get_list_ip {
 
    for my $cidr ($cidrlist->list()) {
       my $net = new NetAddr::IP $cidr;
-      for my $ip (@$net) {
-         $ip =~ s{ /32 }{}x;
+      for my $ip (@{$net}) {
+         $ip =~ s{ /32 }{}xms;
          push @res,  $ip;
          }
       }
@@ -598,7 +598,7 @@ sub cmd_updatedb {
    my $timestamp_last_week = $timestamp - (3600 * 24 * 7);
 
    my $number_of_computer = get_list_ip(@network); # + 1;
-   my $size_of_database   = keys %$computerdb;
+   my $size_of_database   = keys %{$computerdb};
       $size_of_database   = 1 if $size_of_database == 0;
    my $i = 0;
    my $detected_computer = 0;
@@ -746,7 +746,7 @@ sub cmd_updatedb {
    printf "\n";
 
    my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s{ / [^/]* $}{}x;
+      $dirdb =~ s{ / [^/]* $}{}xms;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
 
@@ -774,7 +774,7 @@ sub cmd_removedb {
       }
 
    my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s{ / [^/]* $}{}x;
+      $dirdb =~ s{ / [^/]* $}{}xms;
    mkdir "$dirdb", 0755 unless -d "$dirdb";
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
    return;
@@ -809,7 +809,7 @@ sub cmd_exportdb_txt {
    print "---------------------------------------------------------------------------------------------------------------------------\n";
 
    LOOP_ON_IP_ADDRESS:
-   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
+   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %{$computerdb})) {
 
 #      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq 'unknow';
 
@@ -873,7 +873,7 @@ END_HTML
 
    my %mac_count = ();
    LOOP_ON_IP_ADDRESS:
-   foreach my $ip (keys %$computerdb) {
+   foreach my $ip (keys %{$computerdb}) {
 
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
@@ -884,7 +884,7 @@ END_HTML
    my $typerow = 'even';
 
    LOOP_ON_IP_ADDRESS:
-   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
+   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %{$computerdb})) {
 
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
@@ -906,7 +906,7 @@ END_HTML
 
       my $mac_sort = sprintf "%04i-%s", 9999 - $mac_count{$computerdb->{$ip}{mac_address}}, $computerdb->{$ip}{mac_address};
 
-      $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/x;
+      $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/xms;
       my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{hostname_fq};
 
       print <<"END_HTML";
@@ -1043,7 +1043,7 @@ sub cmd_iplocation {
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_IP_ADDRESS:
-   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %$computerdb)) {
+   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %{$computerdb})) {
 
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
 
