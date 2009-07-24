@@ -183,7 +183,7 @@ sub resolve_ip_arp_host {
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
 
-   my $nowtimestamp = time();
+   my $nowtimestamp = time;
 
    if ( $type eq 'fast' and ( not defined $timestamp or $timestamp < ( $nowtimestamp - 3 * 3600 ) ) ) {
       $ret{mac_address} = 'unknow';
@@ -219,7 +219,7 @@ sub resolve_ip_arp_host {
    if ($ret{mac_address} ne 'unknow') {
       my @paquets = ();
       foreach ( split m/ : /xms, $ret{mac_address} ) {
-         my @chars = split m//xms, uc("00$_");
+         my @chars = split m//xms, uc "00$_";
          push @paquets, "$chars[-2]$chars[-1]";
          }
       $ret{mac_address} = join q{:}, @paquets;
@@ -293,7 +293,7 @@ sub init_switch_names {
 # convertit l'hexa (uniquement 2 chiffres) en decimal
 sub hex_to_dec {
    #00:0F:1F:43:E4:2B
-   my $car = '00' . uc(shift);
+   my $car = '00' . uc shift;
 
    return '00' if $car eq '00UNKNOW';
    my %table = (
@@ -350,7 +350,7 @@ sub find_switch_port {
       my $result = $session->get_request(
          -varbindlist => [$research]
          );
-      if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
+      if (not defined $result or $result->{$research} eq 'noSuchInstance') {
          $session->close;
          next LOOP_ON_SWITCH;
          }
@@ -407,7 +407,7 @@ sub find_all_switch_port {
          -varbindlist => [$research]
          );
 
-      if(defined($result) and $result->{$research} ne 'noSuchInstance'){
+      if(defined $result and $result->{$research} ne 'noSuchInstance'){
          my $swport = $result->{$research};
 
          $ret->{$sw->{hostname}} = {};
@@ -483,7 +483,7 @@ sub get_human_readable_port {
    return $sw_port if not $sw_model eq 'HP8000M';
 
    my $reste = (($sw_port - 1) % 8) + 1;
-   my $major = int( ($sw_port - 1) / 8 );
+   my $major = int (($sw_port - 1) / 8);
 
    return "$INTERNAL_PORT_MAP{$major}$reste";
    }
@@ -494,11 +494,11 @@ sub get_numerical_port {
 
    return $sw_port if not $sw_model eq 'HP8000';
 
-   my $letter = substr($sw_port, 0, 1);
+   my $letter = substr $sw_port, 0, 1;
 
 #   return $port if $letter =~ m/\d/;
 
-   my $reste =  substr($sw_port, 1);
+   my $reste =  substr $sw_port, 1;
 
    return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
    }
@@ -568,7 +568,7 @@ sub cmd_searchdb {
 
       next LOOP_ON_COMPUTER unless exists $computerdb->{$ip};
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -618,7 +618,7 @@ sub cmd_updatedb {
       push @{$sw->{portignore}}, $db_switch_output_port{$sw->{hostname}}  if exists $db_switch_output_port{$sw->{hostname}};
       if ( exists $db_switch_chained_port{$sw->{hostname}} ) {
          chop $db_switch_chained_port{$sw->{hostname}};
-         push @{$sw->{portignore}}, split(m/ : /xms, $db_switch_chained_port{$sw->{hostname}});
+         push @{$sw->{portignore}}, split m/ : /xms, $db_switch_chained_port{$sw->{hostname}};
          }
 #      print "$sw->{hostname} ++ @{$sw->{portignore}}\n";
       }
@@ -644,14 +644,14 @@ sub cmd_updatedb {
       for my $one_computer (@computer) {
          $i++;
 
-         my $total_percent = int(($i*100)/$number_of_computer);
+         my $total_percent = int (($i*100)/$number_of_computer);
 
          my $localtime = time - $timestamp;
-         my ($sec,$min) = localtime($localtime);
+         my ($sec,$min) = localtime $localtime;
 
          my $time_elapse = 0;
             $time_elapse = $localtime * ( 100 - $total_percent) / $total_percent if $total_percent != 0;
-         my ($sec_elapse,$min_elapse) = localtime($time_elapse);
+         my ($sec_elapse,$min_elapse) = localtime $time_elapse;
 
          printf "\rComputer scanned: %4i/%i (%2i%%)",  $i,                 $number_of_computer, $total_percent;
 #         printf ", Computer detected: %4i/%i (%2i%%)", $detected_computer, $size_of_database,   int(($detected_computer*100)/$size_of_database);
@@ -819,7 +819,7 @@ sub cmd_exportdb_txt {
 # dans le futur
 #      next if $computerdb->{$ip}{hostname_fq} eq 'unknow';
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -889,7 +889,7 @@ END_HTML
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($computerdb->{$ip}{timestamp});
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -902,7 +902,7 @@ END_HTML
       chomp $switch_hostname;
       my $switch_hostname_sort = sprintf '%s %3s' ,$switch_hostname, $computerdb->{$ip}{switch_port};
 
-      my $ip_sort = sprintf '%03i%03i%03i%03i', split( m/ \. /xms, $ip);
+      my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
 
       my $mac_sort = sprintf '%04i-%s', 9999 - $mac_count{$computerdb->{$ip}{mac_address}}, $computerdb->{$ip}{mac_address};
 
@@ -946,7 +946,7 @@ END_HTML
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      my $ip_sort = sprintf '%03i%03i%03i%03i', split( m/ \. /xms, $ipv4_address);
+      my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ipv4_address;
 
       my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
@@ -994,7 +994,7 @@ END_HTML
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year,$mon,$mday,$hour,$min;
 
-      my $ip_sort = sprintf '%03i%03i%03i%03i', split( m/ \. /xms, $ipv4_address);
+      my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ipv4_address;
 
       my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
@@ -1121,7 +1121,7 @@ sub cmd_search_mac_on_switch {
       -varbindlist => [$research]
       );
 
-   if (not defined($result) or $result->{$research} eq 'noSuchInstance') {
+   if (not defined $result or $result->{$research} eq 'noSuchInstance') {
       print "Klask do not find MAC $mac_address on switch $switch_name\n";
       $session->close;
       }
