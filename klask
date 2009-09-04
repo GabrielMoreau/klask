@@ -38,7 +38,7 @@ for my $sw (@SWITCH){
    $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    $SWITCH_DB{$sw->{hostname}} = $sw;
    }
-@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};  
+@SWITCH = sort { $switch_level{$b->{hostname}} <=> $switch_level{$a->{hostname}} } @{$KLASK_CFG->{switch}};
 
 my %SWITCH_PORT_COUNT = ();
 
@@ -153,10 +153,9 @@ sub resolve_ip_arp_host {
    # 0:13:d3:e1:92:d0        192.168.24.109  1163681980      theo8sv109
    # my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
    # my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
-   my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
-   my $cmd_arpwatch = `$cmd`;
-   chomp $cmd_arpwatch;
-   my ($arp, $ip, $timestamp, $host) = split /\s+/, $cmd_arpwatch;
+   my $cmd = "grep  -he '" . '\b' . "$param_ip_or_host" . '\b' . "' /var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
+   my $cmd_arpwatch = shell_command $cmd;
+   my ($arp, $ip, $timestamp, $host) = split m/ \s+ /xms, $cmd_arpwatch;
 
 #print "OOO $cmd\n";
 #print "TTT arp $arp -> $ip pour host $host\n";
@@ -286,8 +285,9 @@ sub hex_to_dec {
 
    return '00' if $car eq '00UNKNOW';
    my %table = (
-      "0"=>"0",  "1"=>"1",  "2"=>"2",  "3"=>"3",  "4"=>"4",  "5"=>"5", "6"=>"6", "7"=>"7", "8"=>"8", "9"=>"9",
-      "A"=>"10", "B"=>"11", "C"=>"12", "D"=>"13", "E"=>"14", "F"=>"15"
+      '0'=>'0',  '1'=>'1',  '2'=>'2',  '3'=>'3',  '4'=>'4',
+      '5'=>'5',  '6'=>'6',  '7'=>'7',  '8'=>'8',  '9'=>'9',
+      'A'=>'10', 'B'=>'11', 'C'=>'12', 'D'=>'13', 'E'=>'14', 'F'=>'15'
       );
    my @chars = split(//, $car);
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
