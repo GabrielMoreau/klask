@@ -9,7 +9,7 @@ use warnings;
 use version; our $VERSION = qv('0.5.5');
 
 use Readonly;
-use Filehandle;
+use FileHandle;
 use Net::SNMP;
 #use YAML;
 use YAML::Syck;
@@ -143,9 +143,10 @@ sub fastping {
 sub shell_command {
    my $cmd = shift;
 
-   my $fh = new Filehandle;
+   my $fh     = new FileHandle;
+   my $result = '';
    open $fh, q{-|}, "$cmd" or die "Can't exec $cmd\n";
-   my $result = <$fh>;
+   $result .= <$fh>;
    close $fh;
    chomp $result;
    return $result;
@@ -233,7 +234,7 @@ sub get_switch_model {
    my $sw_snmp_description = shift || 'unknow';
 
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/xms;
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/ms; # option xms break search, why ?
 
       return $SWITCH_KIND{$sw_kind}->{model};
       }
@@ -480,27 +481,63 @@ sub get_human_readable_port {
    my $sw_model = shift;
    my $sw_port  = shift;
 
-   return $sw_port if not $sw_model eq 'HP8000M';
+   if ($sw_model eq 'HP8000M') {
 
-   my $reste = (($sw_port - 1) % 8) + 1;
-   my $major = int (($sw_port - 1) / 8);
+      my $reste = (($sw_port - 1) % 8) + 1;
+      my $major = int (($sw_port - 1) / 8);
+      return "$INTERNAL_PORT_MAP{$major}$reste";
+      }
 
-   return "$INTERNAL_PORT_MAP{$major}$reste";
+   if ($sw_model eq 'HP2424M') {
+      if ($sw_port > 24) {
+         
+         my $reste = $sw_port - 24;
+         return "A$reste";
+         }
+      }
+
+   if ($sw_model eq 'HP1600M') {
+      if ($sw_port > 16) {
+         
+         my $reste = $sw_port - 16;
+         return "A$reste";
+         }
+      }
+
+   return $sw_port;
    }
 
 sub get_numerical_port {
    my $sw_model = shift;
    my $sw_port  = shift;
 
-   return $sw_port if not $sw_model eq 'HP8000';
+   if ($sw_model eq 'HP8000M') {
 
-   my $letter = substr $sw_port, 0, 1;
+      my $letter = substr $sw_port, 0, 1;
+      my $reste =  substr $sw_port, 1;
 
-#   return $port if $letter =~ m/\d/;
+      return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
+      }
 
-   my $reste =  substr $sw_port, 1;
+   if ($sw_model eq 'HP2424M') {
+      if ($sw_port =~ m/^A/xms ) {
 
-   return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
+         my $reste =  substr $sw_port, 1;
+
+         return 24 + $reste;
+         }
+      }
+
+   if ($sw_model eq 'HP1600M') {
+      if ($sw_port =~ m/^A/xms ) {
+
+         my $reste =  substr $sw_port, 1;
+
+         return 16 + $reste;
+         }
+      }
+
+   return $sw_port;
    }
 
 ################
