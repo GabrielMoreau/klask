@@ -807,6 +807,12 @@ sub cmd_removedb {
    LOOP_ON_COMPUTER:
    for my $one_computer (@computer) {
 
+      if ( $one_computer =~ m/^ $RE_IPv4_ADDRESS $/xms
+            and exists $computerdb->{$one_computer} ) {
+         delete $computerdb->{$one_computer};
+         next;
+         }
+
       my %resol_arp = resolve_ip_arp_host($one_computer);
 
       delete $computerdb->{$resol_arp{ipv4_address}} if exists $computerdb->{$resol_arp{ipv4_address}};
