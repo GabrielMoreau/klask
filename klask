@@ -212,9 +212,11 @@ sub resolve_ip_arp_host {
       ( $ret{hostname_fq}, $ret{ipv4_address} ) = ($1, $2);
       }
 
-   if ( $cmd_host =~ m/ \b ( $RE_IPv4_ADDRESS ) \. in-addr \. arpa \s/xms ) {
-      $ret{ipv4_address} = $1;
-      }
+   # Connerie !
+   # Inverse les IP !!
+   # if ( $cmd_host =~ m/ \b ( $RE_IPv4_ADDRESS ) \. in-addr \. arpa \s/xms ) {
+   #    $ret{ipv4_address} = $1;
+   #    }
    #$ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
 
    if ($ret{mac_address} ne 'unknow') {
