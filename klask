@@ -16,7 +16,7 @@ use YAML::Syck;
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
-use Getopt::Long;
+use Getopt::Long qw(GetOptions GetOptionsFromArray);;
 use Socket;
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
@@ -60,6 +60,7 @@ my %CMD_DB = (
    updatesw   => \&cmd_updatesw,
    exportsw   => \&cmd_exportsw,
    iplocation => \&cmd_iplocation,
+   'ip-free'  => \&cmd_ip_free,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    );
 
@@ -584,14 +585,16 @@ print <<'END';
 klask - ports manager and finder for switch
 
  klask updatedb
- klask exportdb
+ klask exportdb --format [txt|html]
 
  klask updatesw
- klask exportsw
+ klask exportsw --format [txt|dot]
 
  klask searchdb computer
  klask search   computer
  klask search-mac-on-switch switch mac_addr
+
+ klask ip-free --day number_of_day [vlan_name]
 
  klask enable  switch port
  klask disable switch port
@@ -1140,6 +1143,77 @@ sub cmd_iplocation {
    return;
    }
 
+sub cmd_ip_free {
+   my @vlan_name = @_;
+
+   my $days_to_dead = 365 * 2;
+   my $format = 'txt';
+
+   my $ret = GetOptionsFromArray(\@vlan_name,
+      'day|d=i'      => \$days_to_dead,
+      'format|f=s'   => \$format,
+      );
+
+   @vlan_name = get_list_network() if not @vlan_name;
+
+#   my %possible_format = (
+#      txt  => \&cmd_exportdb_txt,
+#      html => \&cmd_exportdb_html,
+#      );
+#
+#   $format = 'txt' if not defined $possible_format{$format};
+#
+#   $possible_format{$format}->(@ARGV);
+
+   my $computerdb = {};
+      $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE") if -e "$KLASK_DB_FILE";
+   my $timestamp = time;
+
+   my $timestamp_barrier = $timestamp - (3600 * 24 * $days_to_dead );
+
+   my %result_ip= ();
+
+   ALL_NETWORK:
+   for my $vlan (@vlan_name) {
+
+      my @ip_list = get_list_ip($vlan);
+#      my $current_interface = get_current_interface($vlan);
+      
+      LOOP_ON_IP_ADDRESS:
+      for my $ip (@ip_list) {
+
+         next LOOP_ON_IP_ADDRESS if
+            exists $computerdb->{$ip}
+            && $computerdb->{$ip}{timestamp} > $timestamp_barrier;
+
+         my $ip_date_last_detection = '';
+         if (exists $computerdb->{$ip}) {
+            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
+            $year += 1900;
+            $mon++;
+            $ip_date_last_detection = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+            }
+
+         $result_ip{$ip} ||= {};
+         $result_ip{$ip}->{date_last_detection} = $ip_date_last_detection;
+
+         my $packed_ip = scalar gethostbyname($ip);
+         my $hostname_fq = 'unknown';
+            $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) || 'unknown' if defined $packed_ip;
+         $result_ip{$ip}->{hostname_fq} = $hostname_fq;
+         
+         $result_ip{$ip}->{vlan} = $vlan;
+         }
+      }
+
+   printf "%-15s %-40s %-16s %s\n", qw(IPv4-Address Hostname-FQ Date VLAN);
+   print "-------------------------------------------------------------------------------\n";
+   LOOP_ON_RESULT:
+   foreach my $ip (Net::Netmask::sort_by_ip_address(keys %result_ip)) {
+         printf "%-15s %-40s %-16s %s\n", $ip, $result_ip{$ip}->{hostname_fq}, $result_ip{$ip}->{date_last_detection}, $result_ip{$ip}->{vlan};
+      }
+   }
+
 sub cmd_enable {
    my $switch = shift;
    my $port   = shift;
@@ -1563,6 +1637,9 @@ klask - ports manager and finder for switch
 
  klask searchdb computer
  klask search   computer
+ klask search-mac-on-switch switch mac_addr
+
+ klask ip-free --day number_of_day [vlan_name]
 
  klask enable  switch port
  klask disable swith port
