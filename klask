@@ -886,8 +886,8 @@ sub cmd_exportdb_txt {
 
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
-   printf "%-24s %-4s            %-30s %-15s %-18s %-s\n", qw(Switch Port Hostname IPv4-Address MAC-Address Date);
-   print "---------------------------------------------------------------------------------------------------------------------------\n";
+   printf "%-25s %-4s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname IPv4-Address MAC-Address Date VLAN);
+   print "-------------------------------------------------------------------------------------------------------------------------------------------\n";
 
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (Net::Netmask::sort_by_ip_address(keys %{$computerdb})) {
@@ -905,13 +905,14 @@ sub cmd_exportdb_txt {
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      printf "%-25s  %2s  <-------  %-30s %-15s %-18s %s\n",
+      printf "%-26s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port},
          $computerdb->{$ip}{hostname_fq},
          $ip,
          $computerdb->{$ip}{mac_address},
-         $date;
+         $date,
+         $computerdb->{$ip}{network} || '';
       }
    return;
    }
