@@ -17,9 +17,10 @@ use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
 use Getopt::Long;
+use Socket;
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
-# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl
+# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl 
 # arping fping bind9-host arpwatch
 
 my $KLASK_VAR      = '/var/cache/klask';
@@ -78,6 +79,7 @@ Readonly my %SWITCH_KIND => (
    J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
    J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
    J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
+   J9449A => { model => 'HP1810-8G',  match => 'HP ProCurve 1810G - 8 GE'        },
    J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
    J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
    J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'  },
@@ -91,12 +93,10 @@ Readonly my %SWITCH_KIND => (
    );
 
 Readonly my %OID_NUMBER => (
-   sysDescription => '1.3.6.1.2.1.1.1.0',
-   sysName        => '1.3.6.1.2.1.1.5.0',
-   sysContact     => '1.3.6.1.2.1.1.4.0',
-   sysLocation    => '1.3.6.1.2.1.1.6.0',
-   ifMtu          => '1.3.6.1.2.1.2.2.1.4',
-   ifSpeed        => '1.3.6.1.2.1.2.2.1.5',
+   sysDescription  => '1.3.6.1.2.1.1.1.0',
+   sysName         => '1.3.6.1.2.1.1.5.0',
+   sysContact      => '1.3.6.1.2.1.1.4.0',
+   sysLocation     => '1.3.6.1.2.1.1.6.0',
    );
 
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
@@ -138,7 +138,8 @@ sub test_maindb_environnement {
 ###
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fastping {
-   system "fping -c 1 @_ >/dev/null 2>&1";
+   # Launch this command without waiting...
+   system "fping -c 1 @_ >/dev/null 2>&1 &";
    return;
    }
 
@@ -168,9 +169,27 @@ sub resolve_ip_arp_host {
       );
 
 #   my $cmdarping  = `arping -c 1 -w 1 -rR $param 2>/dev/null`;
-   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/xms ) {
-      $param_ip_or_host =~ s/ \. .* //xms;
-      }
+#   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/xms ) {
+#      $param_ip_or_host =~ s/ \. .* //xms;
+#      }
+
+   #my $dns_resolver =  Net::DNS::Resolver->new;
+   #my $dns_answer = $dns_resolver->query($param_ip_or_host);
+   #if ($dns_answer) {
+   #   $ret{ipv4_address} = $dns_answer->address;
+   #   }
+
+   # perl -MSocket -E 'say inet_ntoa(scalar gethostbyname("tech7meylan.hmg.inpg.fr"))'
+   my $packed_ip = scalar gethostbyname($param_ip_or_host);
+   return %ret if not defined $packed_ip;
+   $ret{ipv4_address} = inet_ntoa($packed_ip);
+
+   # perl -MSocket -E 'say scalar gethostbyaddr(inet_aton("194.254.66.240"), AF_INET)'
+   my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET);
+#   return %ret if not defined $hostname_fq;
+   $ret{hostname_fq} = $hostname_fq if defined $hostname_fq;
+
+#print "DEBUG : $param_ip_or_host --  $ret{ipv4_address} --   $hostname_fq \n";
 
    # controler que arpwatch tourne !
    # resultat de la commande arpwatch
@@ -178,11 +197,16 @@ sub resolve_ip_arp_host {
    # 0:13:d3:e1:92:d0        192.168.24.109  1163681980      theo8sv109
    # my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
    # my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
-   my $cmd = q{grep  -he '\b} . $param_ip_or_host . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
+
+### BOGUE ICI
+### FAIRE LE GREP SUR L'IP !
+
+   # my $cmd = q{grep  -he '\b} . $param_ip_or_host . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
+   my $cmd = q{grep  -he '\b} . $ret{ipv4_address} . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
    my $cmd_arpwatch = shell_command $cmd;
    my ($arp, $ip, $timestamp, $host) = split m/ \s+ /xms, $cmd_arpwatch;
 
-   $ret{ipv4_address} = $ip        if $ip;
+#   $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
 
@@ -203,16 +227,16 @@ sub resolve_ip_arp_host {
 
    # resultat de la commande host si le parametre est ip
    # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
-   my $cmd_host = shell_command "host $param_ip_or_host";
-   if ( $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/xms ) {
-      $ret{hostname_fq} = $1;
-      }
+#   my $cmd_host = shell_command "host $param_ip_or_host";
+#   if ( $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/xms ) {
+#      $ret{hostname_fq} = $1;
+#      }
 
    # resultat de la commande host si parametre est hostname
    # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-   if ( $cmd_host =~ m/(\S*) \s has \s address \s ( $RE_IPv4_ADDRESS )$/xms ) {
-      ( $ret{hostname_fq}, $ret{ipv4_address} ) = ($1, $2);
-      }
+#   if ( $cmd_host =~ m/(\S*) \s has \s address \s ( $RE_IPv4_ADDRESS )$/xms ) {
+#      ( $ret{hostname_fq}, $ret{ipv4_address} ) = ($1, $2);
+#      }
 
    # Connerie !
    # Inverse les IP !!
@@ -415,6 +439,12 @@ sub find_all_switch_port {
       if(defined $result and $result->{$research} ne 'noSuchInstance'){
          my $swport = $result->{$research};
 
+#print "DEBUG $arp  $swport --  $sw->{hostname} \n";
+         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' and $swport == 19 ) { $swport = 20; print "DEBUG $swport --  $sw->{hostname} \n";}
+         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  and $swport == 23 ) { $swport = 24; print "DEBUG $swport --  $sw->{hostname} \n";}
+#         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
+#         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
+
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
@@ -561,6 +591,7 @@ klask - ports manager and finder for switch
 
  klask searchdb computer
  klask search   computer
+ klask search-mac-on-switch switch mac_addr
 
  klask enable  switch port
  klask disable switch port
@@ -1231,6 +1262,11 @@ sub cmd_updatesw {
       push @list_switch_ipv4,$resol_arp{ipv4_address};
 
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
+#my @l = ();
+#for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
+#push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
+#}
+#print "DEBUG  $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address} --- @l\n";
 
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
 
@@ -1250,6 +1286,7 @@ sub cmd_updatesw {
          next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip}};
 
          my $switch = $where{$ip}->{$switch_detected};
+#print "DEBUG1 :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if  $switch->{hostname} =~ m/sw3-batA0-3s/;
 
          next if $switch->{port}     eq '0';
          next if $switch->{port}     eq $db_switch_output_port{$switch->{hostname}};
@@ -1257,6 +1294,7 @@ sub cmd_updatesw {
 
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} } ||= {};
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} }->{ $switch->{hostname} } = $switch->{port};
+#print "DEBUG :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if $switch->{hostname} !~ m/sw3-batA0-3s/;
          }
 
       }
