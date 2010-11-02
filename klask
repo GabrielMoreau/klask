@@ -936,6 +936,7 @@ sub cmd_exportdb_html {
    <th scope="col" class="sorttable_alpha">Hostname</th>
    <th scope="col" class="hklask-ipv4">IPv4-Address</th>
    <th scope="col" class="sorttable_alpha">MAC-Address</th>
+   <th scope="col" class="sorttable_alpha">VLAN</th>
    <th scope="col" class="hklask-date">Date</th>
   </tr>
  </thead>
@@ -947,6 +948,7 @@ sub cmd_exportdb_html {
    <th scope="col" class="fklask-hostname">Hostname</th>
    <th scope="col" class="fklask-ipv4">IPv4-Address</th>
    <th scope="col" class="fklask-mac">MAC-Address</th>
+   <th scope="col" class="fklask-vlan">VLAN</th>
    <th scope="col" class="fklask-date">Date</th>
   </tr>
  </tfoot>
@@ -991,6 +993,8 @@ END_HTML
       $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/xms;
       my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{hostname_fq};
 
+      my $vlan = $computerdb->{$ip}{network} || '';
+
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
@@ -999,6 +1003,7 @@ END_HTML
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
    <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{mac_address}</td>
+   <td>$vlan</td>
    <td>$date</td>
   </tr>
 END_HTML
@@ -1042,6 +1047,7 @@ END_HTML
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{switch}</>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td></td>
    <td>$date</td>
   </tr>
 END_HTML
@@ -1055,6 +1061,7 @@ END_HTML
    <td sorttable_customkey="router">router</>
    <td sorttable_customkey="999999999999"></td>
    <td sorttable_customkey="99999"></td>
+   <td></td>
    <td></td>
   </tr>
 END_HTML
@@ -1094,6 +1101,7 @@ END_HTML
    <td sorttable_customkey="$host_short">$sw</>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td></td>
    <td>$date</td>
   </tr>
 END_HTML
@@ -1107,6 +1115,7 @@ END_HTML
    <td sorttable_customkey="$sw">$sw</>
    <td sorttable_customkey="">$ipv4_address</td>
    <td sorttable_customkey="">$mac_address</td>
+   <td></td>
    <td>$date</td>
   </tr>
 END_HTML
