@@ -587,6 +587,8 @@ klask - ports manager and finder for switch
 
  klask updatedb
  klask exportdb --format [txt|html]
+ klask removedb ipv4*
+ klask cleandb  --day number_of_day --verbose
 
  klask updatesw
  klask exportsw --format [txt|dot]
@@ -1760,6 +1762,8 @@ klask - ports manager and finder for switch
 
  klask updatedb
  klask exportdb --format [txt|html]
+ klask removedb ipv4*
+ klask cleandb  --day number_of_day --verbose
 
  klask updatesw
  klask exportsw --format [txt|dot]
