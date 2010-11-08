@@ -587,7 +587,7 @@ klask - ports manager and finder for switch
 
  klask updatedb
  klask exportdb --format [txt|html]
- klask removedb ipv4*
+ klask removedb computer*
  klask cleandb  --day number_of_day --verbose
 
  klask updatesw
@@ -597,7 +597,7 @@ klask - ports manager and finder for switch
  klask search   computer
  klask search-mac-on-switch switch mac_addr
 
- klask ip-free --day number_of_day [vlan_name]
+ klask ip-free --day number_of_day --format [txt|html] [vlan_name]
 
  klask enable  switch port
  klask disable switch port
@@ -1762,7 +1762,7 @@ klask - ports manager and finder for switch
 
  klask updatedb
  klask exportdb --format [txt|html]
- klask removedb ipv4*
+ klask removedb computer*
  klask cleandb  --day number_of_day --verbose
 
  klask updatesw
@@ -1772,7 +1772,7 @@ klask - ports manager and finder for switch
  klask search   computer
  klask search-mac-on-switch switch mac_addr
 
- klask ip-free --day number_of_day [vlan_name]
+ klask ip-free --day number_of_day --format [txt|html] [vlan_name]
 
  klask enable  switch port
  klask disable swith port
