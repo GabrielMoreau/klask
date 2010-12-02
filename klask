@@ -83,6 +83,7 @@ Readonly my %SWITCH_KIND => (
    J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
    J9449A => { model => 'HP1810-8G',  match => 'HP ProCurve 1810G - 8 GE'        },
    J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
+   J9280A => { model => 'HP2510G-48', match => 'ProCurve J9280A Switch 2510G-48' },
    J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
    J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'  },
    J4900B => { model => 'HP2626B',    match => 'J4900B.+?Switch 2626'            },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
