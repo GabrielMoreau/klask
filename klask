@@ -21,7 +21,7 @@ use Socket;
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl 
-# arping fping bind9-host arpwatch
+# arping net-tools fping bind9-host arpwatch
 
 my $KLASK_VAR      = '/var/cache/klask';
 my $KLASK_CFG_FILE = '/etc/klask.conf';
@@ -444,8 +444,8 @@ sub find_all_switch_port {
          my $swport = $result->{$research};
 
 #print "DEBUG $arp  $swport --  $sw->{hostname} \n";
-         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' and $swport == 19 ) { $swport = 20; print "DEBUG $swport --  $sw->{hostname} \n";}
-         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  and $swport == 23 ) { $swport = 24; print "DEBUG $swport --  $sw->{hostname} \n";}
+#         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' and $swport == 19 ) { $swport = 20; print "DEBUG $swport --  $sw->{hostname} \n";}
+#         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  and $swport == 23 ) { $swport = 24; print "DEBUG $swport --  $sw->{hostname} \n";}
 #         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
 #         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
 
@@ -1419,6 +1419,13 @@ sub cmd_search_mac_on_switch {
    }
 
 sub cmd_updatesw {
+   my @options = @_;
+
+   my $verbose;
+
+   my $ret = GetOptionsFromArray(\@options,
+      'verbose|v' => \$verbose,
+      );
 
    init_switch_names('yes');    #nomme les switchs
    print "\n";
@@ -1433,6 +1440,7 @@ sub cmd_updatesw {
       my %resol_arp = resolve_ip_arp_host($one_router, q{*}, q{low}); # resolution arp
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
+      print "VERBOSE_1: Router detected $resol_arp{ipv4_address} - $resol_arp{mac_address}\n" if $verbose;
       }
 
    ALL_ROUTER_IP_ADDRESS:
@@ -1448,6 +1456,7 @@ sub cmd_updatesw {
          next ALL_SWITCH_CONNECTED if $switch->{port} eq '0';
 
          $db_switch_output_port{$switch->{hostname}} = $switch->{port};
+         print "VERBOSE_2: output port $switch->{hostname} : $switch->{port}\n" if $verbose;
          }
       }
 
@@ -1490,7 +1499,7 @@ sub cmd_updatesw {
       DETECTED_SWITCH:
       for my $switch_detected ( keys %{$where{$ip}} ) {
 
-         next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip}};
+         next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip} };
 
          my $switch = $where{$ip}->{$switch_detected};
 #print "DEBUG1 :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if  $switch->{hostname} =~ m/sw3-batA0-3s/;
@@ -1501,6 +1510,7 @@ sub cmd_updatesw {
 
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} } ||= {};
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} }->{ $switch->{hostname} } = $switch->{port};
+         print "VERBOSE_3: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
 #print "DEBUG :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if $switch->{hostname} !~ m/sw3-batA0-3s/;
          }
 
