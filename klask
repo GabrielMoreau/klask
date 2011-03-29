@@ -1478,11 +1478,14 @@ sub cmd_updatesw {
       push @list_switch_ipv4,$resol_arp{ipv4_address};
 
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
-#my @l = ();
-#for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
-#push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
-#}
-#print "DEBUG  $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address} --- @l\n";
+
+      if ($verbose) {
+         my @l = ();
+         for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
+            push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
+            }
+         print "VERBOSE_3 $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address} --- @l\n";
+         }
 
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
 
@@ -1510,8 +1513,7 @@ sub cmd_updatesw {
 
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} } ||= {};
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} }->{ $switch->{hostname} } = $switch->{port};
-         print "VERBOSE_3: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
-#print "DEBUG :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if $switch->{hostname} !~ m/sw3-batA0-3s/;
+         print "VERBOSE_4: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
          }
 
       }
