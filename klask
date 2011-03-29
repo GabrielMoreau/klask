@@ -1505,7 +1505,7 @@ sub cmd_updatesw {
          next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip} };
 
          my $switch = $where{$ip}->{$switch_detected};
-#print "DEBUG1 :  $db_switch_ip_hostname{$ip} / $switch->{hostname} : $switch->{port}\n" if  $switch->{hostname} =~ m/sw3-batA0-3s/;
+         print "VERBOSE_4: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
 
          next if $switch->{port}     eq '0';
          next if $switch->{port}     eq $db_switch_output_port{$switch->{hostname}};
@@ -1513,7 +1513,7 @@ sub cmd_updatesw {
 
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} } ||= {};
          $db_switch_link_with{ $db_switch_ip_hostname{$ip} }->{ $switch->{hostname} } = $switch->{port};
-         print "VERBOSE_4: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
+         print "VERBOSE_5: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
          }
 
       }
