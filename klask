@@ -279,8 +279,8 @@ sub get_switch_model {
 sub init_switch_names {
    my $verbose = shift;
 
-   printf "%-25s                %-25s %s\n",'Switch','Description','Type';
-   print "-------------------------------------------------------------------------\n" if $verbose;
+   printf "%-26s                %-25s %s\n",'Switch','Description','Type';
+   print "------------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
    for my $sw (@SWITCH) {
@@ -315,7 +315,7 @@ sub init_switch_names {
 
       # Ligne à virer car on récupère maintenant le modèle du switch
       my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
-      printf "%-25s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
+      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
       }
 
    print "\n" if $verbose;
@@ -956,7 +956,7 @@ sub cmd_exportdb_txt {
 
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
-   printf "%-26s %-4s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
+   printf "%-27s %-4s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
    print "--------------------------------------------------------------------------------------------------------------------------------------------\n";
 
    LOOP_ON_IP_ADDRESS:
@@ -975,7 +975,7 @@ sub cmd_exportdb_txt {
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      printf "%-27s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
+      printf "%-28s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port},
          $computerdb->{$ip}{hostname_fq},
@@ -1475,16 +1475,19 @@ sub cmd_updatesw {
       my %resol_arp = resolve_ip_arp_host($one_computer, q{*}, q{low}); # arp resolution
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
 
-      push @list_switch_ipv4,$resol_arp{ipv4_address};
+      push @list_switch_ipv4, $resol_arp{ipv4_address};
 
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
 
       if ($verbose) {
-         my @l = ();
-         for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
-            push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
-            }
-         print "VERBOSE_3 $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address} --- @l\n";
+#         my @l = ();
+#         for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
+#            push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
+#            }
+         print "VERBOSE_3 $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address}\n";
+         print "VERBOSE_3 $one_computer --- ",
+            join(' + ', keys %{$where{$resol_arp{ipv4_address}}}),
+            "\n";
          }
 
       $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
@@ -1581,10 +1584,10 @@ sub cmd_updatesw {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-27s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
          }
       else {
-         printf "%-27s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+         printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
          }
       }
    print "\n";
@@ -1595,10 +1598,10 @@ sub cmd_updatesw {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
-            printf "%-27s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
             }
          else {
-            printf "%-27s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
+            printf "%-28s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
             }
          }
       }
@@ -1649,10 +1652,10 @@ sub cmd_exportsw_txt {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-27s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
          }
       else {
-         printf "%-27s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+         printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
          }
       }
    print "\n";
@@ -1663,10 +1666,10 @@ sub cmd_exportsw_txt {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
-            printf "%-27s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
             }
          else {
-            printf "%-27s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
+            printf "%-28s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
             }
          }
       }
