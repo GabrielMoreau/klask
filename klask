@@ -24,7 +24,7 @@ use Socket;
 # arping net-tools fping bind9-host arpwatch
 
 my $KLASK_VAR      = '/var/cache/klask';
-my $KLASK_CFG_FILE = '/etc/klask.conf';
+my $KLASK_CFG_FILE = '/etc/klask/klask.conf';
 my $KLASK_DB_FILE  = "$KLASK_VAR/klaskdb";
 my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
 
@@ -1833,7 +1833,7 @@ This command return the status of a port number on a switch by snmp. So you need
 
 =head2 updatedb
 
-This command will scan networks and update a database. To know which are the cmputer scan, you have to configure the file /etc/klask.conf This file is easy to read and write because klask use YAML format and not XML.
+This command will scan networks and update a database. To know which are the cmputer scan, you have to configure the file /etc/klask/klask.conf This file is easy to read and write because klask use YAML format and not XML.
 
 
 =head2 exportdb
@@ -1843,7 +1843,7 @@ This command print the content of the database. There is actually only one forma
 
 =head2 updatesw
 
-This command build a map of your manageable switch on your network. The list of the switch must be given in the file /etc/klask.conf.
+This command build a map of your manageable switch on your network. The list of the switch must be given in the file /etc/klask/klask.conf.
 
 
 =head2 exportsw --format [txt|dot]
@@ -1857,7 +1857,7 @@ This command print the content of the switch database. There is actually two for
 
 =head1 CONFIGURATION
 
-Because klask need many parameters, it's not possible actually to use command line parameters. The configuration is done in a /etc/klask.conf YAML file. This format have many advantage over XML, it's easier to read and to write !
+Because klask need many parameters, it's not possible actually to use command line parameters. The configuration is done in a /etc/klask/klask.conf YAML file. This format have many advantage over XML, it's easier to read and to write !
 
 Here an example, be aware with indent, it's important in YAML, do not use tabulation !
 
@@ -1898,7 +1898,7 @@ I think it's pretty easy to understand. The default section can be overide in an
 
 =head1 FILES
 
- /etc/klask.conf
+ /etc/klask/klask.conf
  /var/cache/klask/klaskdb
  /var/cache/klask/switchdb
 

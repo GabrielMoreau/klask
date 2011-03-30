@@ -4,7 +4,7 @@
 
 
 check_conf() {
-   if [ ! -r /etc/klask.conf ]
+   if [ ! -r /etc/klask/klask.conf ]
    then
       echo "No config file for klask /etc/klask.conf"
 	   exit 1
