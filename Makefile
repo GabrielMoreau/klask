@@ -4,6 +4,7 @@ MANDIR=/usr/share/man/man1
 SHAREDIR=/usr/share/klask
 LIBDIR=/usr/lib/klask
 CRONDIR=/etc/cron.d
+ETCDIR=/etc/klask
 
 all:
 	pod2man klask | gzip > klask.1.gz
@@ -25,3 +26,7 @@ install:
 
 	install -d -m 0755 -o root -g root $(DESTDIR)/$(CRONDIR)
 	install    -m 0644 -o root -g root klask.cron $(DESTDIR)/$(CRONDIR)/klask
+
+	install -d -m 0755 -o root -g root $(DESTDIR)/$(ETCDIR)
+	install    -m 0644 -o root -g root klask-sample.conf $(DESTDIR)/$(ETCDIR)
+	install    -m 0644 -o root -g root push-web-sample.conf $(DESTDIR)/$(ETCDIR)
