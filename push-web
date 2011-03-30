@@ -132,7 +132,7 @@ $CAT <<END >> ${TMP}/ip-free.html
 </html>
 END
 
-if [ ${REMOTE_SERVER} = 'localhost' ]
+if [ "${REMOTE_SERVER}" = "localhost" ]
 then
    $RSYNC \
       /usr/share/klask/sorttable-klask.js \
