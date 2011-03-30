@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# 2011/03/30 gabriel - create
+
+
+check_conf() {
+   if [ ! -r /etc/klask.conf ]
+   then
+      echo "No config file for klask /etc/klask.conf"
+	   exit 1
+   fi
+   if [ ! -r /etc/klask/push-web.conf ]
+   then
+      echo "No config file for klask-push-web /etc/klask/push-web.conf"
+	   exit 1
+   fi
+   if [ ! -x /usr/sbin/klask ]
+   then
+      echo "No main program klask"
+	   exit 1
+   fi
+   if [ ! -x /usr/lib/klask/push-web ]
+   then
+      echo "No program klask push-web"
+	   exit 1
+   fi
+   }
+
+case "$1" in
+  update)
+      check_conf
+      /usr/sbin/klask updatedb
+      /usr/lib/klask/push-web
+      ;;
+
+  clean)
+      check_conf
+      /usr/sbin/klask cleandb
+      /usr/lib/klask/push-web
+      ;;
+
+  *)
+	   echo "Usage: $0 {update|clean}"
+	   exit 1
+      ;;
+esac
+
+exit 0
