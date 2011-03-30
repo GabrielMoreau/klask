@@ -106,6 +106,7 @@ Readonly my %OID_NUMBER => (
    sysName         => '1.3.6.1.2.1.1.5.0',
    sysContact      => '1.3.6.1.2.1.1.4.0',
    sysLocation     => '1.3.6.1.2.1.1.6.0',
+   searchPort      => '1.3.6.1.2.1.17.4.3.1.2',
    );
 
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
@@ -329,7 +330,7 @@ sub init_switch_names {
 
 ###
 # convertit l'hexa (uniquement 2 chiffres) en decimal
-sub hex_to_dec {
+sub digit_hex_to_dec {
    #00:0F:1F:43:E4:2B
    my $car = '00' . uc shift;
 
@@ -344,15 +345,15 @@ sub hex_to_dec {
    }
 
 ###
-# convertit l'@ arp en decimal
-sub arp_hex_to_dec {
+# convertit l'@ mac en decimal
+sub mac_address_hex_to_dec {
    #00:0F:1F:43:E4:2B
-   my $arp = shift;
+   my $mac_address = shift;
 
-   my @paquets = split m/ : /xms, $arp;
+   my @paquets = split m/ : /xms, $mac_address;
    my $return = q{};
    foreach(@paquets) {
-      $return .= q{.} . hex_to_dec($_);
+      $return .= q{.} . digit_hex_to_dec($_);
       }
    return $return;
    }
@@ -360,14 +361,14 @@ sub arp_hex_to_dec {
 ###
 # va rechercher le port et le switch sur lequel est la machine
 sub find_switch_port {
-   my $arp             = shift;
+   my $mac_address     = shift;
    my $switch_proposal = shift || q{};
 
    my %ret;
    $ret{switch_description} = 'unknow';
    $ret{switch_port} = '0';
 
-   return %ret if $arp eq 'unknow';;
+   return %ret if $mac_address eq 'unknow';;
 
    my @switch_search = @SWITCH;
    if ($switch_proposal ne q{}) {
@@ -378,7 +379,7 @@ sub find_switch_port {
          }
       }
 
-   my $research = '1.3.6.1.2.1.17.4.3.1.2' . arp_hex_to_dec($arp);
+   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
 
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
@@ -425,20 +426,20 @@ sub find_switch_port {
 ###
 # va rechercher les port et les switch sur lequel est la machine
 sub find_all_switch_port {
-   my $arp = shift;
+   my $mac_address = shift;
 
    my $ret = {};
 
-   return $ret if $arp eq 'unknow';
+   return $ret if $mac_address eq 'unknow';
 
-   for my $sw (@SWITCH) {
-      next if exists $SWITCH_PORT_COUNT{$sw->{hostname}};
-
-      $SWITCH_PORT_COUNT{$sw->{hostname}} = {};
+#   for my $sw (@SWITCH) {
+#      next if exists $SWITCH_PORT_COUNT{$sw->{hostname}};
+#
+#      $SWITCH_PORT_COUNT{$sw->{hostname}} = {};
 #      print "DEBUG: SWITCH_PORT_COUNT defined for $sw->{hostname}\n" if $DEBUG xor 2;
-      }
+#      }
 
-   my $research = '1.3.6.1.2.1.17.4.3.1.2' . arp_hex_to_dec($arp);
+   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
@@ -451,18 +452,12 @@ sub find_all_switch_port {
       if(defined $result and $result->{$research} ne 'noSuchInstance'){
          my $swport = $result->{$research};
 
-#print "DEBUG $arp  $swport --  $sw->{hostname} \n";
-#         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' and $swport == 19 ) { $swport = 20; print "DEBUG $swport --  $sw->{hostname} \n";}
-#         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  and $swport == 23 ) { $swport = 24; print "DEBUG $swport --  $sw->{hostname} \n";}
-#         if ( $sw->{hostname} eq 'sw10-batE1-3s.hmg.priv' ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
-#         if ( $sw->{hostname} eq 'sw8-batE1-3s.hmg.priv'  ) {  print "DEBUG $swport --  $sw->{hostname} \n";}
-
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
          $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{model}, $swport);
 
-         $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
+#         $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
          }
 
       $session->close;
@@ -1404,7 +1399,7 @@ sub cmd_search_mac_on_switch {
       $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
       }
 
-   my $research = '1.3.6.1.2.1.17.4.3.1.2' . arp_hex_to_dec($mac_address);
+   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
    print "Klask search OID $research on switch $switch_name\n";
 
    my ($session, $error) = Net::SNMP->session( %session );
