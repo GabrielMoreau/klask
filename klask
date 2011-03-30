@@ -158,7 +158,7 @@ sub shell_command {
 
    my $fh     = new FileHandle;
    my $result = '';
-   open $fh, q{-|}, "$cmd" or die "Can't exec $cmd\n";
+   open $fh, q{-|}, "LANG=C $cmd" or die "Can't exec $cmd\n";
    $result .= <$fh>;
    close $fh;
    chomp $result;
@@ -178,17 +178,6 @@ sub resolve_ip_arp_host {
       mac_address  => 'unknow',
       );
 
-#   my $cmdarping  = `arping -c 1 -w 1 -rR $param 2>/dev/null`;
-#   if ( not $param_ip_or_host =~ m/^\d+ \. \d+ \. \d+ \. \d+$/xms ) {
-#      $param_ip_or_host =~ s/ \. .* //xms;
-#      }
-
-   #my $dns_resolver =  Net::DNS::Resolver->new;
-   #my $dns_answer = $dns_resolver->query($param_ip_or_host);
-   #if ($dns_answer) {
-   #   $ret{ipv4_address} = $dns_answer->address;
-   #   }
-
    # perl -MSocket -E 'say inet_ntoa(scalar gethostbyname("tech7meylan.hmg.inpg.fr"))'
    my $packed_ip = scalar gethostbyname($param_ip_or_host);
    return %ret if not defined $packed_ip;
@@ -196,33 +185,19 @@ sub resolve_ip_arp_host {
 
    # perl -MSocket -E 'say scalar gethostbyaddr(inet_aton("194.254.66.240"), AF_INET)'
    my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET);
-#   return %ret if not defined $hostname_fq;
    $ret{hostname_fq} = $hostname_fq if defined $hostname_fq;
-
-#print "DEBUG : $param_ip_or_host --  $ret{ipv4_address} --   $hostname_fq \n";
-
-   # controler que arpwatch tourne !
-   # resultat de la commande arpwatch
-   # /var/lib/arpwatch/arp.dat
-   # 0:13:d3:e1:92:d0        192.168.24.109  1163681980      theo8sv109
-   # my $cmd = "grep  -e '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/arp.dat | sort +2rn | head -1";
-   # my $cmd = "grep  -he '".'\b'."$param_ip_or_host".'\b'."' /var/lib/arpwatch/*.dat | sort +2rn | head -1";
-
-### BOGUE ICI
-### FAIRE LE GREP SUR L'IP !
 
    # my $cmd = q{grep  -he '\b} . $param_ip_or_host . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
    my $cmd = q{grep  -he '\b} . $ret{ipv4_address} . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
    my $cmd_arpwatch = shell_command $cmd;
    my ($arp, $ip, $timestamp, $host) = split m/ \s+ /xms, $cmd_arpwatch;
 
-#   $ret{ipv4_address} = $ip        if $ip;
    $ret{mac_address}  = $arp       if $arp;
    $ret{timestamp}    = $timestamp if $timestamp;
 
    my $nowtimestamp = time;
 
-   if ( $type eq 'fast' and ( not defined $timestamp or $timestamp < ( $nowtimestamp - 1.1 * 3600 ) ) ) {
+   if ( $type eq 'fast' and ( not defined $timestamp or $timestamp < ( $nowtimestamp - 45 * 60 ) ) ) { # 45 min
       $ret{mac_address} = 'unknow';
       return %ret;
       }
@@ -235,26 +210,7 @@ sub resolve_ip_arp_host {
       ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
       }
 
-   # resultat de la commande host si le parametre est ip
-   # 250.66.254.194.in-addr.arpa domain name pointer legihp2100.hmg.inpg.fr.
-#   my $cmd_host = shell_command "host $param_ip_or_host";
-#   if ( $cmd_host =~ m/domain \s name \s pointer \s (\S+) \.$/xms ) {
-#      $ret{hostname_fq} = $1;
-#      }
-
-   # resultat de la commande host si parametre est hostname
-   # tech7meylan.hmg.inpg.fr has address 194.254.66.240
-#   if ( $cmd_host =~ m/(\S*) \s has \s address \s ( $RE_IPv4_ADDRESS )$/xms ) {
-#      ( $ret{hostname_fq}, $ret{ipv4_address} ) = ($1, $2);
-#      }
-
-   # Connerie !
-   # Inverse les IP !!
-   # if ( $cmd_host =~ m/ \b ( $RE_IPv4_ADDRESS ) \. in-addr \. arpa \s/xms ) {
-   #    $ret{ipv4_address} = $1;
-   #    }
-   #$ret{hostname_fq}  = $param_ip_or_host if not defined $1 and $ret{hostname_fq} eq 'unknow';
-
+   # Normalize MAC Address
    if ($ret{mac_address} ne 'unknow') {
       my @paquets = ();
       foreach ( split m/ : /xms, $ret{mac_address} ) {
@@ -737,13 +693,11 @@ sub cmd_updatedb {
          my ($sec_elapse,$min_elapse) = localtime $time_elapse;
 
          printf "\rComputer scanned: %4i/%i (%2i%%)",  $i,                 $number_of_computer, $total_percent;
-#         printf ", Computer detected: %4i/%i (%2i%%)", $detected_computer, $size_of_database,   int(($detected_computer*100)/$size_of_database);
          printf ', detected: %4i/%i (%2i%%)', $detected_computer, $size_of_database,   int(($detected_computer*100)/$size_of_database);
          printf ' [Time: %02i:%02i / %02i:%02i]', int($localtime/60), $localtime % 60, int($time_elapse/60), $time_elapse % 60;
-#         printf '  [%02i:%02i/%02i:%02i]', int($localtime/60), $localtime % 60, int($time_elapse/60), $time_elapse % 60;
-         printf ' %-14s', $one_computer;
+         printf ' %-8s %-14s', $current_interface, $one_computer;
 
-         my %resol_arp = resolve_ip_arp_host($one_computer,$current_interface);
+         my %resol_arp = resolve_ip_arp_host($one_computer, $current_interface);
 
          # do not search on router connection (why ?)
          if ( exists $router_mac_ip{$resol_arp{mac_address}}) {
