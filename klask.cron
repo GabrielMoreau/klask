@@ -3,4 +3,5 @@
 #
 
 # m h dom mon dow    user    command
-0 9,12,15,18 * * *   root    if [ -x /usr/sbin/klask ] && [ -r /etc/klask.conf ]; then /usr/sbin/klask updatedb >> /dev/null 2>&1; fi
+0,30 7-20 * * *   root   test -x /usr/lib/klask/klask-wrapper && nice -18 /usr/lib/klask/klask-wrapper update >> /dev/null 2>&1
+0    9    * * *   root   test -x /usr/lib/klask/klask-wrapper && nice -18 /usr/lib/klask/klask-wrapper clean >> /dev/null 2>&1
