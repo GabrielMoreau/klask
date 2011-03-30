@@ -14,8 +14,8 @@ install:
 	install    -m 0755 -o root -g root klask $(DESTDIR)/$(BINDIR)
 
 	install -d -m 0755 -o root -g root $(DESTDIR)/$(LIBDIR)
-	install    -m 0644 -o root -g root push-web $(DESTDIR)/$(LIBDIR)
-	install    -m 0644 -o root -g root klask-wrapper $(DESTDIR)/$(LIBDIR)
+	install    -m 0755 -o root -g root push-web $(DESTDIR)/$(LIBDIR)
+	install    -m 0755 -o root -g root klask-wrapper $(DESTDIR)/$(LIBDIR)
 
 	install -d -m 0755 -o root -g root $(DESTDIR)/$(MANDIR)
 	install    -m 0644 -o root -g root klask.1.gz $(DESTDIR)/$(MANDIR)
