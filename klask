@@ -28,6 +28,11 @@ my $KLASK_CFG_FILE = '/etc/klask.conf';
 my $KLASK_DB_FILE  = "$KLASK_VAR/klaskdb";
 my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
 
+#my $DEBUG = 0;
+#GetOptionsFromArray(\@ARGV,
+#   'debug|d=i'   => \$DEBUG,
+#   );
+
 test_running_environnement();
 
 my $KLASK_CFG = YAML::Syck::LoadFile("$KLASK_CFG_FILE");
@@ -427,7 +432,10 @@ sub find_all_switch_port {
    return $ret if $arp eq 'unknow';
 
    for my $sw (@SWITCH) {
-      $SWITCH_PORT_COUNT{$sw->{hostname}} = {} if not exists $SWITCH_PORT_COUNT{$sw->{hostname}};
+      next if exists $SWITCH_PORT_COUNT{$sw->{hostname}};
+
+      $SWITCH_PORT_COUNT{$sw->{hostname}} = {};
+#      print "DEBUG: SWITCH_PORT_COUNT defined for $sw->{hostname}\n" if $DEBUG xor 2;
       }
 
    my $research = '1.3.6.1.2.1.17.4.3.1.2' . arp_hex_to_dec($arp);
@@ -1432,26 +1440,28 @@ sub cmd_updatesw {
 
    my %where = ();
    my %db_switch_output_port = ();
-   my %db_switch_ip_hostname = ();
+   my %db_switch_ip_hostnamefq = ();
 
    DETECT_ALL_ROUTER:
 #   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
       my %resol_arp = resolve_ip_arp_host($one_router, q{*}, q{low}); # resolution arp
+
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
-      $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       print "VERBOSE_1: Router detected $resol_arp{ipv4_address} - $resol_arp{mac_address}\n" if $verbose;
+
+      $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # retrouve les emplacements des routeurs
       }
 
    ALL_ROUTER_IP_ADDRESS:
-   for my $ip (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
+   for my $ip_router (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
 
-      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip}; # /a priori/ idiot car ne sers à rien...
+      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip_router}; # /a priori/ idiot car ne sers à rien...
 
       ALL_SWITCH_CONNECTED:
-      for my $switch_detected ( keys %{$where{$ip}} ) {
+      for my $switch_detected ( keys %{$where{$ip_router}} ) {
 
-         my $switch = $where{$ip}->{$switch_detected};
+         my $switch = $where{$ip_router}->{$switch_detected};
 
          next ALL_SWITCH_CONNECTED if $switch->{port} eq '0';
 
@@ -1462,16 +1472,16 @@ sub cmd_updatesw {
 
    my %db_switch_link_with = ();
 
-   my @list_switch_ip = ();
+   my @list_all_switch = ();
    my @list_switch_ipv4 = ();
    for my $sw (@SWITCH){
-      push @list_switch_ip, $sw->{hostname};
+      push @list_all_switch, $sw->{hostname};
       }
 
    my $timestamp = time;
 
    ALL_SWITCH:
-   for my $one_computer (@list_switch_ip) {
+   for my $one_computer (@list_all_switch) {
       my %resol_arp = resolve_ip_arp_host($one_computer, q{*}, q{low}); # arp resolution
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
 
@@ -1480,17 +1490,14 @@ sub cmd_updatesw {
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address}); # find port on all switch
 
       if ($verbose) {
-#         my @l = ();
-#         for my $c  ( keys %{$where{$resol_arp{ipv4_address}}} ) {
-#            push @l, "$c -+ "; #$where{$resol_arp{ipv4_address}}->{$c}{hostname};
-#            }
-         print "VERBOSE_3 $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address}\n";
-         print "VERBOSE_3 $one_computer --- ",
+         print "VERBOSE_3: $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address}\n";
+         print "VERBOSE_3: $one_computer --- ",
             join(' + ', keys %{$where{$resol_arp{ipv4_address}}}),
             "\n";
          }
 
-      $db_switch_ip_hostname{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
+      $db_switch_ip_hostnamefq{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
+      print "VERBOSE_4: db_switch_ip_hostnamefq $resol_arp{ipv4_address} -> $resol_arp{hostname_fq}\n" if $verbose;
 
       $SWITCH_DB{$one_computer}->{ipv4_address} = $resol_arp{ipv4_address};
       $SWITCH_DB{$one_computer}->{mac_address}  = $resol_arp{mac_address};
@@ -1500,23 +1507,24 @@ sub cmd_updatesw {
    ALL_SWITCH_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
 
+      print "VERBOSE_5: loop on $db_switch_ip_hostnamefq{$ip}\n" if $verbose;
+
       next ALL_SWITCH_IP_ADDRESS if not exists $where{$ip};
+      next ALL_SWITCH_IP_ADDRESS if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostnamefq{$ip} };
 
       DETECTED_SWITCH:
       for my $switch_detected ( keys %{$where{$ip}} ) {
 
-         next DETECTED_SWITCH if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostname{$ip} };
-
          my $switch = $where{$ip}->{$switch_detected};
-         print "VERBOSE_4: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
+         print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
 
          next if $switch->{port}     eq '0';
          next if $switch->{port}     eq $db_switch_output_port{$switch->{hostname}};
-         next if $switch->{hostname} eq $db_switch_ip_hostname{$ip}; # $computerdb->{$ip}{hostname};
+         next if $switch->{hostname} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{hostname};
 
-         $db_switch_link_with{ $db_switch_ip_hostname{$ip} } ||= {};
-         $db_switch_link_with{ $db_switch_ip_hostname{$ip} }->{ $switch->{hostname} } = $switch->{port};
-         print "VERBOSE_5: $db_switch_ip_hostname{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
+         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} } ||= {};
+         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} }->{ $switch->{hostname} } = $switch->{port};
+         print "VERBOSE_7: +++++\n" if $verbose;
          }
 
       }
