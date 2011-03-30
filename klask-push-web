@@ -4,19 +4,20 @@
 # 2010/11/03 gabriel
 # 2011/03/30 gabriel - make it generic
 
-TMP='/tmp/klask-push-web'
-
 SITE_NAME=''
 REMOTE_SERVER=localhost
 REMOTE_USER=''
 REMOTE_FOLDER=/var/www/klask/
 
-if test -f /etc/klask/push-web.conf
+if [ -f /etc/klask/push-web.conf ]
 then
    . /etc/klask/push-web.conf
 fi
 
+TMP='/tmp/klask-push-web'
 
+
+# local command
 MKDIR=/bin/mkdir
 DATE=/bin/date
 CAT=/bin/cat
@@ -27,9 +28,12 @@ SCP=/usr/bin/scp
 KLASK=/usr/sbin/klask
 RSYNC=/usr/bin/rsync
 
+# remote command
+DOT=/usr/bin/dot
 
-$MKDIR -p $TMP
-if test ! -d ${TMP}
+
+$MKDIR -p ${TMP}
+if [ ! -d ${TMP} ]
 then
    echo "Error: Folder ${TMP} do not exist !"
    exit 1
@@ -98,6 +102,7 @@ $CAT <<END > ${TMP}/ip-free.html
 <html>
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
+ <meta http-equiv="refresh" content="3600">
  <script src="sorttable-klask.js"></script>
 </head>
 <body>
@@ -127,7 +132,7 @@ $CAT <<END >> ${TMP}/ip-free.html
 </html>
 END
 
-if test ${REMOTE_SERVER} = 'localhost'
+if [ ${REMOTE_SERVER} = 'localhost' ]
 then
    $RSYNC \
       /usr/share/klask/sorttable-klask.js \
@@ -138,7 +143,7 @@ then
       ${TMP}/switch-map.txt \
       ${REMOTE_FOLDER}/
 
-   (cd ${REMOTE_FOLDER}; dot -T png switch-map.txt > switch-map.png)
+   [ -x ${DOT} ] && (cd ${REMOTE_FOLDER}; ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
    $RSYNC \
@@ -151,5 +156,5 @@ else
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
 
 
-   $SSH ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER}; dot -T png switch-map.txt > switch-map.png)"
+   $SSH ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER}; ${DOT} -T png switch-map.txt > switch-map.png)"
 fi
