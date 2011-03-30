@@ -1185,15 +1185,18 @@ sub cmd_ip_free {
 
    my $days_to_dead = 365 * 2;
    my $format = 'txt';
+   my $verbose;
 
    my $ret = GetOptionsFromArray(\@vlan_name,
       'day|d=i'      => \$days_to_dead,
       'format|f=s'   => \$format,
+      'verbose|v'    => \$verbose,
       );
 
    my %possible_format = (
       txt  => \&cmd_ip_free_txt,
       html => \&cmd_ip_free_html,
+      none => sub {},
       );
    $format = 'txt' if not defined $possible_format{$format};
 
@@ -1211,8 +1214,7 @@ sub cmd_ip_free {
    for my $vlan (@vlan_name) {
 
       my @ip_list = get_list_ip($vlan);
-#      my $current_interface = get_current_interface($vlan);
-      
+
       LOOP_ON_IP_ADDRESS:
       for my $ip (@ip_list) {
 
@@ -1235,8 +1237,10 @@ sub cmd_ip_free {
          my $hostname_fq = 'unknown';
             $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) || 'unknown' if defined $packed_ip;
          $result_ip{$ip}->{hostname_fq} = $hostname_fq;
-         
+
          $result_ip{$ip}->{vlan} = $vlan;
+
+         printf "VERBOSE_1: %-15s %-12s %s\n", $ip, $vlan, $hostname_fq if $verbose;
          }
       }
 
