@@ -1510,7 +1510,7 @@ sub cmd_updatesw {
       print "VERBOSE_5: loop on $db_switch_ip_hostnamefq{$ip}\n" if $verbose;
 
       next ALL_SWITCH_IP_ADDRESS if not exists $where{$ip};
-      next ALL_SWITCH_IP_ADDRESS if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostnamefq{$ip} };
+#      next ALL_SWITCH_IP_ADDRESS if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostnamefq{$ip} };
 
       DETECTED_SWITCH:
       for my $switch_detected ( keys %{$where{$ip}} ) {
