@@ -23,7 +23,7 @@ use Socket;
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl 
 # arping net-tools fping bind9-host arpwatch
 
-my $KLASK_VAR      = '/var/cache/klask';
+my $KLASK_VAR      = '/var/lib/klask';
 my $KLASK_CFG_FILE = '/etc/klask/klask.conf';
 my $KLASK_DB_FILE  = "$KLASK_VAR/klaskdb";
 my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
@@ -1857,8 +1857,8 @@ I think it's pretty easy to understand. The default section can be overide in an
 =head1 FILES
 
  /etc/klask/klask.conf
- /var/cache/klask/klaskdb
- /var/cache/klask/switchdb
+ /var/lib/klask/klaskdb
+ /var/lib/klask/switchdb
 
 =head1 SEE ALSO
 
