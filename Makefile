@@ -44,5 +44,5 @@ help:
 	@echo "Cibles possibles :"
 	@echo " * all     : construction du man"
 	@echo " * install : installation complète"
-	@echo " * update  : mise à jour minimale"
+	@echo " * update  : installation minimale"
 	@echo " * sync    : synchronisation avec le dépôt officiel"
