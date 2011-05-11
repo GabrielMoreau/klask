@@ -677,7 +677,7 @@ sub cmd_updatedb {
       my @computer = get_list_ip($net);
       my $current_interface = get_current_interface($net);
 
-      fastping(@computer);
+      #fastping(@computer);
 
       LOOP_ON_COMPUTER:
       for my $one_computer (@computer) {
