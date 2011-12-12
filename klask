@@ -843,11 +843,11 @@ sub cmd_cleandb {
 
    my $timestamp_barrier = 3600 * 24 * $days_to_clean;
 
+   my %mactimedb = ();
    ALL_VLAN:
    for my $vlan (@vlan_name) {
 
       my @ip_list   = get_list_ip($vlan);
-      my %mactimedb = ();
       
       LOOP_ON_IP_ADDRESS:
       for my $ip (@ip_list) {
@@ -856,25 +856,38 @@ sub cmd_cleandb {
             not exists $computerdb->{$ip};
             
             #&& $computerdb->{$ip}{timestamp} > $timestamp_barrier;
-         my $ip_timestamp = $computerdb->{$ip}{timestamp};
-         my $ip_mac       = $computerdb->{$ip}{mac_address};
+         my $ip_timestamp   = $computerdb->{$ip}{timestamp};
+         my $ip_mac         = $computerdb->{$ip}{mac_address};
+         my $ip_hostname_fq = $computerdb->{$ip}{hostname_fq};
+
+         $mactimedb{$ip_mac} ||= {
+            ip          => $ip,
+            timestamp   => $ip_timestamp,
+            vlan        => $vlan,
+            hostname_fq => $ip_hostname_fq,
+            };
          
-         $mactimedb{$ip_mac} ||= [ $ip, $ip_timestamp ];
-         
-         if ( $mactimedb{$ip_mac}->[1] - $ip_timestamp > $timestamp_barrier ) {
+         if ( $mactimedb{$ip_mac}->{timestamp} - $ip_timestamp > $timestamp_barrier
+            and not $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/ ) {
             print "remove ip $ip\n" if $verbose;
             delete $computerdb->{$ip};
             $database_has_changed++;
             }
 
-         if ( $ip_timestamp - $mactimedb{$ip_mac}->[1] > $timestamp_barrier ) {
-            print "remove ip ".$mactimedb{$ip_mac}->[0]."\n" if $verbose;
-            delete $computerdb->{$mactimedb{$ip_mac}->[0]};
+         if ( $ip_timestamp - $mactimedb{$ip_mac}->{timestamp} > $timestamp_barrier
+            and not $ip_hostname_fq =~ m/^float/ ) {
+            print "remove ip ".$mactimedb{$ip_mac}->{ip}."\n" if $verbose;
+            delete $computerdb->{$mactimedb{$ip_mac}->{ip}};
             $database_has_changed++;
             }
 
-         if ( $ip_timestamp > $mactimedb{$ip_mac}->[1]) {
-            $mactimedb{$ip_mac} = [ $ip, $ip_timestamp ];
+         if ( $ip_timestamp > $mactimedb{$ip_mac}->{timestamp}) {
+            $mactimedb{$ip_mac} = {
+               ip          => $ip,
+               timestamp   => $ip_timestamp,
+               vlan        => $vlan,
+               hostname_fq => $ip_hostname_fq,
+               };
             }
          }
       }
