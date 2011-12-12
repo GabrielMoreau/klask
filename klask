@@ -868,7 +868,13 @@ sub cmd_cleandb {
             hostname_fq => $ip_hostname_fq,
             };
          
-         if ( $mactimedb{$ip_mac}->{timestamp} - $ip_timestamp > $timestamp_barrier
+         if (
+            ( $mactimedb{$ip_mac}->{timestamp} - $ip_timestamp > $timestamp_barrier
+               or (
+                  $mactimedb{$ip_mac}->{timestamp} > $ip_timestamp
+                  and $timestamp - $mactimedb{$ip_mac}->{timestamp} > $timestamp_3month
+                  )
+            )
             and (
                not $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/
                or $ip_hostname_fq =~ m/^float/
@@ -878,29 +884,17 @@ sub cmd_cleandb {
             $database_has_changed++;
             }
 
-         elsif ( $ip_timestamp - $mactimedb{$ip_mac}->{timestamp} > $timestamp_barrier
+         elsif (
+            ( $ip_timestamp - $mactimedb{$ip_mac}->{timestamp} > $timestamp_barrier
+               or (
+                  $ip_timestamp > $mactimedb{$ip_mac}->{timestamp}
+                  and $timestamp - $ip_timestamp > $timestamp_3month
+                  )
+            )
             and (
                not $ip_hostname_fq =~ m/^float/
                or $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/
                )) {
-            print "remove ip ".$mactimedb{$ip_mac}->{ip}."\n" if $verbose;
-            delete $computerdb->{$mactimedb{$ip_mac}->{ip}};
-            $database_has_changed++;
-            }
-
-         elsif ( $mactimedb{$ip_mac}->{timestamp} > $ip_timestamp
-            and $timestamp - $mactimedb{$ip_mac}->{timestamp} > $timestamp_3month
-            and not $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/
-            ) {
-            print "remove ip $ip\n" if $verbose;
-            delete $computerdb->{$ip};
-            $database_has_changed++;
-            }
-
-         elsif (  $ip_timestamp > $mactimedb{$ip_mac}->{timestamp}
-            and $timestamp - $ip_timestamp > $timestamp_3month
-            and not $ip_hostname_fq =~ m/^float/
-            ) {
             print "remove ip ".$mactimedb{$ip_mac}->{ip}."\n" if $verbose;
             delete $computerdb->{$mactimedb{$ip_mac}->{ip}};
             $database_has_changed++;
