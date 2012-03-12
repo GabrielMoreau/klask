@@ -16,8 +16,9 @@ use YAML::Syck;
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
-use Getopt::Long qw(GetOptions GetOptionsFromArray);;
+use Getopt::Long qw(GetOptions GetOptionsFromArray);
 use Socket;
+use List::Util 'shuffle';
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl 
@@ -846,9 +847,9 @@ sub cmd_cleandb {
 
    my %mactimedb = ();
    ALL_VLAN:
-   for my $vlan (@vlan_name) {
+   for my $vlan (shuffle @vlan_name) {
 
-      my @ip_list   = get_list_ip($vlan);
+      my @ip_list   = shuffle get_list_ip($vlan);
       
       LOOP_ON_IP_ADDRESS:
       for my $ip (@ip_list) {
