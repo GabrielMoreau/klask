@@ -16,7 +16,7 @@ use YAML::Syck;
 use Net::Netmask;
 use Net::CIDR::Lite;
 use NetAddr::IP;
-use Getopt::Long qw(GetOptions GetOptionsFromArray);
+use Getopt::Long qw(GetOptions);
 use Socket;
 use List::Util 'shuffle';
 
@@ -28,11 +28,6 @@ my $KLASK_VAR      = '/var/lib/klask';
 my $KLASK_CFG_FILE = '/etc/klask/klask.conf';
 my $KLASK_DB_FILE  = "$KLASK_VAR/klaskdb";
 my $KLASK_SW_FILE  = "$KLASK_VAR/switchdb";
-
-#my $DEBUG = 0;
-#GetOptionsFromArray(\@ARGV,
-#   'debug|d=i'   => \$DEBUG,
-#   );
 
 test_running_environnement();
 
@@ -825,13 +820,13 @@ sub cmd_removedb {
    }
 
 sub cmd_cleandb {
-   my @options = @_;
+   my @ARGV  = @_;
 
    my $days_to_clean = 15;
    my $verbose;
    my $database_has_changed;
 
-   my $ret = GetOptionsFromArray(\@options,
+   my $ret = GetOptions(
       'day|d=i'   => \$days_to_clean,
       'verbose|v' => \$verbose,
       );
@@ -922,7 +917,7 @@ sub cmd_cleandb {
    }
 
 sub cmd_exportdb {
-   my @ARGV   = @_;
+   my @ARGV = @_;
 
    my $format = 'txt';
 
@@ -1214,13 +1209,13 @@ sub cmd_iplocation {
    }
 
 sub cmd_ip_free {
-   my @vlan_name = @_;
+   my @ARGV = @_; # VLAN name with option
 
    my $days_to_dead = 365 * 2;
    my $format = 'txt';
    my $verbose;
 
-   my $ret = GetOptionsFromArray(\@vlan_name,
+   my $ret = GetOptions(
       'day|d=i'      => \$days_to_dead,
       'format|f=s'   => \$format,
       'verbose|v'    => \$verbose,
@@ -1233,6 +1228,7 @@ sub cmd_ip_free {
       );
    $format = 'txt' if not defined $possible_format{$format};
 
+   my @vlan_name = @ARGV;
    @vlan_name = get_list_network() if not @vlan_name;
 
    my $computerdb = {};
@@ -1413,11 +1409,11 @@ sub cmd_search_mac_on_switch {
    }
 
 sub cmd_updatesw {
-   my @options = @_;
+   my @ARGV = @_;
 
    my $verbose;
 
-   my $ret = GetOptionsFromArray(\@options,
+   my $ret = GetOptions(
       'verbose|v' => \$verbose,
       );
 
@@ -1613,7 +1609,7 @@ sub cmd_updatesw {
    }
 
 sub cmd_exportsw {
-   my @ARGV   = @_;
+   my @ARGV = @_;
 
    test_switchdb_environnement();
 
