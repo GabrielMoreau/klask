@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2008 Gabriel Moreau.
+# Copyright (C) 2005-2012 Gabriel Moreau.
 #
 # $Id$
 
@@ -54,14 +54,14 @@ my %CMD_DB = (
    updatedb   => \&cmd_updatedb,
    searchdb   => \&cmd_searchdb,
    removedb   => \&cmd_removedb,
-   cleandb   => \&cmd_cleandb,
+   cleandb    => \&cmd_cleandb,
    search     => \&cmd_search,
    enable     => \&cmd_enable,
    disable    => \&cmd_disable,
    status     => \&cmd_status,
    updatesw   => \&cmd_updatesw,
    exportsw   => \&cmd_exportsw,
-   iplocation => \&cmd_iplocation,
+   iplocation => \&cmd_ip_location,
    'ip-free'  => \&cmd_ip_free,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    );
@@ -143,7 +143,7 @@ sub test_maindb_environnement {
 
 ###
 # fast ping dont l'objectif est de remplir la table arp de la machine
-sub fastping {
+sub fast_ping {
    # Launch this command without waiting...
    system "fping -c 1 @_ >/dev/null 2>&1 &";
    return;
@@ -567,7 +567,7 @@ sub cmd_version {
 
 print <<'END';
 Klask - ports manager and finder for switch
-Copyright (C) 2005-2008 Gabriel Moreau
+Copyright (C) 2005-2012 Gabriel Moreau
 
 END
    print ' $Rev$'."\n";
@@ -580,7 +580,7 @@ sub cmd_search {
    my @computer = @_;
 
    init_switch_names();    #nomme les switchs
-   fastping(@computer);
+   fast_ping(@computer);
    for my $clientname (@computer) {
       my %resol_arp = resolve_ip_arp_host($clientname);          #resolution arp
       my %where     = find_switch_port($resol_arp{mac_address}); #retrouve l'emplacement
@@ -593,7 +593,7 @@ sub cmd_search {
 sub cmd_searchdb {
    my @computer = @_;
 
-   fastping(@computer);
+   fast_ping(@computer);
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_COMPUTER:
@@ -673,7 +673,7 @@ sub cmd_updatedb {
       my @computer = get_list_ip($net);
       my $current_interface = get_current_interface($net);
 
-      #fastping(@computer);
+      #fast_ping(@computer);
 
       LOOP_ON_COMPUTER:
       for my $one_computer (@computer) {
@@ -1185,7 +1185,7 @@ END_HTML
    return;
    }
 
-sub cmd_iplocation {
+sub cmd_ip_location {
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
    LOOP_ON_IP_ADDRESS:
@@ -1792,7 +1792,7 @@ klask is a small tool to find where is a host in a big network. klask mean searc
 
 Klask has now a web site dedicated for it !
 
- http://servforge.legi.inpg.fr/projects/klask
+ http://servforge.legi.grenoble-inp.fr/projects/klask
 
 
 =head1 COMMANDS
@@ -1908,4 +1908,4 @@ Written by Gabriel Moreau, Grenoble - France
 
 GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2009 Gabriel Moreau.
+Copyright (C) 2005-2012 Gabriel Moreau.
