@@ -1371,40 +1371,44 @@ sub cmd_search_mac_on_switch {
       die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
 
-   if (not defined $SWITCH_DB{$switch_name}) {
-      die "Switch $switch_name must be defined in klask configuration file\n";
-      }
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH ) if $switch_name eq q{*};
 
-   my $sw = $SWITCH_DB{$switch_name};
-   my %session = ( -hostname => $sw->{hostname} );
-      $session{-version} = $sw->{version}   || 1;
-      $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-   if (exists $sw->{version} and $sw->{version} eq '3') {
-      $session{-username} = $sw->{username} || 'snmpadmin';
-      }
-   else {
-      $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-      }
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
 
-   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
-   print "Klask search OID $research on switch $switch_name\n";
+      my $sw = $SWITCH_DB{$sw_name};
+      my %session = ( -hostname => $sw->{hostname} );
+         $session{-version} = $sw->{version}   || 1;
+         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
+      if (exists $sw->{version} and $sw->{version} eq '3') {
+         $session{-username} = $sw->{username} || 'snmpadmin';
+         }
+      else {
+         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
+         }
 
-   my ($session, $error) = Net::SNMP->session( %session );
-   print "$error \n" if $error;
+      my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
+      print "Klask search OID $research on switch $sw_name\n";
 
-   my $result = $session->get_request(
-      -varbindlist => [$research]
-      );
+      my ($session, $error) = Net::SNMP->session( %session );
+      print "$error \n" if $error;
 
-   if (not defined $result or $result->{$research} eq 'noSuchInstance') {
-      print "Klask do not find MAC $mac_address on switch $switch_name\n";
+      my $result = $session->get_request(
+         -varbindlist => [$research]
+         );
+
+      if (not defined $result or $result->{$research} eq 'noSuchInstance') {
+         print "Klask do not find MAC $mac_address on switch $sw_name\n";
+         $session->close;
+         }
+
+      my $swport = $result->{$research};
       $session->close;
+
+      print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
       }
-
-   my $swport = $result->{$research};
-   $session->close;
-
-   print "Klask find MAC $mac_address on switch $switch_name port $swport\n";
    return;
    }
 
