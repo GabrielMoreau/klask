@@ -423,19 +423,19 @@ sub get_list_network {
    }
 
 sub get_current_interface {
-   my $network = shift;
+   my $vlan_name = shift;
 
-   return $KLASK_CFG->{network}{$network}{interface};
+   return $KLASK_CFG->{network}{$vlan_name}{interface};
    }
 
 ###
 # liste l'ensemble des adresses ip d'un réseau
 sub get_list_ip {
-   my @network = @_;
+   my @vlan_name = @_;
 
    my $cidrlist = Net::CIDR::Lite->new;
 
-   for my $net (@network) {
+   for my $net (@vlan_name) {
       my @line  = @{$KLASK_CFG->{network}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
          for my $method (keys %{$cmd}){
@@ -459,11 +459,11 @@ sub get_list_ip {
 
 # liste l'ensemble des routeurs du réseau
 sub get_list_main_router {
-   my @network = @_;
+   my @vlan_name = @_;
 
    my @res = ();
 
-   for my $net (@network) {
+   for my $net (@vlan_name) {
       push @res, $KLASK_CFG->{network}{$net}{'main-router'};
       }
 
@@ -917,7 +917,7 @@ sub cmd_cleandb {
    }
 
 sub cmd_exportdb {
-   my @ARGV = @_;
+   @ARGV = @_;
 
    my $format = 'txt';
 
@@ -1209,7 +1209,7 @@ sub cmd_ip_location {
    }
 
 sub cmd_ip_free {
-   my @ARGV = @_; # VLAN name with option
+   @ARGV = @_; # VLAN name with option
 
    my $days_to_dead = 365 * 2;
    my $format = 'txt';
@@ -1413,7 +1413,7 @@ sub cmd_search_mac_on_switch {
    }
 
 sub cmd_updatesw {
-   my @ARGV = @_;
+   @ARGV = @_;
 
    my $verbose;
 
@@ -1613,7 +1613,7 @@ sub cmd_updatesw {
    }
 
 sub cmd_exportsw {
-   my @ARGV = @_;
+   @ARGV = @_;
 
    test_switchdb_environnement();
 
