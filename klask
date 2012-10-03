@@ -498,11 +498,11 @@ sub get_human_readable_port {
          }
       }
 
-   if ($sw_model eq 'HP2810-48G') {
+   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
       if ($sw_port > 48) {
          
          my $reste = $sw_port - 48;
-         return "T$reste";
+         return "Trk$reste";
          }
       }
 
@@ -539,10 +539,10 @@ sub get_numerical_port {
          }
       }
 
-   if ($sw_model eq 'HP2810-48G') {
-      if ($sw_port =~ m/^T/xms ) {
+   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
+      if ($sw_port =~ m/^Trk/xms ) {
 
-         my $reste =  substr $sw_port, 1;
+         my $reste =  substr $sw_port, 3;
 
          return 48 + $reste;
          }
