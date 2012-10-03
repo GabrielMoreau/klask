@@ -498,6 +498,14 @@ sub get_human_readable_port {
          }
       }
 
+   if ($sw_model eq 'HP2810-48G') {
+      if ($sw_port > 48) {
+         
+         my $reste = $sw_port - 48;
+         return "T$reste";
+         }
+      }
+
    return $sw_port;
    }
 
@@ -528,6 +536,15 @@ sub get_numerical_port {
          my $reste =  substr $sw_port, 1;
 
          return 16 + $reste;
+         }
+      }
+
+   if ($sw_model eq 'HP2810-48G') {
+      if ($sw_port =~ m/^T/xms ) {
+
+         my $reste =  substr $sw_port, 1;
+
+         return 48 + $reste;
          }
       }
 
@@ -1201,7 +1218,9 @@ sub cmd_bad_vlan_config {
       my $ip_mac         = $computerdb->{$ip}{mac_address};
       my $ip_hostname_fq = $computerdb->{$ip}{hostname_fq};
 
-      my $swpt = sprintf "%-28s  %2s", $computerdb->{$ip}{switch_hostname}, $computerdb->{$ip}{switch_port};
+      my $swpt = sprintf "%-28s  %2s",
+         $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
+         $computerdb->{$ip}{switch_port};
       $swithportdb{$swpt} ||= {
          ip          => $ip,
          timestamp   => $ip_timestamp,
