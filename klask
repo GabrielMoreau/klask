@@ -1228,13 +1228,15 @@ sub cmd_bad_vlan_config {
          hostname_fq => $ip_hostname_fq,
          mac_address => $ip_mac,
          };
-      
+
       if (
-         ($ip_timestamp > $swithportdb{$swpt}->{timestamp})
-         and (
-            $ip_hostname_fq !~ m/^float/
-            or $ip_timestamp > ( $swithportdb{$swpt}->{timestamp} + (15 * 24 * 3600) )
-            )
+         ($ip_hostname_fq =~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} + (15 * 24 * 3600))
+         or
+         ($ip_hostname_fq !~ m/^float/ and (
+            ($swithportdb{$swpt}->{hostname_fq} =~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} - (15 * 24 * 3600))
+            or
+            ($swithportdb{$swpt}->{hostname_fq} !~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp})
+            ))
          ) {
          $swithportdb{$swpt} = {
             ip          => $ip,
@@ -1249,7 +1251,7 @@ sub cmd_bad_vlan_config {
    foreach my $swpt (keys %swithportdb) {
       next if $swpt =~ m/^\s*0$/;
       next if $swithportdb{$swpt}->{hostname_fq} !~ m/^float/;
-      
+
       my $src_ip = $swithportdb{$swpt}->{ip};
       my $src_timestamp = 0;
       foreach my $ip (keys %{$computerdb}) {
