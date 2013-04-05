@@ -93,9 +93,11 @@ Readonly my %SWITCH_KIND => (
    J4899B => { model => 'HP2650',     match => 'ProCurve J4899B Switch 2650'     },
    J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
    J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G' },
+   J8692A => { model => 'HP3500-24G', match => 'ProCurve J8692A Switch 3500yl-24G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
+   N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
    );
 
 Readonly my %OID_NUMBER => (
@@ -108,6 +110,8 @@ Readonly my %OID_NUMBER => (
 
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
 Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} }xms;
+
+Readonly my $RE_FLOAT_HOSTNAME => qr{ ^float }xms;
 
 
 ################
@@ -506,6 +510,14 @@ sub get_human_readable_port {
          }
       }
 
+   if ($sw_model eq 'HP3500-24G') {
+      if ($sw_port > 289) {
+         
+         my $reste = $sw_port - 289;
+         return "Trk$reste";
+         }
+      }
+
    return $sw_port;
    }
 
@@ -545,6 +557,15 @@ sub get_numerical_port {
          my $reste =  substr $sw_port, 3;
 
          return 48 + $reste;
+         }
+      }
+
+   if ($sw_model eq 'HP3500-24G') {
+      if ($sw_port =~ m/^Trk/xms ) {
+
+         my $reste =  substr $sw_port, 3;
+
+         return 289 + $reste;
          }
       }
 
@@ -890,8 +911,8 @@ sub cmd_cleandb {
                   )
             )
             and (
-               not $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/
-               or $ip_hostname_fq =~ m/^float/
+               not $mactimedb{$ip_mac}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/
+               or $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/
                )) {
             print "remove ip $ip\n" if $verbose;
             delete $computerdb->{$ip};
@@ -906,8 +927,8 @@ sub cmd_cleandb {
                   )
             )
             and (
-               not $ip_hostname_fq =~ m/^float/
-               or $mactimedb{$ip_mac}->{hostname_fq} =~ m/^float/
+               not $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/
+               or $mactimedb{$ip_mac}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/
                )) {
             print "remove ip ".$mactimedb{$ip_mac}->{ip}."\n" if $verbose;
             delete $computerdb->{$mactimedb{$ip_mac}->{ip}};
@@ -1230,12 +1251,12 @@ sub cmd_bad_vlan_config {
          };
 
       if (
-         ($ip_hostname_fq =~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} + (15 * 24 * 3600))
+         ($ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} + (15 * 24 * 3600))
          or
-         ($ip_hostname_fq !~ m/^float/ and (
-            ($swithportdb{$swpt}->{hostname_fq} =~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} - (15 * 24 * 3600))
+         ($ip_hostname_fq !~ m/$RE_FLOAT_HOSTNAME/ and (
+            ($swithportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} - (15 * 24 * 3600))
             or
-            ($swithportdb{$swpt}->{hostname_fq} !~ m/^float/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp})
+            ($swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp})
             ))
          ) {
          $swithportdb{$swpt} = {
@@ -1250,13 +1271,13 @@ sub cmd_bad_vlan_config {
 
    foreach my $swpt (keys %swithportdb) {
       next if $swpt =~ m/^\s*0$/;
-      next if $swithportdb{$swpt}->{hostname_fq} !~ m/^float/;
+      next if $swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/;
 
       my $src_ip = $swithportdb{$swpt}->{ip};
       my $src_timestamp = 0;
       foreach my $ip (keys %{$computerdb}) {
          next if $computerdb->{$ip}{mac_address} ne  $swithportdb{$swpt}->{mac_address};
-         next if $computerdb->{$ip}{hostname_fq} =~ m/^float/;
+         next if $computerdb->{$ip}{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
          next if $computerdb->{$ip}{timestamp} < $src_timestamp;
          
          $src_ip = $ip;
