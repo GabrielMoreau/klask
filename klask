@@ -96,6 +96,7 @@ Readonly my %SWITCH_KIND => (
    J8692A => { model => 'HP3500-24G', match => 'ProCurve J8692A Switch 3500yl-24G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
+   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'   },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
    );
