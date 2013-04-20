@@ -4,4 +4,4 @@
 
 # m h dom mon dow    user    command
 0,30 7-20 * * *   root   test -x /usr/lib/klask/klask-wrapper && nice -18 /usr/lib/klask/klask-wrapper update >> /dev/null 2>&1
-0    9    * * *   root   test -x /usr/lib/klask/klask-wrapper && nice -18 /usr/lib/klask/klask-wrapper clean >> /dev/null 2>&1
+50   8    * * *   root   test -x /usr/lib/klask/klask-wrapper && nice -18 /usr/lib/klask/klask-wrapper clean >> /dev/null 2>&1
