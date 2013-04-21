@@ -96,7 +96,7 @@ Readonly my %SWITCH_KIND => (
    J8692A => { model => 'HP3500-24G', match => 'ProCurve J8692A Switch 3500yl-24G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
-   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'   },
+   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI',    mibflag => 2  },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
    );
@@ -106,7 +106,8 @@ Readonly my %OID_NUMBER => (
    sysName         => '1.3.6.1.2.1.1.5.0',
    sysContact      => '1.3.6.1.2.1.1.4.0',
    sysLocation     => '1.3.6.1.2.1.1.6.0',
-   searchPort      => '1.3.6.1.2.1.17.4.3.1.2',
+   searchPort1     => '1.3.6.1.2.1.17.4.3.1.2',
+   searchPort2     => '1.3.6.1.2.1.17.7.1.2.2.1.2.1',
    );
 
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
@@ -337,7 +338,8 @@ sub find_switch_port {
          }
       }
 
-   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
+   my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
+   my $research2 = $OID_NUMBER{searchPort2} . mac_address_hex_to_dec($mac_address);
 
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
@@ -345,14 +347,15 @@ sub find_switch_port {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research]
+         -varbindlist => [$research1, $research2]
          );
-      if (not defined $result or $result->{$research} eq 'noSuchInstance') {
+      if (not defined $result or $result->{$research1} eq 'noSuchInstance' or $result->{$research2} eq 'noSuchInstance') {
          $session->close;
          next LOOP_ON_SWITCH;
          }
 
-         my $swport = $result->{$research};
+         my $swport = $result->{$research1};
+         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
          $session->close;
 
          # IMPORTANT !!
@@ -397,18 +400,20 @@ sub find_all_switch_port {
 #      print "DEBUG: SWITCH_PORT_COUNT defined for $sw->{hostname}\n" if $DEBUG xor 2;
 #      }
 
-   my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
+   my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
+   my $research2 = $OID_NUMBER{searchPort2} . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research]
+         -varbindlist => [$research1, $research2]
          );
 
-      if(defined $result and $result->{$research} ne 'noSuchInstance'){
-         my $swport = $result->{$research};
+      if(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance')){
+         my $swport = $result->{$research1};
+         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
 
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
@@ -1509,22 +1514,24 @@ sub cmd_search_mac_on_switch {
          $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
          }
 
-      my $research = $OID_NUMBER{searchPort} . mac_address_hex_to_dec($mac_address);
-      print "Klask search OID $research on switch $sw_name\n";
+      my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
+      my $research2 = $OID_NUMBER{searchPort2} . mac_address_hex_to_dec($mac_address);
+      print "Klask search OID $research1 on switch $sw_name\n";
 
       my ($session, $error) = Net::SNMP->session( %session );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research]
+         -varbindlist => [$research1, $research2]
          );
 
-      if (not defined $result or $result->{$research} eq 'noSuchInstance') {
+      if (not defined $result or $result->{$research1} eq 'noSuchInstance' or $result->{$research2} eq 'noSuchInstance') {
          print "Klask do not find MAC $mac_address on switch $sw_name\n";
          $session->close;
          }
 
-      my $swport = $result->{$research};
+      my $swport = $result->{$research1};
+      $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
       $session->close;
 
       print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
