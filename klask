@@ -347,15 +347,21 @@ sub find_switch_port {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1, $research2]
+         -varbindlist => [$research1]
          );
-      if (not(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance'))) {
+      if (not defined $result) {
+         $result = $session->get_request(
+            -varbindlist => [$research2]
+            );
+         $result->{$research1} = $result->{$research2} if defined $result;
+         }
+
+      if (not (defined $result and $result->{$research1} ne 'noSuchInstance')) {
          $session->close;
          next LOOP_ON_SWITCH;
          }
 
          my $swport = $result->{$research1};
-         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
          $session->close;
 
          # IMPORTANT !!
@@ -408,12 +414,17 @@ sub find_all_switch_port {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1, $research2]
+         -varbindlist => [$research1]
          );
+      if (not defined $result) {
+         $result = $session->get_request(
+            -varbindlist => [$research2]
+            );
+         $result->{$research1} = $result->{$research2} if defined $result;
+         }
 
-      if(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance')){
+      if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport = $result->{$research1};
-         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
 
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
@@ -1523,12 +1534,17 @@ sub cmd_search_mac_on_switch {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1, $research2]
+         -varbindlist => [$research1]
          );
+      if (not defined $result) {
+         $result = $session->get_request(
+            -varbindlist => [$research2]
+            );
+         $result->{$research1} = $result->{$research2} if defined $result;
+         }
 
-      if (defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance')) {
+      if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport = $result->{$research1};
-         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
          print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
          }
       else {
