@@ -96,7 +96,7 @@ Readonly my %SWITCH_KIND => (
    J8692A => { model => 'HP3500-24G', match => 'ProCurve J8692A Switch 3500yl-24G' },
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
-   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI',    mibflag => 2  },
+   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'   },
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
    N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
    );
@@ -349,7 +349,7 @@ sub find_switch_port {
       my $result = $session->get_request(
          -varbindlist => [$research1, $research2]
          );
-      if (not defined $result or $result->{$research1} eq 'noSuchInstance' or $result->{$research2} eq 'noSuchInstance') {
+      if (not(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance'))) {
          $session->close;
          next LOOP_ON_SWITCH;
          }
@@ -1525,7 +1525,7 @@ sub cmd_search_mac_on_switch {
          -varbindlist => [$research1, $research2]
          );
 
-      if (not defined $result or $result->{$research1} eq 'noSuchInstance' or $result->{$research2} eq 'noSuchInstance') {
+      if (not(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance'))) {
          print "Klask do not find MAC $mac_address on switch $sw_name\n";
          $session->close;
          }
