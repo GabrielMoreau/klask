@@ -1517,6 +1517,7 @@ sub cmd_search_mac_on_switch {
       my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
       my $research2 = $OID_NUMBER{searchPort2} . mac_address_hex_to_dec($mac_address);
       print "Klask search OID $research1 on switch $sw_name\n";
+      print "Klask search OID $research2 on switch $sw_name\n";
 
       my ($session, $error) = Net::SNMP->session( %session );
       print "$error \n" if $error;
@@ -1525,16 +1526,16 @@ sub cmd_search_mac_on_switch {
          -varbindlist => [$research1, $research2]
          );
 
-      if (not(defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance'))) {
+      if (defined $result and ($result->{$research1} ne 'noSuchInstance' or $result->{$research2} ne 'noSuchInstance')) {
+         my $swport = $result->{$research1};
+         $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
+         print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
+         }
+      else {
          print "Klask do not find MAC $mac_address on switch $sw_name\n";
-         $session->close;
          }
 
-      my $swport = $result->{$research1};
-      $swport = $result->{$research2} if $result->{$research1} eq 'noSuchInstance';
       $session->close;
-
-      print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
       }
    return;
    }
