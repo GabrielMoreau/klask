@@ -80,6 +80,7 @@ Readonly my %INTERNAL_PORT_MAP => (
 Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
 
 Readonly my %SWITCH_KIND => (
+   # HP
    J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
    J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
    J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
@@ -97,8 +98,34 @@ Readonly my %SWITCH_KIND => (
    J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
    J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
    JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'   },
+   # BayStack
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
+   # Nexans
    N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
+   # 3COM
+   'H3C5500'        => { model => 'H3C5500',        match => 'H3C S5500-SI Series'           },
+   '3C17203'        => { model => '3C17203',        match => '3Com SuperStack 3 24-Port'     },
+   '3C17204'        => { model => '3C17204',        match => '3Com SuperStack 3 48-Port'     },
+   '3CR17562-91'    => { model => '3CR17562-91',    match => '3Com Switch 4500 50-Port'      },
+   '3CR17255-91'    => { model => '3CR17255-91',    match => '3Com Switch 5500G-EI 48-Port'  },
+   '3CR17251-91'    => { model => '3CR17251-91',    match => '3Com Switch 5500G-EI 48-Port'  },
+   '3CR17571-91'    => { model => '3CR17571-91',    match => '3Com Switch 4500 PWR 26-Port'  },
+   '3CRWX220095A'   => { model => '3CRWX220095A',   match => '3Com Wireless LAN Controller'  },
+   '3CR17254-91'    => { model => '3CR17254-91',    match => '3Com Switch 5500G-EI 24-Port'  }, 
+   '3CRS48G-24S-91' => { model => '3CRS48G-24S-91', match => '3Com Switch 4800G 24-Port'     },
+   '3CRS48G-48S-91' => { model => '3CRS48G-48S-91', match => '3Com Switch 4800G 48-Port'     },
+   '3C17708'        => { model => '3C17708',        match => '3Com Switch 4050'              },
+   '3C17709'        => { model => '3C17709',        match => '3Com Switch 4060'              },
+   '3C17707'        => { model => '3C17707',        match => '3Com Switch 4070'              },
+   '3CR17258-91'    => { model => '3CR17258-91',    match => '3Com Switch 5500G-EI 24-Port SFP' },
+   '3CR17181-91'    => { model => '3CR17181-91',    match => '3Com Switch 5500-EI 28-Port FX'   },
+   '3CR17252-91'    => { model => '3CR17252-91',    match => '3Com Switch 5500G-EI PWR 24-Port' },
+   '3CR17253-91'    => { model => '3CR17253-91',    match => '3Com Switch 5500G-EI PWR 48-Port' },
+   '3CR17250-91'    => { model => '3CR17250-91',    match => '3Com Switch 5500G-EI 24-Port'     },
+   '3CR17561-91'    => { model => '3CR17561-91',    match => '3Com Switch 4500 26-Port'         },
+   '3CR17572-91'    => { model => '3CR17572-91',    match => '3Com Switch 4500 PWR 50-Port'     },
+   '3C17702-US'     => { model => '3C17702-US',     match => '3Com Switch 4900 SX'              },
+   '3C17700'        => { model => '3C17700',        match => '3Com Switch 4900'                 },
    );
 
 Readonly my %OID_NUMBER => (
