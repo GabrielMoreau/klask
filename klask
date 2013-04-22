@@ -106,8 +106,8 @@ Readonly my %OID_NUMBER => (
    sysName         => '1.3.6.1.2.1.1.5.0',
    sysContact      => '1.3.6.1.2.1.1.4.0',
    sysLocation     => '1.3.6.1.2.1.1.6.0',
-   searchPort1     => '1.3.6.1.2.1.17.4.3.1.2',
-   searchPort2     => '1.3.6.1.2.1.17.7.1.2.2.1.2.0', # replace last 0 with vlan number
+   searchPort1     => '1.3.6.1.2.1.17.4.3.1.2',       # BRIDGE-MIB (802.1D).
+   searchPort2     => '1.3.6.1.2.1.17.7.1.2.2.1.2.0', # Q-BRIDGE-MIB (802.1Q) replace last 0 with real vlan number if needed
    listVlan        => '1.3.6.1.2.1.17.7.1.4.3.1.1',
    );
 
