@@ -1458,7 +1458,7 @@ sub cmd_get_vlan_name {
          );
 
       if (defined $result and $result->{$search_vlan_name} ne 'noSuchInstance') {
-         my $vlan_name = $result->{$search_vlan_name || 'empty'};
+         my $vlan_name = $result->{$search_vlan_name} || 'empty';
          print "Klask find VLAN $vlan_id on switch $sw_name with name $vlan_name\n";
          }
       else {
