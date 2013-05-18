@@ -1448,7 +1448,7 @@ sub cmd_get_vlan_name {
          $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
          }
 
-      my $search_vlan_name = $OID_NUMBER{vlanName} . "$vlan_id";
+      my $search_vlan_name = $OID_NUMBER{vlanName} . ".$vlan_id";
 
       my ($session, $error) = Net::SNMP->session( %session );
       print "$error \n" if $error;
@@ -1458,8 +1458,8 @@ sub cmd_get_vlan_name {
          );
 
       if (defined $result and $result->{$search_vlan_name} ne 'noSuchInstance') {
-         my $vlan_name = $result->{$search_vlan_name};
-         print "Klask find VLAN $vlan_id on switch $sw_name with name $swport\n";
+         my $vlan_name = $result->{$search_vlan_name || 'empty'};
+         print "Klask find VLAN $vlan_id on switch $sw_name with name $vlan_name\n";
          }
       else {
          print "Klask do not find VLAN $vlan_id on switch $sw_name\n";
