@@ -186,7 +186,7 @@ sub test_maindb_environnement {
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fast_ping {
    # Launch this command without waiting...
-   system "fping -c 1 @_ >/dev/null 2>&1 &";
+   system "fping -q -c 1 @_ >/dev/null 2>&1 &";
    return;
    }
 
@@ -767,7 +767,7 @@ sub cmd_updatedb {
       my @computer = get_list_ip($net);
       my $current_interface = get_current_interface($net);
 
-      #fast_ping(@computer);
+      fast_ping(@computer);
 
       LOOP_ON_COMPUTER:
       for my $one_computer (@computer) {
@@ -1284,11 +1284,14 @@ sub cmd_bad_vlan_config {
 
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
 
+   # create a database with the most recent computer by switch port
    my %swithportdb = ();
    LOOP_ON_IP_ADDRESS:
    foreach my $ip (keys %{$computerdb}) {
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
+      next LOOP_ON_IP_ADDRESS if ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}) eq 'unknow';
+      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{switch_port} eq '0';
 
       my $ip_timestamp   = $computerdb->{$ip}{timestamp};
       my $ip_mac         = $computerdb->{$ip}{mac_address};
@@ -1305,15 +1308,13 @@ sub cmd_bad_vlan_config {
          mac_address => $ip_mac,
          };
 
-      if (
-         ($ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} + (15 * 24 * 3600))
-         or
-         ($ip_hostname_fq !~ m/$RE_FLOAT_HOSTNAME/ and (
-            ($swithportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp} - (15 * 24 * 3600))
-            or
-            ($swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/ and $ip_timestamp > $swithportdb{$swpt}->{timestamp})
-            ))
-         ) {
+      # if float computer, set date 15 day before warning...
+      my $ip_timestamp_mod = $ip_timestamp;
+      my $ip_timestamp_ref = $swithportdb{$swpt}->{timestamp};
+      $ip_timestamp_mod -= 15 * 24 * 3600 if $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
+      $ip_timestamp_ref -= 15 * 24 * 3600 if $swithportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
+      
+      if ($ip_timestamp_mod > $ip_timestamp_ref) {
          $swithportdb{$swpt} = {
             ip          => $ip,
             timestamp   => $ip_timestamp,
@@ -1338,23 +1339,26 @@ sub cmd_bad_vlan_config {
          $src_ip = $ip;
          $src_timestamp = $computerdb->{$ip}{timestamp};
          }
-      
+
+      # keep only if float computer is the most recent
       next if $src_timestamp == 0;
-      
+      next if $swithportdb{$swpt}->{timestamp} < $src_timestamp;
+
       my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $swithportdb{$swpt}->{timestamp};
       $year += 1900;
       $mon++;
-      my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+      my $date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
       ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$src_ip}{timestamp};
       $year += 1900;
       $mon++;
-      my $src_date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+      my $src_date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      printf "%s / %-10s +-> %-10s  %s / %s # %s\n",
+      printf "%s / %-10s +-> %-10s  %s %s %s %s\n",
          $swpt, $swithportdb{$swpt}->{vlan}, $computerdb->{$src_ip}{network},
          $date,
          $src_date,
+         $computerdb->{$src_ip}{mac_address},
          $computerdb->{$src_ip}{hostname_fq};
       }
    }
@@ -1983,6 +1987,7 @@ sub cmd_exportsw_dot {
 
 
    print "digraph G {\n";
+   print "rankdir = LR;\n";
 
    print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
    print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
