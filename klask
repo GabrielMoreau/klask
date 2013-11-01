@@ -48,27 +48,27 @@ for my $sw (@SWITCH){
 my %SWITCH_PORT_COUNT = ();
 
 my %CMD_DB = (
-   help       => \&cmd_help,
-   version    => \&cmd_version,
-   exportdb   => \&cmd_exportdb,
-   updatedb   => \&cmd_updatedb,
-   searchdb   => \&cmd_searchdb,
-   removedb   => \&cmd_removedb,
-   cleandb    => \&cmd_cleandb,
-   search     => \&cmd_search,
-   enable     => \&cmd_enable,
-   disable    => \&cmd_disable,
-   status     => \&cmd_status,
-   updatesw   => \&cmd_updatesw,
-   exportsw   => \&cmd_exportsw,
-   iplocation => \&cmd_ip_location,
-   'ip-free'  => \&cmd_ip_free,
+   'help'                 => \&cmd_help,
+   'version'              => \&cmd_version,
+   'exportdb'             => \&cmd_exportdb,
+   'updatedb'             => \&cmd_updatedb,
+   'searchdb'             => \&cmd_searchdb,
+   'removedb'             => \&cmd_removedb,
+   'cleandb'              => \&cmd_cleandb,
+   'search'               => \&cmd_search,
+   'enable'               => \&cmd_enable,
+   'disable'              => \&cmd_disable,
+   'status'               => \&cmd_status,
+   'updatesw'             => \&cmd_updatesw,
+   'exportsw'             => \&cmd_exportsw,
+   'iplocation'           => \&cmd_ip_location,
+   'ip-free'              => \&cmd_ip_free,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
-   'bad-vlan-config'  => \&cmd_bad_vlan_config,
-   'set-vlan-port'  => \&cmd_set_vlan_port,
-   'get-vlan-port'  => \&cmd_get_vlan_port,
-   'set-vlan-name'  => \&cmd_set_vlan_name,
-   'get-vlan-name'  => \&cmd_get_vlan_name,
+   'bad-vlan-id'          => \&cmd_bad_vlan_id,
+   'set-vlan-port'        => \&cmd_set_vlan_port,
+   'get-vlan-port'        => \&cmd_get_vlan_port,
+   'set-vlan-name'        => \&cmd_set_vlan_name,
+   'get-vlan-name'        => \&cmd_get_vlan_name,
    );
 
 Readonly my %INTERNAL_PORT_MAP => (
@@ -85,42 +85,42 @@ Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
 
 Readonly my %SWITCH_KIND => (
    # HP
-   J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'  },
-   J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M' },
-   J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                 },
-   J9449A => { model => 'HP1810-8G',  match => 'HP ProCurve 1810G - 8 GE'        },
-   J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M' },
-   J9279A => { model => 'HP2510G-24', match => 'ProCurve J9279A Switch 2510G-24' },
-   J9280A => { model => 'HP2510G-48', match => 'ProCurve J9280A Switch 2510G-48' },
-   J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'  },
-   J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'  },
-   J4900B => { model => 'HP2626B',    match => 'J4900B.+?Switch 2626'            },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
-   J4899B => { model => 'HP2650',     match => 'ProCurve J4899B Switch 2650'     },
-   J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G' },
-   J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G' },
+   J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'    },
+   J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M'   },
+   J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                   },
+   J9449A => { model => 'HP1810-8G',  match => 'HP ProCurve 1810G - 8 GE'          },
+   J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M'   },
+   J9279A => { model => 'HP2510G-24', match => 'ProCurve J9279A Switch 2510G-24'   },
+   J9280A => { model => 'HP2510G-48', match => 'ProCurve J9280A Switch 2510G-48'   },
+   J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'    },
+   J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'    },
+   J4900B => { model => 'HP2626B',    match => 'J4900B.+?Switch 2626'              },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
+   J4899B => { model => 'HP2650',     match => 'ProCurve J4899B Switch 2650'       },
+   J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G'   },
+   J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G'   },
    J8692A => { model => 'HP3500-24G', match => 'ProCurve J8692A Switch 3500yl-24G' },
-   J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'           },
-   J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M' },
-   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'   },
+   J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'             },
+   J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M'   },
+   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'     },
    # BayStack
-   BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                },
+   BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                  },
    # Nexans
-   N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'  },
+   N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'    },
    # 3COM
-   'H3C5500'        => { model => 'H3C5500',        match => 'H3C S5500-SI Series'           },
-   '3C17203'        => { model => '3C17203',        match => '3Com SuperStack 3 24-Port'     },
-   '3C17204'        => { model => '3C17204',        match => '3Com SuperStack 3 48-Port'     },
-   '3CR17562-91'    => { model => '3CR17562-91',    match => '3Com Switch 4500 50-Port'      },
-   '3CR17255-91'    => { model => '3CR17255-91',    match => '3Com Switch 5500G-EI 48-Port'  },
-   '3CR17251-91'    => { model => '3CR17251-91',    match => '3Com Switch 5500G-EI 48-Port'  },
-   '3CR17571-91'    => { model => '3CR17571-91',    match => '3Com Switch 4500 PWR 26-Port'  },
-   '3CRWX220095A'   => { model => '3CRWX220095A',   match => '3Com Wireless LAN Controller'  },
-   '3CR17254-91'    => { model => '3CR17254-91',    match => '3Com Switch 5500G-EI 24-Port'  }, 
-   '3CRS48G-24S-91' => { model => '3CRS48G-24S-91', match => '3Com Switch 4800G 24-Port'     },
-   '3CRS48G-48S-91' => { model => '3CRS48G-48S-91', match => '3Com Switch 4800G 48-Port'     },
-   '3C17708'        => { model => '3C17708',        match => '3Com Switch 4050'              },
-   '3C17709'        => { model => '3C17709',        match => '3Com Switch 4060'              },
-   '3C17707'        => { model => '3C17707',        match => '3Com Switch 4070'              },
+   'H3C5500'        => { model => 'H3C5500',        match => 'H3C S5500-SI Series'              },
+   '3C17203'        => { model => '3C17203',        match => '3Com SuperStack 3 24-Port'        },
+   '3C17204'        => { model => '3C17204',        match => '3Com SuperStack 3 48-Port'        },
+   '3CR17562-91'    => { model => '3CR17562-91',    match => '3Com Switch 4500 50-Port'         },
+   '3CR17255-91'    => { model => '3CR17255-91',    match => '3Com Switch 5500G-EI 48-Port'     },
+   '3CR17251-91'    => { model => '3CR17251-91',    match => '3Com Switch 5500G-EI 48-Port'     },
+   '3CR17571-91'    => { model => '3CR17571-91',    match => '3Com Switch 4500 PWR 26-Port'     },
+   '3CRWX220095A'   => { model => '3CRWX220095A',   match => '3Com Wireless LAN Controller'     },
+   '3CR17254-91'    => { model => '3CR17254-91',    match => '3Com Switch 5500G-EI 24-Port'     },
+   '3CRS48G-24S-91' => { model => '3CRS48G-24S-91', match => '3Com Switch 4800G 24-Port'        },
+   '3CRS48G-48S-91' => { model => '3CRS48G-48S-91', match => '3Com Switch 4800G 48-Port'        },
+   '3C17708'        => { model => '3C17708',        match => '3Com Switch 4050'                 },
+   '3C17709'        => { model => '3C17709',        match => '3Com Switch 4060'                 },
+   '3C17707'        => { model => '3C17707',        match => '3Com Switch 4070'                 },
    '3CR17258-91'    => { model => '3CR17258-91',    match => '3Com Switch 5500G-EI 24-Port SFP' },
    '3CR17181-91'    => { model => '3CR17181-91',    match => '3Com Switch 5500-EI 28-Port FX'   },
    '3CR17252-91'    => { model => '3CR17252-91',    match => '3Com Switch 5500G-EI PWR 24-Port' },
@@ -278,7 +278,7 @@ sub get_switch_model {
 sub init_switch_names {
    my $verbose = shift;
 
-   printf "%-26s                %-25s %s\n",'Switch','Description','Type';
+   printf "%-26s                %-25s %s\n",'Switch','Description','Type' if $verbose;
    print "------------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
@@ -648,7 +648,7 @@ klask - ports manager and finder for switch
 
  klask ip-free --day number_of_day --format [txt|html] [vlan_name]
 
- klask bad-vlan-config
+ klask bad-vlan-id
 
  klask enable  switch port
  klask disable switch port
@@ -675,11 +675,20 @@ sub cmd_search {
 
    init_switch_names();    #nomme les switchs
    fast_ping(@computer);
+
+   LOOP_ON_COMPUTER:
    for my $clientname (@computer) {
       my %resol_arp = resolve_ip_arp_host($clientname);          #resolution arp
       my %where     = find_switch_port($resol_arp{mac_address}); #retrouve l'emplacement
-      printf '%-22s %2i %-30s %-15s %18s', $where{switch_description}, $where{switch_port}, $resol_arp{hostname_fq}, $resol_arp{ipv4_address}, $resol_arp{mac_address}."\n"
-         unless $where{switch_description} eq 'unknow' and $resol_arp{hostname_fq} eq 'unknow' and $resol_arp{mac_address} eq 'unknow';
+
+      next LOOP_ON_COMPUTER if $where{switch_description} eq 'unknow' or $resol_arp{hostname_fq} eq 'unknow' or $resol_arp{mac_address} eq 'unknow';
+
+      printf '%-22s %2i %-30s %-15s %18s',
+         $where{switch_description},
+         $where{switch_port},
+         $resol_arp{hostname_fq},
+         $resol_arp{ipv4_address},
+         $resol_arp{mac_address}."\n";
       }
    return;
    }
@@ -1279,7 +1288,7 @@ END_HTML
    return;
    }
 
-sub cmd_bad_vlan_config {
+sub cmd_bad_vlan_id {
    test_maindb_environnement();
 
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
@@ -1325,24 +1334,26 @@ sub cmd_bad_vlan_config {
          }
       }
 
+   LOOP_ON_RECENT_COMPUTER:
    foreach my $swpt (keys %swithportdb) {
-      next if $swpt =~ m/^\s*0$/;
-      next if $swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/;
+      next LOOP_ON_RECENT_COMPUTER if $swpt =~ m/^\s*0$/;
+      next LOOP_ON_RECENT_COMPUTER if $swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/;
 
       my $src_ip = $swithportdb{$swpt}->{ip};
       my $src_timestamp = 0;
+      LOOP_ON_IP_ADDRESS:
       foreach my $ip (keys %{$computerdb}) {
-         next if $computerdb->{$ip}{mac_address} ne  $swithportdb{$swpt}->{mac_address};
-         next if $computerdb->{$ip}{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
-         next if $computerdb->{$ip}{timestamp} < $src_timestamp;
+         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{mac_address} ne  $swithportdb{$swpt}->{mac_address};
+         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
+         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{timestamp} < $src_timestamp;
          
          $src_ip = $ip;
          $src_timestamp = $computerdb->{$ip}{timestamp};
          }
 
       # keep only if float computer is the most recent
-      next if $src_timestamp == 0;
-      next if $swithportdb{$swpt}->{timestamp} < $src_timestamp;
+      next LOOP_ON_RECENT_COMPUTER if $src_timestamp == 0;
+      next LOOP_ON_RECENT_COMPUTER if $swithportdb{$swpt}->{timestamp} < $src_timestamp;
 
       my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $swithportdb{$swpt}->{timestamp};
       $year += 1900;
@@ -1483,11 +1494,12 @@ sub cmd_ip_location {
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} eq ($computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description}); # switch on himself !
 
       my $sw_hostname = $computerdb->{$ip}{switch_hostname} || q{};
-      next if $sw_hostname eq 'unknow';
+      next LOOP_ON_IP_ADDRESS if $sw_hostname eq 'unknow';
 
       my $sw_location = q{};
+      LOOP_ON_ALL_SWITCH:
       for my $sw (@SWITCH) {
-         next if $sw_hostname ne $sw->{hostname};
+         next LOOP_ON_ALL_SWITCH if $sw_hostname ne $sw->{hostname};
          $sw_location = $sw->{location};
          last;
          }
