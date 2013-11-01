@@ -684,7 +684,7 @@ sub cmd_search {
       next LOOP_ON_COMPUTER if $where{switch_description} eq 'unknow' or $resol_arp{hostname_fq} eq 'unknow' or $resol_arp{mac_address} eq 'unknow';
 
       printf '%-22s %2i %-30s %-15s %18s',
-         $where{switch_description},
+         $where{switch_hostname},
          $where{switch_port},
          $resol_arp{hostname_fq},
          $resol_arp{ipv4_address},
@@ -712,7 +712,7 @@ sub cmd_searchdb {
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
       printf "%-22s %2s %-30s %-15s %-18s %s\n",
-         $computerdb->{$ip}{switch_name},
+         $computerdb->{$ip}{switch_hostname},
          $computerdb->{$ip}{switch_port},
          $computerdb->{$ip}{hostname_fq},
          $ip,
