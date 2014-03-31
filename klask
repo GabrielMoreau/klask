@@ -707,17 +707,15 @@ sub cmd_searchdb {
    my $kind;
 
    my $ret = GetOptions(
-      'kind'   => \$kind,
+      'kind=s'   => \$kind,
       );
-
-   if 
 
    my %possible_search = (
       host  => \&cmd_searchdb_host,
       mac   => \&cmd_searchdb_mac,
       );
 
-   $search = 'host' if not defined $possible_search{$kind};
+   $kind = 'host' if not defined $possible_search{$kind};
 
    $possible_search{$kind}->(@ARGV);
    return;
