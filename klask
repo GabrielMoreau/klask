@@ -337,7 +337,15 @@ sub digit_hex_to_dec {
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
    }
 
-###
+#--------------------------------------------------------------------------------
+
+sub normalize_mac_address {
+   my $mac_address = shift;
+
+   return join q{:}, map { substr( uc("00$_"), -2) } split m/ [:-] /xms, $mac_address;
+   }
+
+#--------------------------------------------------------------------------------
 # convertit l'@ mac en decimal
 sub mac_address_hex_to_dec {
    #00:0F:1F:43:E4:2B
@@ -694,6 +702,29 @@ sub cmd_search {
    }
 
 sub cmd_searchdb {
+   my @ARGV  = @_;
+
+   my $kind;
+
+   my $ret = GetOptions(
+      'kind'   => \$kind,
+      );
+
+   if 
+
+   my %possible_search = (
+      host  => \&cmd_searchdb_host,
+      mac   => \&cmd_searchdb_mac,
+      );
+
+   $search = 'host' if not defined $possible_search{$kind};
+
+   $possible_search{$kind}->(@ARGV);
+   return;
+   }
+
+
+sub cmd_searchdb_host {
    my @computer = @_;
 
    fast_ping(@computer);
@@ -718,6 +749,36 @@ sub cmd_searchdb {
          $ip,
          $computerdb->{$ip}{mac_address},
          $date;
+      }
+   return;
+   }
+
+sub cmd_searchdb_mac {
+   my @mac = map { normalize_mac_address($_) } @_;
+
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
+
+   LOOP_ON_MAC:
+   for my $mac (@mac) {
+      LOOP_ON_COMPUTER:
+      for my $ip (keys %{$computerdb}) {
+         next LOOP_ON_COMPUTER if $mac ne $computerdb->{$ip}{mac_address};
+ 
+         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
+         $year += 1900;
+         $mon++;
+         my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+
+         printf "%-22s %2s %-30s %-15s %-18s %s\n",
+            $computerdb->{$ip}{switch_hostname},
+            $computerdb->{$ip}{switch_port},
+            $computerdb->{$ip}{hostname_fq},
+            $ip,
+            $computerdb->{$ip}{mac_address},
+            $date;
+         next LOOP_ON_MAC;
+         }
+
       }
    return;
    }
@@ -2097,7 +2158,7 @@ klask - ports manager and finder for switch
  klask updatesw
  klask exportsw --format [txt|dot]
 
- klask searchdb computer
+ klask searchdb --kind [host|mac] computer [mac-address]
  klask search   computer
  klask search-mac-on-switch switch mac_addr
 
