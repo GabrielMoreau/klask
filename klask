@@ -706,7 +706,7 @@ sub cmd_searchdb {
 
    my $kind;
 
-   my $ret = GetOptions(
+   GetOptions(
       'kind=s'   => \$kind,
       );
 
@@ -774,7 +774,7 @@ sub cmd_searchdb_mac {
             $ip,
             $computerdb->{$ip}{mac_address},
             $date;
-         next LOOP_ON_MAC;
+         #next LOOP_ON_MAC;
          }
 
       }
@@ -988,7 +988,7 @@ sub cmd_cleandb {
    my $verbose;
    my $database_has_changed;
 
-   my $ret = GetOptions(
+   GetOptions(
       'day|d=i'   => \$days_to_clean,
       'verbose|v' => \$verbose,
       );
@@ -1083,7 +1083,7 @@ sub cmd_exportdb {
 
    my $format = 'txt';
 
-   my $ret = GetOptions(
+   GetOptions(
       'format|f=s'  => \$format,
       );
 
@@ -1575,7 +1575,7 @@ sub cmd_ip_free {
    my $format = 'txt';
    my $verbose;
 
-   my $ret = GetOptions(
+   GetOptions(
       'day|d=i'      => \$days_to_dead,
       'format|f=s'   => \$format,
       'verbose|v'    => \$verbose,
@@ -1732,13 +1732,22 @@ sub cmd_status {
    }
 
 sub cmd_search_mac_on_switch {
-   my $switch_name = shift || q{};
-   my $mac_address = shift || q{};
+   @ARGV = @_;
+
+   my $verbose;
+
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $mac_address = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $mac_address eq q{}) {
       die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
 
+   $mac_address = normalize_mac_address($mac_address);
    $switch_name = join(',', map {$_->{hostname}} @SWITCH ) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
@@ -1759,8 +1768,8 @@ sub cmd_search_mac_on_switch {
 
       my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
       my $research2 = $OID_NUMBER{searchPort2} . mac_address_hex_to_dec($mac_address);
-      print "Klask search OID $research1 on switch $sw_name\n";
-      print "Klask search OID $research2 on switch $sw_name\n";
+      print "Klask search OID $research1 on switch $sw_name\n" if $verbose;
+      print "Klask search OID $research2 on switch $sw_name\n" if $verbose;
 
       my ($session, $error) = Net::SNMP->session( %session );
       print "$error \n" if $error;
@@ -1780,7 +1789,7 @@ sub cmd_search_mac_on_switch {
          print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
          }
       else {
-         print "Klask do not find MAC $mac_address on switch $sw_name\n";
+         print "Klask do not find MAC $mac_address on switch $sw_name\n" if $verbose;
          }
 
       $session->close;
@@ -1793,7 +1802,7 @@ sub cmd_updatesw {
 
    my $verbose;
 
-   my $ret = GetOptions(
+   GetOptions(
       'verbose|v' => \$verbose,
       );
 
@@ -1995,7 +2004,7 @@ sub cmd_exportsw {
 
    my $format = 'txt';
 
-   my $ret = GetOptions(
+   GetOptions(
       'format|f=s'  => \$format,
       );
 
