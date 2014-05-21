@@ -69,7 +69,7 @@ my %CMD_DB = (
    'get-vlan-port'        => \&cmd_get_vlan_port,
    'set-vlan-name'        => \&cmd_set_vlan_name,
    'get-vlan-name'        => \&cmd_get_vlan_name,
-   'rebootsw'             => \&cmd_rebootsw'
+   'rebootsw'             => \&cmd_rebootsw,
    );
 
 Readonly my %INTERNAL_PORT_MAP => (
@@ -1530,7 +1530,7 @@ sub cmd_get_vlan_port {
          $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
          }
 
-      my $search = $OID_NUMBER{'hpicfReset'} . ".$switch_port";
+      my $search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
 
       my ($session, $error) = Net::SNMP->session( %session );
       print "$error \n" if $error;
@@ -1544,7 +1544,7 @@ sub cmd_get_vlan_port {
          print "Klask VLAN Id $vlan_id on switch $sw_name on port $switch_port\n";
          }
       else {
-         print "Klask do not find VLAN Id $vlan_id on switch $sw_name on port $switch_port\n";
+         print "Klask do not find VLAN Id on switch $sw_name on port $switch_port\n";
          }
 
       $session->close;
@@ -1566,7 +1566,7 @@ sub cmd_rebootsw {
 
    my $switch_name = shift @ARGV || q{};
 
-   if ($switch_name eq q{} or $mac_address eq q{}) {
+   if ($switch_name eq q{}) {
       die "Usage: klask rebootsw SWITCH_NAME\n";
       }
 
@@ -1590,7 +1590,6 @@ sub cmd_rebootsw {
       print "$error \n" if $error;
 
       my $result = $session->set_request(
-         -delay       => 1,
          -varbindlist => ["$OID_NUMBER{'hpicfReset'}.0", INTEGER, 2],
          );
 
