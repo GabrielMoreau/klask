@@ -917,7 +917,9 @@ sub cmd_updatedb {
             next LOOP_ON_COMPUTER;
             }
 
-         my %where = find_switch_port($resol_arp{mac_address},$switch_proposal);
+         my $vlan_name = get_current_vlan_name_for_interface($resol_arp{interface});
+         my $vlan_id   = get_current_vlan_id($vlan_name);
+         my %where = find_switch_port($resol_arp{mac_address},$switch_proposal,$vlan_id);
 
          #192.168.24.156:
          #  arp: 00:0B:DB:D5:F6:65
