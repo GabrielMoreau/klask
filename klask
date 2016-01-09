@@ -108,6 +108,8 @@ Readonly my %SWITCH_KIND => (
    BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                  },
    # Nexans
    N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'    },
+   # DELL
+   N4064F => { model => 'DN4064F',    match => 'Dell Networking N4064F,'           },
    # 3COM
    'H3C5500'        => { model => 'H3C5500',        match => 'H3C S5500-SI Series'              },
    '3C17203'        => { model => '3C17203',        match => '3Com SuperStack 3 24-Port'        },
