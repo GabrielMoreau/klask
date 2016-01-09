@@ -147,6 +147,7 @@ Readonly my %OID_NUMBER => (
    vlanStatus      => '1.3.6.1.2.1.17.7.1.4.3.1.5',   # integer 4 Create, 6 Destroy
    vlanName        => '1.3.6.1.2.1.17.7.1.4.3.1.1',   # string
    hpicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1', # HP reboot switch
+   ifName          => '1.3.6.1.2.1.31.1.1.1.1',       # Interface name (give port number)
    );
 
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
@@ -727,7 +728,7 @@ sub cmd_search {
 
       next LOOP_ON_COMPUTER if $where{switch_description} eq 'unknow' or $resol_arp{hostname_fq} eq 'unknow' or $resol_arp{mac_address} eq 'unknow';
 
-      printf '%-22s %2i %-30s %-15s %18s',
+      printf '%-22s %2s %-30s %-15s %18s',
          $where{switch_hostname},
          $where{switch_port},
          $resol_arp{hostname_fq},
