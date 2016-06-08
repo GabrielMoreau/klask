@@ -678,7 +678,7 @@ sub snmp_get_swithport_hr {
       -varbindlist => [$research_index]
       );
    my $swifindex = $swport;
-   $swifindex = $result_index->{$research_index}) if defined $result_index;
+   $swifindex = $result_index->{$research_index} if defined $result_index;
 
    my $research_hr = $OID_NUMBER{ifName} .'.'. $swifindex;
    my $result_hr = $snmp_session->get_request(
