@@ -148,6 +148,7 @@ Readonly my %OID_NUMBER => (
    vlanStatus      => '1.3.6.1.2.1.17.7.1.4.3.1.5',   # integer 4 Create, 6 Destroy
    vlanName        => '1.3.6.1.2.1.17.7.1.4.3.1.1',   # string
    hpicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1', # HP reboot switch
+   ifIndex         => '1.3.6.1.2.1.17.1.4.1.2',       # dot1dBasePortIfIndex - Interface index redirection
    ifName          => '1.3.6.1.2.1.31.1.1.1.1',       # Interface name (give port number)
    );
 
@@ -672,12 +673,19 @@ sub get_port_human_readable_short {
 sub snmp_get_swithport_hr {
    my ($snmp_session, $swport) = @_;
    
-   my $research_hr = $OID_NUMBER{ifName} .'.'. $swport;
-   my $result = $snmp_session->get_request(
+   my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport;
+   my $result_index = $snmp_session->get_request(
+      -varbindlist => [$research_index]
+      );
+   my $swifindex = $swport;
+   $swifindex = $result1->{$research_index}) if defined $result_index;
+
+   my $research_hr = $OID_NUMBER{ifName} .'.'. $swifindex;
+   my $result_hr = $snmp_session->get_request(
       -varbindlist => [$research_hr]
       );
    my $swport_hr = $swport;
-   $swport_hr = get_port_human_readable_short($result->{$research_hr}) if defined $result;
+   $swport_hr = get_port_human_readable_short($result->{$research_hr}) if defined $result_hr;
    return $swport_hr;
    }
 
