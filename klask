@@ -86,55 +86,55 @@ Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
 
 Readonly my %SWITCH_KIND => (
    # HP
-   J3299A => { model => 'HP224M',     match => 'HP J3299A ProCurve Switch 224M'    },
-   J4120A => { model => 'HP1600M',    match => 'HP J4120A ProCurve Switch 1600M'   },
-   J9029A => { model => 'HP1800-8G',  match => 'PROCURVE J9029A'                   },
-   J9449A => { model => 'HP1810-8G',  match => 'HP ProCurve 1810G - 8 GE'          },
-   J4093A => { model => 'HP2424M',    match => 'HP J4093A ProCurve Switch 2424M'   },
-   J9279A => { model => 'HP2510G-24', match => 'ProCurve J9279A Switch 2510G-24'   },
-   J9280A => { model => 'HP2510G-48', match => 'ProCurve J9280A Switch 2510G-48'   },
-   J4813A => { model => 'HP2524',     match => 'HP J4813A ProCurve Switch 2524'    },
-   J4900A => { model => 'HP2626A',    match => 'HP J4900A ProCurve Switch 2626'    },
-   J4900B => { model => 'HP2626B',    match => 'J4900B.+?Switch 2626'              },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
-   J4899B => { model => 'HP2650',     match => 'ProCurve J4899B Switch 2650'       },
-   J9021A => { model => 'HP2810-24G', match => 'ProCurve J9021A Switch 2810-24G'   },
-   J9022A => { model => 'HP2810-48G', match => 'ProCurve J9022A Switch 2810-48G'   },
-   J8692A => { model => 'HP3500-24G', match => 'J8692A Switch 3500yl-24G'          },
-   J4903A => { model => 'HP2824',     match => 'J4903A.+?Switch 2824,'             },
-   J4110A => { model => 'HP8000M',    match => 'HP J4110A ProCurve Switch 8000M'   },
-   JE074A => { model => 'HP5120-24G', match => 'HP Comware.+?A5120-24G EI'         },
-   JD374A => { model => 'HP5500-24F', match => 'HP Comware.+?A5500-24G-SFP EI'     },
+   J3299A           => { type => 1, model => 'HP224M',         match => 'HP J3299A ProCurve Switch 224M'    },
+   J4120A           => { type => 1, model => 'HP1600M',        match => 'HP J4120A ProCurve Switch 1600M'   },
+   J9029A           => { type => 1, model => 'HP1800-8G',      match => 'PROCURVE J9029A'                   },
+   J9449A           => { type => 1, model => 'HP1810-8G',      match => 'HP ProCurve 1810G - 8 GE'          },
+   J4093A           => { type => 1, model => 'HP2424M',        match => 'HP J4093A ProCurve Switch 2424M'   },
+   J9279A           => { type => 1, model => 'HP2510G-24',     match => 'ProCurve J9279A Switch 2510G-24'   },
+   J9280A           => { type => 1, model => 'HP2510G-48',     match => 'ProCurve J9280A Switch 2510G-48'   },
+   J4813A           => { type => 1, model => 'HP2524',         match => 'HP J4813A ProCurve Switch 2524'    },
+   J4900A           => { type => 1, model => 'HP2626A',        match => 'HP J4900A ProCurve Switch 2626'    },
+   J4900B           => { type => 1, model => 'HP2626B',        match => 'J4900B.+?Switch 2626'              },# ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
+   J4899B           => { type => 1, model => 'HP2650',         match => 'ProCurve J4899B Switch 2650'       },
+   J9021A           => { type => 1, model => 'HP2810-24G',     match => 'ProCurve J9021A Switch 2810-24G'   },
+   J9022A           => { type => 1, model => 'HP2810-48G',     match => 'ProCurve J9022A Switch 2810-48G'   },
+   J8692A           => { type => 1, model => 'HP3500-24G',     match => 'J8692A Switch 3500yl-24G'          },
+   J4903A           => { type => 1, model => 'HP2824',         match => 'J4903A.+?Switch 2824,'             },
+   J4110A           => { type => 1, model => 'HP8000M',        match => 'HP J4110A ProCurve Switch 8000M'   },
+   JE074A           => { type => 2, model => 'HP5120-24G',     match => 'HP Comware.+?A5120-24G EI'         },
+   JD374A           => { type => 2, model => 'HP5500-24F',     match => 'HP Comware.+?A5500-24G-SFP EI'     },
    # BayStack
-   BS350T => { model => 'BS350T',     match => 'BayStack 350T HW'                  },
+   BS350T           => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                  },
    # Nexans
-   N3483G => { model => 'NA3483-6G',  match => 'GigaSwitch V3 TP SFP-I 48V ES3'    },
+   N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48V ES3'    },
    # DELL
-   N2048  => { model => 'DN2048',     match => 'Dell Networking N2048,'            },
-   N4064F => { model => 'DN4064F',    match => 'Dell Networking N4064F,'           },
+   N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,'            },
+   N4064F           => { type => 2, model => 'DN4064F',        match => 'Dell Networking N4064F,'           },
    # 3COM
-   'H3C5500'        => { model => 'H3C5500',        match => 'H3C S5500-SI Series'              },
-   '3C17203'        => { model => '3C17203',        match => '3Com SuperStack 3 24-Port'        },
-   '3C17204'        => { model => '3C17204',        match => '3Com SuperStack 3 48-Port'        },
-   '3CR17562-91'    => { model => '3CR17562-91',    match => '3Com Switch 4500 50-Port'         },
-   '3CR17255-91'    => { model => '3CR17255-91',    match => '3Com Switch 5500G-EI 48-Port'     },
-   '3CR17251-91'    => { model => '3CR17251-91',    match => '3Com Switch 5500G-EI 48-Port'     },
-   '3CR17571-91'    => { model => '3CR17571-91',    match => '3Com Switch 4500 PWR 26-Port'     },
-   '3CRWX220095A'   => { model => '3CRWX220095A',   match => '3Com Wireless LAN Controller'     },
-   '3CR17254-91'    => { model => '3CR17254-91',    match => '3Com Switch 5500G-EI 24-Port'     },
-   '3CRS48G-24S-91' => { model => '3CRS48G-24S-91', match => '3Com Switch 4800G 24-Port'        },
-   '3CRS48G-48S-91' => { model => '3CRS48G-48S-91', match => '3Com Switch 4800G 48-Port'        },
-   '3C17708'        => { model => '3C17708',        match => '3Com Switch 4050'                 },
-   '3C17709'        => { model => '3C17709',        match => '3Com Switch 4060'                 },
-   '3C17707'        => { model => '3C17707',        match => '3Com Switch 4070'                 },
-   '3CR17258-91'    => { model => '3CR17258-91',    match => '3Com Switch 5500G-EI 24-Port SFP' },
-   '3CR17181-91'    => { model => '3CR17181-91',    match => '3Com Switch 5500-EI 28-Port FX'   },
-   '3CR17252-91'    => { model => '3CR17252-91',    match => '3Com Switch 5500G-EI PWR 24-Port' },
-   '3CR17253-91'    => { model => '3CR17253-91',    match => '3Com Switch 5500G-EI PWR 48-Port' },
-   '3CR17250-91'    => { model => '3CR17250-91',    match => '3Com Switch 5500G-EI 24-Port'     },
-   '3CR17561-91'    => { model => '3CR17561-91',    match => '3Com Switch 4500 26-Port'         },
-   '3CR17572-91'    => { model => '3CR17572-91',    match => '3Com Switch 4500 PWR 50-Port'     },
-   '3C17702-US'     => { model => '3C17702-US',     match => '3Com Switch 4900 SX'              },
-   '3C17700'        => { model => '3C17700',        match => '3Com Switch 4900'                 },
+   'H3C5500'        => { type => 1, model => 'H3C5500',        match => 'H3C S5500-SI Series'              },
+   '3C17203'        => { type => 1, model => '3C17203',        match => '3Com SuperStack 3 24-Port'        },
+   '3C17204'        => { type => 1, model => '3C17204',        match => '3Com SuperStack 3 48-Port'        },
+   '3CR17562-91'    => { type => 1, model => '3CR17562-91',    match => '3Com Switch 4500 50-Port'         },
+   '3CR17255-91'    => { type => 1, model => '3CR17255-91',    match => '3Com Switch 5500G-EI 48-Port'     },
+   '3CR17251-91'    => { type => 1, model => '3CR17251-91',    match => '3Com Switch 5500G-EI 48-Port'     },
+   '3CR17571-91'    => { type => 1, model => '3CR17571-91',    match => '3Com Switch 4500 PWR 26-Port'     },
+   '3CRWX220095A'   => { type => 1, model => '3CRWX220095A',   match => '3Com Wireless LAN Controller'     },
+   '3CR17254-91'    => { type => 1, model => '3CR17254-91',    match => '3Com Switch 5500G-EI 24-Port'     },
+   '3CRS48G-24S-91' => { type => 1, model => '3CRS48G-24S-91', match => '3Com Switch 4800G 24-Port'        },
+   '3CRS48G-48S-91' => { type => 1, model => '3CRS48G-48S-91', match => '3Com Switch 4800G 48-Port'        },
+   '3C17708'        => { type => 1, model => '3C17708',        match => '3Com Switch 4050'                 },
+   '3C17709'        => { type => 1, model => '3C17709',        match => '3Com Switch 4060'                 },
+   '3C17707'        => { type => 1, model => '3C17707',        match => '3Com Switch 4070'                 },
+   '3CR17258-91'    => { type => 1, model => '3CR17258-91',    match => '3Com Switch 5500G-EI 24-Port SFP' },
+   '3CR17181-91'    => { type => 1, model => '3CR17181-91',    match => '3Com Switch 5500-EI 28-Port FX'   },
+   '3CR17252-91'    => { type => 1, model => '3CR17252-91',    match => '3Com Switch 5500G-EI PWR 24-Port' },
+   '3CR17253-91'    => { type => 1, model => '3CR17253-91',    match => '3Com Switch 5500G-EI PWR 48-Port' },
+   '3CR17250-91'    => { type => 1, model => '3CR17250-91',    match => '3Com Switch 5500G-EI 24-Port'     },
+   '3CR17561-91'    => { type => 1, model => '3CR17561-91',    match => '3Com Switch 4500 26-Port'         },
+   '3CR17572-91'    => { type => 1, model => '3CR17572-91',    match => '3Com Switch 4500 PWR 50-Port'     },
+   '3C17702-US'     => { type => 1, model => '3C17702-US',     match => '3Com Switch 4900 SX'              },
+   '3C17700'        => { type => 1, model => '3C17700',        match => '3Com Switch 4900'                 },
    );
 
 Readonly my %OID_NUMBER => (
@@ -423,31 +423,35 @@ sub find_switch_port {
          next LOOP_ON_SWITCH;
          }
 
-         my $swport = $result->{$research1};
-         $session->close;
+      my $swport = $result->{$research1};
 
-         # IMPORTANT !!
-         # ceci empeche la detection sur certains port ...
-         # en effet les switch sont relies entre eux par un cable reseau et du coup
-         # tous les arp de toutes les machines sont presentes sur ces ports (ceux choisis ici sont les miens)
-         # cette partie est a ameliore, voir a configurer dans l'entete
-         # 21->24 45->48
-#         my $flag = 0;
-         SWITCH_PORT_IGNORE:
-         foreach my $p (@{$sw->{portignore}}) {
-            next SWITCH_PORT_IGNORE if $swport ne get_numerical_port($sw->{model},$p);
-#            $flag = 1;
-            next LOOP_ON_SWITCH;
-            }
-#         if ($flag == 0) {
-            $ret{switch_hostname}    = $sw->{hostname};
-            $ret{switch_description} = $sw->{description};
-            $ret{switch_port}        = get_human_readable_port($sw->{model}, $swport); # $swport;
+      my $research_hr = $OID_NUMBER{ifName} . $swport;
+      $result = $session->get_request(
+         -varbindlist => [$research_hr]
+         );
+      my $swport_hr = $swport;
+      $swport_hr = get_port_human_readable_short($result->{$research_hr}) if defined $result;
 
-            last LOOP_ON_SWITCH;
-#            }
-#         }
-#      $session->close;
+      $session->close;
+
+      # IMPORTANT !!
+      # ceci empeche la detection sur certains port ...
+      # en effet les switch sont relies entre eux par un cable reseau et du coup
+      # tous les arp de toutes les machines sont presentes sur ces ports (ceux choisis ici sont les miens)
+      # cette partie est a ameliore, voir a configurer dans l'entete
+      # 21->24 45->48
+      SWITCH_PORT_IGNORE:
+      foreach my $p (@{$sw->{portignore}}) {
+         next SWITCH_PORT_IGNORE if $swport ne get_numerical_port($sw->{model},$p);
+         next LOOP_ON_SWITCH;
+         }
+
+      $ret{switch_hostname}    = $sw->{hostname};
+      $ret{switch_description} = $sw->{description};
+      $ret{switch_port}        = get_human_readable_port($sw->{model}, $swport); # $swport;
+      $ret{switch_port_hr}     = $swport_hr; # human readable
+
+      last LOOP_ON_SWITCH;
       }
    return %ret;
    }
@@ -667,6 +671,21 @@ sub get_numerical_port {
    return $sw_port;
    }
 
+sub get_port_human_readable_short {
+   my $sw_port_hr  = shift;
+
+   $sw_port_hr =~ s/Ten-GigabitEthernet/Te/;
+   $sw_port_hr =~ s/GigabitEthernet/Gi/;
+
+   return $sw_port_hr;
+   }
+
+sub computerdb_load {
+   my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
+   
+   return $computerdb;
+   }
+
 ################
 # Les commandes
 ################
@@ -731,7 +750,7 @@ sub cmd_search {
 
       printf '%-22s %2s %-30s %-15s %18s',
          $where{switch_hostname},
-         $where{switch_port},
+         $where{switch_port_hr},
          $resol_arp{hostname_fq},
          $resol_arp{ipv4_address},
          $resol_arp{mac_address}."\n";
@@ -780,7 +799,7 @@ sub cmd_searchdb_host {
 
       printf "%-22s %2s %-30s %-15s %-18s %s\n",
          $computerdb->{$ip}{switch_hostname},
-         $computerdb->{$ip}{switch_port},
+         $computerdb->{$ip}{switch_port_hr},
          $computerdb->{$ip}{hostname_fq},
          $ip,
          $computerdb->{$ip}{mac_address},
@@ -807,7 +826,7 @@ sub cmd_searchdb_mac {
 
          printf "%-22s %2s %-30s %-15s %-18s %s\n",
             $computerdb->{$ip}{switch_hostname},
-            $computerdb->{$ip}{switch_port},
+            $computerdb->{$ip}{switch_port_hr},
             $computerdb->{$ip}{hostname_fq},
             $ip,
             $computerdb->{$ip}{mac_address},
@@ -944,6 +963,7 @@ sub cmd_updatedb {
                switch_hostname    => $where{switch_hostname},
                switch_description => $where{switch_description},
                switch_port        => $where{switch_port},
+               switch_port_hr     => $where{switch_port_hr},
                timestamp          => $timestamp,
                network            => $net,
                };
@@ -959,6 +979,7 @@ sub cmd_updatedb {
                switch_hostname    => $where{switch_hostname},
                switch_description => $where{switch_description},
                switch_port        => $where{switch_port},
+               switch_port_hr     => $where{switch_port_hr},
                timestamp          => $resol_arp{timestamp},
                network            => $net,
                };
@@ -1164,7 +1185,7 @@ sub cmd_exportdb_txt {
 
       printf "%-28s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
-         $computerdb->{$ip}{switch_port},
+         $computerdb->{$ip}{switch_port_hr},
          $computerdb->{$ip}{hostname_fq},
          $ip,
          $computerdb->{$ip}{mac_address},
@@ -1241,7 +1262,7 @@ END_HTML
 
       my $switch_hostname = $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description} || 'unkown';
       chomp $switch_hostname;
-      my $switch_hostname_sort = sprintf '%s %3s' ,$switch_hostname, $computerdb->{$ip}{switch_port};
+      my $switch_hostname_sort = sprintf '%s %3s' ,$switch_hostname, $computerdb->{$ip}{switch_port_hr};
 
       my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
 
@@ -1255,7 +1276,7 @@ END_HTML
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
-   <td class="bklask-port">$computerdb->{$ip}{switch_port}</td>
+   <td class="bklask-port">$computerdb->{$ip}{switch_port_hr}</td>
    <td><-------</td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
@@ -1407,7 +1428,7 @@ sub cmd_bad_vlan_id {
 
       my $swpt = sprintf "%-28s  %2s",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
-         $computerdb->{$ip}{switch_port};
+         $computerdb->{$ip}{switch_port_hr};
       $swithportdb{$swpt} ||= {
          ip          => $ip,
          timestamp   => $ip_timestamp,
