@@ -424,13 +424,7 @@ sub find_switch_port {
          }
 
       my $swport = $result->{$research1};
-
-      my $research_hr = $OID_NUMBER{ifName} .'.'. $swport;
-      $result = $session->get_request(
-         -varbindlist => [$research_hr]
-         );
-      my $swport_hr = $swport;
-      $swport_hr = get_port_human_readable_short($result->{$research_hr}) if defined $result;
+      my $swport_hr = snmp_get_swithport_hr($session, $swport);
 
       $session->close;
 
@@ -466,13 +460,6 @@ sub find_all_switch_port {
 
    return $ret if $mac_address eq 'unknow';
 
-#   for my $sw (@SWITCH) {
-#      next if exists $SWITCH_PORT_COUNT{$sw->{hostname}};
-#
-#      $SWITCH_PORT_COUNT{$sw->{hostname}} = {};
-#      print "DEBUG: SWITCH_PORT_COUNT defined for $sw->{hostname}\n" if $DEBUG xor 2;
-#      }
-
    my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
    my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
@@ -492,11 +479,13 @@ sub find_all_switch_port {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport = $result->{$research1};
+         my $swport_hr = snmp_get_swithport_hr($session, $swport);
 
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
          $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{model}, $swport);
+         $ret->{$sw->{hostname}}{port_hr}     = $swport_hr;
 
 #         $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
          }
@@ -678,6 +667,18 @@ sub get_port_human_readable_short {
    $sw_port_hr =~ s/GigabitEthernet/Gi/;
 
    return $sw_port_hr;
+   }
+
+sub snmp_get_swithport_hr {
+   my ($snmp_session, $swport) = @_;
+   
+   my $research_hr = $OID_NUMBER{ifName} .'.'. $swport;
+   $result = $snmp_session->get_request(
+      -varbindlist => [$research_hr]
+      );
+   my $swport_hr = $swport;
+   $swport_hr = get_port_human_readable_short($result->{$research_hr}) if defined $result;
+   return $swport_hr;
    }
 
 # Load computer database
@@ -1322,13 +1323,13 @@ END_HTML
 
       my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
-      my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port};
+      my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port_hr};
 
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</>
-   <td>+--> $db_switch_parent{$sw}->{port}</td>
+   <td>+--> $db_switch_parent{$sw}->{port_hr}</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{switch}</>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -2001,8 +2002,8 @@ sub cmd_updatesw {
 
          next ALL_SWITCH_CONNECTED if $switch->{port} eq '0';
 
-         $db_switch_output_port{$switch->{hostname}} = $switch->{port};
-         print "VERBOSE_2: output port $switch->{hostname} : $switch->{port}\n" if $verbose;
+         $db_switch_output_port{$switch->{hostname}} = $switch->{port_hr};
+         print "VERBOSE_2: output port $switch->{hostname} : $switch->{port_hr}\n" if $verbose;
          }
       }
 
@@ -2054,10 +2055,10 @@ sub cmd_updatesw {
       for my $switch_detected ( keys %{$where{$ip}} ) {
 
          my $switch = $where{$ip}->{$switch_detected};
-         print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{hostname} : $switch->{port}\n" if $verbose;
+         print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{hostname} : $switch->{port_hr}\n" if $verbose;
 
          next if $switch->{port}     eq '0';
-         next if $switch->{port}     eq $db_switch_output_port{$switch->{hostname}};
+         next if $switch->{port_hr}  eq $db_switch_output_port{$switch->{hostname}};
          next if $switch->{hostname} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{hostname};
 
          $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} } ||= {};
@@ -2130,7 +2131,7 @@ sub cmd_updatesw {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{switch};
          }
       else {
          printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
@@ -2198,7 +2199,7 @@ sub cmd_exportsw_txt {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{switch};
          }
       else {
          printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
