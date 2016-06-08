@@ -673,7 +673,7 @@ sub snmp_get_swithport_hr {
    my ($snmp_session, $swport) = @_;
    
    my $research_hr = $OID_NUMBER{ifName} .'.'. $swport;
-   $result = $snmp_session->get_request(
+   my $result = $snmp_session->get_request(
       -varbindlist => [$research_hr]
       );
    my $swport_hr = $swport;
