@@ -2132,7 +2132,7 @@ sub cmd_updatesw {
          $db_switch_connected_on_port{"$connect:$port_hr"} ||= {};
          $db_switch_connected_on_port{"$connect:$port_hr"}->{$sw} = $port_hr;
 
-         $db_switch_parent{$sw} = {switch => $connect, port => $port};
+         $db_switch_parent{$sw} = {switch => $connect, port_hr => $port_hr};
          }
       }
 
