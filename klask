@@ -425,7 +425,7 @@ sub find_switch_port {
 
       my $swport = $result->{$research1};
 
-      my $research_hr = $OID_NUMBER{ifName} . $swport;
+      my $research_hr = $OID_NUMBER{ifName} .'.'. $swport;
       $result = $session->get_request(
          -varbindlist => [$research_hr]
          );
