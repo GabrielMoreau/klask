@@ -664,8 +664,9 @@ sub get_numerical_port {
 sub get_port_human_readable_short {
    my $sw_port_hr  = shift;
 
-   $sw_port_hr =~ s/Ten-GigabitEthernet/Te/;
-   $sw_port_hr =~ s/GigabitEthernet/Gi/;
+   $sw_port_hr =~ s/^Bridge-Aggregation/Br/;
+   $sw_port_hr =~ s/^Ten-GigabitEthernet/Te/;
+   $sw_port_hr =~ s/^GigabitEthernet/Gi/;
 
    return $sw_port_hr;
    }
@@ -2070,7 +2071,7 @@ sub cmd_updatesw {
          next if $switch->{hostname} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{hostname};
 
          $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} } ||= {};
-         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} }->{ $switch->{hostname} } = $switch->{port};
+         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} }->{ $switch->{hostname} } = $switch->{port_hr};
          print "VERBOSE_7: +++++\n" if $verbose;
          }
 
@@ -2083,10 +2084,10 @@ sub cmd_updatesw {
       for my $sw (keys %db_switch_link_with) {
          for my $connect (keys %{$db_switch_link_with{$sw}}) {
 
-            my $port = $db_switch_link_with{$sw}->{$connect};
+            my $port_hr = $db_switch_link_with{$sw}->{$connect};
 
-            $db_switch_connected_on_port{"$connect:$port"} ||= {};
-            $db_switch_connected_on_port{"$connect:$port"}->{$sw}++; # Just to define the key
+            $db_switch_connected_on_port{"$connect:$port_hr"} ||= {};
+            $db_switch_connected_on_port{"$connect:$port_hr"}->{$sw}++; # Just to define the key
             }
          }
 
@@ -2126,10 +2127,10 @@ sub cmd_updatesw {
    for my $sw (keys %db_switch_link_with) {
       for my $connect (keys %{$db_switch_link_with{$sw}}) {
 
-         my $port = $db_switch_link_with{$sw}->{$connect};
+         my $port_hr = $db_switch_link_with{$sw}->{$connect};
 
-         $db_switch_connected_on_port{"$connect:$port"} ||= {};
-         $db_switch_connected_on_port{"$connect:$port"}->{$sw} = $port;
+         $db_switch_connected_on_port{"$connect:$port_hr"} ||= {};
+         $db_switch_connected_on_port{"$connect:$port_hr"}->{$sw} = $port_hr;
 
          $db_switch_parent{$sw} = {switch => $connect, port => $port};
          }
