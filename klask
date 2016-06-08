@@ -2265,7 +2265,7 @@ sub cmd_exportsw_dot {
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
-            print "\"$sw:$db_switch_output_port{$sw}\" [label = $db_switch_output_port{$sw}, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
+            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"$db_switch_output_port{$sw}\", color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
 
             my $swname  = $sw;
                $swname .= q{\n-\n} . "$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
@@ -2278,7 +2278,7 @@ sub cmd_exportsw_dot {
                my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
-               print "\"$sw:$port_connect\" [label = $port_connect, color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
+               print "\"$sw:$port_connect\" [label = \"$port_connect\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, arrowhead= normal, arrowtail = inv]\n";
               }
             }
