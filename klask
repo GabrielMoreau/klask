@@ -1230,7 +1230,7 @@ sub cmd_exportdb_html {
   <tr>
    <th scope="col" class="klask-header-left">Switch</th>
    <th scope="col" class="sorttable_nosort">Port</th>
-   <th scope="col" class="sorttable_nosort">Link</th>
+   <th scope="col" class="sorttable_nosort" colspan="2">Link</th>
    <th scope="col" class="sorttable_alpha">Hostname-FQ</th>
    <th scope="col" class="hklask-ipv4">IPv4-Address</th>
    <th scope="col" class="sorttable_alpha">MAC-Address</th>
@@ -1346,7 +1346,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</td>
-   <td>$arrow</td></td>$db_switch_parent{$sw}->{port_hr}</td>
+   <td>$arrow</td><td>$db_switch_parent{$sw}->{port_hr}</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{switch}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1360,7 +1360,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</td>
-   <td>$arrow</td></td></td>
+   <td>$arrow</td><td></td>
    <td sorttable_customkey="router">router</td>
    <td sorttable_customkey="999999999999"></td>
    <td sorttable_customkey="99999"></td>
