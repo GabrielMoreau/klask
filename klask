@@ -424,8 +424,8 @@ sub find_switch_port {
          next LOOP_ON_SWITCH;
          }
 
-      my $swport = $result->{$research1};
-      my $swport_hr = snmp_get_swithport_hr($session, $swport);
+      my $swport_num = $result->{$research1};
+      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
 
       $session->close;
 
@@ -436,14 +436,13 @@ sub find_switch_port {
       # cette partie est a ameliore, voir a configurer dans l'entete
       # 21->24 45->48
       SWITCH_PORT_IGNORE:
-      for my $p (@{$sw->{portignore}}) {
-         next SWITCH_PORT_IGNORE if $swport_hr ne get_numerical_port($sw->{model},$p);
-         next LOOP_ON_SWITCH;
+      for my $portignore (@{$sw->{portignore}}) {
+         next LOOP_ON_SWITCH if $swport_hr eq $portignore;
          }
 
       $ret{switch_hostname}    = $sw->{hostname};
       $ret{switch_description} = $sw->{description};
-      $ret{switch_port}        = get_human_readable_port($sw->{model}, $swport); # $swport;
+      $ret{switch_port}        = $swport_num;
       $ret{switch_port_hr}     = $swport_hr; # human readable
 
       last LOOP_ON_SWITCH;
@@ -479,13 +478,13 @@ sub find_all_switch_port {
          }
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport = $result->{$research1};
-         my $swport_hr = snmp_get_swithport_hr($session, $swport);
+         my $swport_num = $result->{$research1};
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
 
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
-         $ret->{$sw->{hostname}}{port}        = get_human_readable_port($sw->{model}, $swport);
+         $ret->{$sw->{hostname}}{port}        = $swport_num;
          $ret->{$sw->{hostname}}{port_hr}     = $swport_hr;
 
 #         $SWITCH_PORT_COUNT{$sw->{hostname}}->{$swport}++;
@@ -567,6 +566,10 @@ sub get_list_main_router {
 sub get_human_readable_port {
    my $sw_model = shift;
    my $sw_port  = shift;
+
+   # Not need anymore
+   # get port name by snmp
+   return $sw_port;
 
    if ($sw_model eq 'HP8000M') {
 
