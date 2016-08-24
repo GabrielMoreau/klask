@@ -1544,8 +1544,10 @@ sub cmd_bad_vlan_id {
       $mon++;
       my $src_date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      printf "%s / %-10s +-> %-10s  %s %s %s %s\n",
-         $swpt, $swithportdb{$swpt}->{vlan}, $computerdb->{$src_ip}{network},
+      my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{network});
+
+      printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
+         $swpt, $swithportdb{$swpt}->{vlan}, $computerdb->{$src_ip}{network}, $vlan_id,
          $date,
          $src_date,
          $computerdb->{$src_ip}{mac_address},
