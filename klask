@@ -292,7 +292,7 @@ sub get_switch_model {
 ###
 # va rechercher le nom des switchs pour savoir qui est qui
 sub init_switch_names {
-   my ($verbose, $verb_description) = @_;
+   my ($verbose, $verb_description, $check_hostname) = @_;
 
    printf "%-26s                %-25s %s\n",'Switch','Description','Type' if $verbose;
    print "------------------------------------------------------------------------------\n" if $verbose;
@@ -328,6 +328,10 @@ sub init_switch_names {
          my $desc = $result->{$OID_NUMBER{sysDescription}};
          $desc =~ s/[\n\r]/ /g;
          print "   description: $desc\n"
+         }
+      if ($check_hostname) {
+         my ($hostname) = split /\./, $sw->{hostname}, 2;
+         print "   error hostname: $sw->{hostname}\n" if $result->{$OID_NUMBER{sysName}} ne $hostname;
          }
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
@@ -872,11 +876,12 @@ sub cmd_searchdb_mac {
 sub cmd_updatedb {
    @ARGV = @_;
 
-   my ($verbose, $verb_description);
+   my ($verbose, $verb_description, $check_hostname);
 
    GetOptions(
-      'verbose|v' => \$verbose,
-      'verb_description|d' => \$verb_description,
+      'verbose|v'          => \$verbose,
+      'verb-description|d' => \$verb_description,
+      'chk-hostname|h'     => \$check_hostname,
       );
 
    my @network = @ARGV;
@@ -897,7 +902,7 @@ sub cmd_updatedb {
    my $i = 0;
    my $detected_computer = 0;
 
-   init_switch_names('yes', $verb_description);    #nomme les switchs
+   init_switch_names('yes', $verb_description, $check_hostname);    #nomme les switchs
 
    { # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
