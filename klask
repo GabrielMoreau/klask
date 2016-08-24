@@ -1234,6 +1234,9 @@ sub cmd_exportdb_txt {
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
+      my $vlan = '';
+      $vlan = $computerdb->{$ip}{network}.'('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
+
       printf "%-28s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port_hr},
@@ -1241,7 +1244,7 @@ sub cmd_exportdb_txt {
          $ip,
          $computerdb->{$ip}{mac_address},
          $date,
-         $computerdb->{$ip}{network} || '';
+         $vlan;
       }
    return;
    }
