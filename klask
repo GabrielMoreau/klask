@@ -1328,7 +1328,8 @@ END_HTML
       $computerdb->{$ip}{hostname_fq} = 'unknow' if $computerdb->{$ip}{hostname_fq} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/xms;
       my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{hostname_fq};
 
-      my $vlan = $computerdb->{$ip}{network} || '';
+      my $vlan = '';
+      $vlan = $computerdb->{$ip}{network}.' ('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
 
       print <<"END_HTML";
   <tr class="$typerow">
