@@ -331,12 +331,12 @@ sub init_switch_names {
          }
       if ($check_hostname) {
          my ($hostname) = split /\./, $sw->{hostname}, 2;
-         print "   error hostname: $sw->{hostname}\n" if $result->{$OID_NUMBER{sysName}} ne $hostname;
+         print " $hostname - error internal hostname: $sw->{hostname}\n" if $result->{$OID_NUMBER{sysName}} ne $hostname;
          }
       if ($check_location) {
          my $location = $result->{$OID_NUMBER{sysLocation}};
          $location =~ s/^"(.+)"$/$1/;
-         print "   error location: '$sw->{location}' =/= '$location'\n" if $location ne $sw->{location};
+         print " $sw->{hostname} - error location: '$location' -> '$sw->{location}'\n" if $location ne $sw->{location};
          }
       #$sw->{location} = $result->{"1.3.6.1.2.1.1.6.0"} || $sw->{hostname};
       #$sw->{contact} = $result->{"1.3.6.1.2.1.1.4.0"} || $sw->{hostname};
