@@ -529,6 +529,12 @@ sub get_current_vlan_id {
    return $KLASK_CFG->{network}{$vlan_name}{'vlan-id'};
    }
 
+sub get_current_scan_mode {
+   my $vlan_name = shift;
+
+   return $KLASK_CFG->{network}{$vlan_name}{'scan-mode'} || $DEFAULT{'scan-mode'} || 'active';
+   }
+
 sub get_current_vlan_name_for_interface {
    my $interface = shift;
 
@@ -938,12 +944,12 @@ sub cmd_updatedb {
       }
 
    ALL_NETWORK:
-   for my $net (@network) {
+   for my $current_net (@network) {
 
-      my @computer = get_list_ip($net);
-      my $current_interface = get_current_interface($net);
+      my @computer = get_list_ip($current_net);
+      my $current_interface = get_current_interface($current_net);
 
-      fast_ping(@computer);
+      fast_ping(@computer) if get_current_scan_mode($current_net) eq 'active';
 
       LOOP_ON_COMPUTER:
       for my $one_computer (@computer) {
@@ -967,13 +973,13 @@ sub cmd_updatedb {
 
          # do not search on router connection (why ?)
          if ( exists $router_mac_ip{$resol_arp{mac_address}}) {
-            $computer_not_detected{$one_computer} = $current_interface;
+            $computer_not_detected{$one_computer} = $current_net;
             next LOOP_ON_COMPUTER;
             }
 
          # do not search on switch inter-connection
          if (exists $switch_level{$resol_arp{hostname_fq}}) {
-            $computer_not_detected{$one_computer} = $current_interface;
+            $computer_not_detected{$one_computer} = $current_net;
             next LOOP_ON_COMPUTER;
             }
 
@@ -984,7 +990,7 @@ sub cmd_updatedb {
 
          # do not have a mac address
          if ($resol_arp{mac_address} eq 'unknow' or (exists $resol_arp{timestamps} and $resol_arp{timestamps} < ($timestamp - 3 * 3600))) {
-            $computer_not_detected{$one_computer} = $current_interface;
+            $computer_not_detected{$one_computer} = $current_net;
             next LOOP_ON_COMPUTER;
             }
 
@@ -1016,7 +1022,7 @@ sub cmd_updatedb {
                switch_port        => $where{switch_port},
                switch_port_hr     => $where{switch_port_hr},
                timestamp          => $timestamp,
-               network            => $net,
+               network            => $current_net,
                };
             next LOOP_ON_COMPUTER;
             }
@@ -1032,7 +1038,7 @@ sub cmd_updatedb {
                switch_port        => $where{switch_port},
                switch_port_hr     => $where{switch_port_hr},
                timestamp          => $resol_arp{timestamp},
-               network            => $net,
+               network            => $current_net,
                };
             }
 
@@ -1044,7 +1050,7 @@ sub cmd_updatedb {
 
          # relance un arping sur la machine si celle-ci n'a pas été détectée depuis plus d'une semaine
 #         push @computer_not_detected, $resol_arp{ipv4_address} if $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $timestamp_last_week;
-         $computer_not_detected{$resol_arp{ipv4_address}} = $current_interface if $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $timestamp_last_week;
+         $computer_not_detected{$resol_arp{ipv4_address}} = $current_net if $computerdb->{$resol_arp{ipv4_address}}{timestamp} < $timestamp_last_week;
 
          }
       }
@@ -1058,9 +1064,10 @@ sub cmd_updatedb {
    YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
 
    for my $one_computer (keys %computer_not_detected) {
-      my $interface = $computer_not_detected{$one_computer};
-      system "arping -c 1 -w 1 -rR -i $interface $one_computer &>/dev/null";
-#      print  "arping -c 1 -w 1 -rR -i $interface $one_computer 2>/dev/null\n";
+      my $current_net = $computer_not_detected{$one_computer};
+      my $current_interface = get_current_interface($current_net);
+      system "arping -c 1 -w 1 -rR -i $current_interface $one_computer &>/dev/null" if get_current_scan_mode($current_net) eq 'active';
+#      print  "arping -c 1 -w 1 -rR -i $current_interface $one_computer 2>/dev/null\n";
       }
    return;
    }
