@@ -534,6 +534,7 @@ sub get_current_interface {
 sub get_current_vlan_id {
    my $vlan_name = shift;
 
+   return 0 if not exists $KLASK_CFG->{network}{$vlan_name};
    return $KLASK_CFG->{network}{$vlan_name}{'vlan-id'};
    }
 
