@@ -498,6 +498,14 @@ sub find_all_switch_port {
          my $swport_num = $result->{$research1};
          my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
 
+         SWITCH_PORT_IGNORE:
+         for my $portignore (@{$sw->{portignore}}) {
+            if ($swport_hr eq $portignore) {
+               $session->close;
+               next LOOP_ON_ALL_SWITCH
+               }
+            }
+
          $ret->{$sw->{hostname}} = {};
          $ret->{$sw->{hostname}}{hostname}    = $sw->{hostname};
          $ret->{$sw->{hostname}}{description} = $sw->{description};
@@ -2016,8 +2024,9 @@ sub cmd_search_mac_on_switch {
          }
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport = $result->{$research1};
-         print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
+         my $swport_num = $result->{$research1};
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
+         print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
       else {
          print "Klask do not find MAC $mac_address on switch $sw_name\n" if $verbose;
@@ -2137,8 +2146,11 @@ sub cmd_updatesw {
 
    my %db_switch_connected_on_port = ();
    my $maybe_more_than_one_switch_connected = 'yes';
+   my $cloop = 0;
 
-   while ($maybe_more_than_one_switch_connected eq 'yes') {
+   while ($maybe_more_than_one_switch_connected eq 'yes' and $cloop < 100) {
+      $cloop++;
+      print "VERBOSE_9: cloop reduction step: $cloop\n" if $verbose;
       for my $sw (keys %db_switch_link_with) {
          for my $connect (keys %{$db_switch_link_with{$sw}}) {
 
@@ -2160,6 +2172,7 @@ sub cmd_updatesw {
 
          my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
          my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
+         print "VERBOSE_10: $swport -- ".$#sw_on_same_port." -- @sw_on_same_port\n" if $verbose;
 
          CONNECTED:
          for my $sw_connected (@sw_on_same_port) {
