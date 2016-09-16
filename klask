@@ -112,6 +112,7 @@ Readonly my %SWITCH_KIND => (
    N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48V ES3'       },
    # DELL
    N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,'               },
+   N4032F           => { type => 2, model => 'DN4032F',        match => 'Dell Networking N4032F,'              },
    N4064F           => { type => 2, model => 'DN4064F',        match => 'Dell Networking N4064F,'              },
    # 3COM
    'H3C5500'        => { type => 1, model => 'H3C5500',        match => 'H3C S5500-SI Series'                  },
