@@ -737,7 +737,7 @@ sub computerdb_load {
    LOOP_ON_IP_ADDRESS:
    for my $ip (keys %{$computerdb}) {
 
-      next LOOP_ON_IP_ADDRESS if exists $computerdb->{$ip}{switch_port_hr};
+      next LOOP_ON_IP_ADDRESS if exists $computerdb->{$ip}{switch_port_hr} and defined $computerdb->{$ip}{switch_port_hr};
       
       $computerdb->{$ip}{switch_port_hr} = $computerdb->{$ip}{switch_port};
       }
