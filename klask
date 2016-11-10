@@ -220,6 +220,7 @@ sub resolve_ip_arp_host {
    my $param_ip_or_host = shift;
    my $interface = shift || q{*};
    my $type      = shift || q{fast};
+   my $already   = shift || q{yes};
 
    my %ret = (
       hostname_fq  => 'unknow',
@@ -233,7 +234,7 @@ sub resolve_ip_arp_host {
    $ret{ipv4_address} = inet_ntoa($packed_ip);
 
    # perl -MSocket -E 'say scalar gethostbyaddr(inet_aton("194.254.66.240"), AF_INET)'
-   my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET);
+   my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) if $already eq 'yes';
    $ret{hostname_fq} = $hostname_fq if defined $hostname_fq;
 
    # my $cmd = q{grep  -he '\b} . $param_ip_or_host . q{\b' } . "/var/lib/arpwatch/$interface.dat | sort -rn -k 3,3 | head -1";
@@ -980,7 +981,8 @@ sub cmd_updatedb {
          printf ' [Time: %02i:%02i / %02i:%02i]', int($localtime/60), $localtime % 60, int($time_elapse/60), $time_elapse % 60;
          printf ' %-8s %-14s', $current_interface, $one_computer;
 
-         my %resol_arp = resolve_ip_arp_host($one_computer, $current_interface);
+         my $already_exist = exists $computerdb->{$one_computer} ? 'yes' : 'no';
+         my %resol_arp = resolve_ip_arp_host($one_computer, $current_interface, 'fast', $already_exist);
 
          # do not search on router connection (why ?)
          if ( exists $router_mac_ip{$resol_arp{mac_address}}) {
@@ -1865,7 +1867,7 @@ sub cmd_ip_free {
 
          my $packed_ip = scalar gethostbyname($ip);
          my $hostname_fq = 'unknown';
-            $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) || 'unknown' if defined $packed_ip;
+            $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) || 'unknown' if defined $packed_ip and get_current_scan_mode($vlan) eq 'active';
 
          next LOOP_ON_IP_ADDRESS if $hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
 
