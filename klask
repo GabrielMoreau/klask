@@ -760,7 +760,7 @@ klask - ports manager and finder for switch
  klask updatedb
  klask exportdb --format [txt|html]
  klask removedb computer*
- klask cleandb  --day number_of_day --verbose
+ klask cleandb  --day number_of_day --repair-dns --verbose
 
  klask updatesw
  klask exportsw --format [txt|dot]
@@ -1124,7 +1124,7 @@ sub cmd_cleandb {
    GetOptions(
       'day|d=i'   => \$days_to_clean,
       'verbose|v' => \$verbose,
-      'repairdns|r' => \$repairdns,
+      'repair-dns|r' => \$repairdns,
       );
 
    my @vlan_name = get_list_network();
@@ -2430,7 +2430,7 @@ klask - ports manager and finder for switch
  klask updatedb
  klask exportdb --format [txt|html]
  klask removedb computer*
- klask cleandb  --day number_of_day --verbose
+ klask cleandb  --day number_of_day --repair-dns --verbose
 
  klask updatesw
  klask exportsw --format [txt|dot]
@@ -2487,6 +2487,20 @@ This command will scan networks and update a database. To know which are the cmp
 
 This command print the content of the database. There is actually only one format. It's very easy to have more format, it's just need times...
 
+=head2 removedb
+
+This command remove an entry in the database.
+There is only one kind of parameter, the IP of the computers to be removed.
+You can put as many IP as you want...
+
+DNS computer name could also a valid entry because a DNS resolver is done at the beginning.
+
+=head2 cleandb
+
+Remove double entry (same MAC-Address) when the older one is older than X day (--day) the new one.
+Computer name beginning by 'float' are not really taken into account but could be remove.
+
+When reverse DNS has not be done, option --repair-dns force reverse DNS check on unkown host.
 
 =head2 updatesw
 
