@@ -1117,18 +1117,19 @@ sub cmd_cleandb {
    my @ARGV  = @_;
 
    my $days_to_clean = 15;
+   my $repairdns;
    my $verbose;
    my $database_has_changed;
 
    GetOptions(
       'day|d=i'   => \$days_to_clean,
       'verbose|v' => \$verbose,
+      'repairdns|r' => \$repairdns,
       );
 
    my @vlan_name = get_list_network();
 
-   my $computerdb = {};
-      $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE") if -e "$KLASK_DB_FILE";
+   my $computerdb = computerdb_load();
    my $timestamp = time;
 
    my $timestamp_barrier = 3600 * 24 * $days_to_clean;
@@ -1198,6 +1199,22 @@ sub cmd_cleandb {
                hostname_fq => $ip_hostname_fq,
                };
             }
+         }
+      }
+
+   if ($repairdns) { # Search and update unkown computer in reverse DNS
+      LOOP_ON_COMPUTER:
+      for my $one_computer (@computer) {
+         next LOOP_ON_COMPUTER if $computerdb->{$one_computer}{hostname_fq} ne 'unknow';
+
+         my $packed_ip = scalar gethostbyname($one_computer);
+         next LOOP_ON_COMPUTER if not defined $packed_ip;
+
+         my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET);
+         next LOOP_ON_COMPUTER if not defined $hostname_fq;
+
+         $computerdb->{$one_computer}{hostname_fq} = $hostname_fq;
+         $database_has_changed++;
          }
       }
 
