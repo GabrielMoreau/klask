@@ -1,0 +1,5 @@
+open https://servforge.legi.grenoble-inp.fr/pub/klask/
+
+mput *.html
+
+quit
