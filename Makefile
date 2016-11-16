@@ -7,10 +7,11 @@ LIBDIR=/usr/lib/klask
 CRONDIR=/etc/cron.d
 ETCDIR=/etc/klask
 
-.PHONY: all install update sync help
+.PHONY: all install update sync upload help
 
 all:
 	pod2man klask | gzip > klask.1.gz
+	pod2html klask > klask.html
 
 install: update
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(SHAREDIR)
@@ -40,9 +41,13 @@ update:
 sync:
 	svn update
 
+upload:
+	cadaver --rcfile=cadaverrc
+
 help:
 	@echo "Cibles possibles :"
 	@echo " * all     : construction du man"
 	@echo " * install : installation complète"
 	@echo " * update  : installation minimale"
 	@echo " * sync    : synchronisation avec le dépôt officiel"
+	@echo " * upload  : upload on public dav forge space"
