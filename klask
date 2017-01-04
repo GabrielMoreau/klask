@@ -257,12 +257,23 @@ sub resolve_ip_arp_host {
       return %ret;
       }
 
-   # resultat de la commande arp
-   # tech7meylan.hmg.inpg.fr (194.254.66.240) at 00:14:22:45:28:A9 [ether] on eth0
-   # sw2-batF0-legi.hmg.priv (192.168.22.112) at 00:30:c1:76:9c:01 [ether] on eth0.37
-   my $cmd_arp  = shell_command "arp -a $param_ip_or_host -i $ret{interface}";
-   if ( $cmd_arp =~ m{ (\S*) \s \( ( $RE_IPv4_ADDRESS ) \) \s at \s ( $RE_MAC_ADDRESS ) }xms ) {
-      ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
+   # ARP result
+   #
+   # LANG=C arp -a 194.254.66.62 -i eth331
+   # gw66-62.legi.grenoble-inp.fr (194.254.66.62) at 00:08:7c:bb:0f:c0 [ether] on eth331
+   #
+   # LANG=C ip neigh show to 194.254.66.62 dev eth331
+   # 194.254.66.62 lladdr 00:08:7c:bb:0f:c0 REACHABLE
+#   my $cmd_arp  = shell_command "arp -a $param_ip_or_host -i $ret{interface}";
+#   if ( $cmd_arp =~ m{ (\S*) \s \( ( $RE_IPv4_ADDRESS ) \) \s at \s ( $RE_MAC_ADDRESS ) }xms ) {
+#      ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
+#      }
+   if ($ret{mac_address} eq 'unknow') {
+      # Another chance to have mac_address
+      my $cmd_arp  = shell_command "ip neigh show to $ret{ipv4_address} dev $ret{interface}";
+      if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
+         $ret{mac_address} = $1;
+         }
       }
 
    # Normalize MAC Address
