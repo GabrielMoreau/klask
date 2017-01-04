@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2016 Gabriel Moreau
+# Copyright (C) 2005-2017 Gabriel Moreau
 #
 # $Id$
 
@@ -795,7 +795,7 @@ sub cmd_version {
 
 print <<'END';
 Klask - ports manager and finder for switch
-Copyright (C) 2005-2016 Gabriel Moreau
+Copyright (C) 2005-2017 Gabriel Moreau
 
 END
    print ' $Id$'."\n";
@@ -2593,4 +2593,4 @@ Written by Gabriel Moreau, Grenoble - France
 
 GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2016 Gabriel Moreau.
+Copyright (C) 2005-2017 Gabriel Moreau.
