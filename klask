@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.5.6');
+use version; our $VERSION = qv('0.5.7');
 
 use Readonly;
 use FileHandle;
@@ -33,19 +33,19 @@ test_running_environnement();
 
 my $KLASK_CFG = YAML::Syck::LoadFile("$KLASK_CFG_FILE");
 
-my %DEFAULT = %{ $KLASK_CFG->{default} };
-my @SWITCH  = @{ $KLASK_CFG->{switch}  };
+my %DEFAULT     = %{$KLASK_CFG->{default}};
+my @SWITCH_LIST = @{$KLASK_CFG->{switch}};
 
-my %switch_level = ();
+my %SWITCH_LEVEL = ();
 my %SWITCH_DB    = ();
 LEVEL_OF_EACH_SWITCH:
-for my $sw (@SWITCH){
-   $switch_level{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
+for my $sw (@SWITCH_LIST){
+   $SWITCH_LEVEL{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    $SWITCH_DB{$sw->{hostname}} = $sw;
    }
-@SWITCH = reverse sort { $switch_level{$a->{hostname}} <=> $switch_level{$b->{hostname}} } @{$KLASK_CFG->{switch}};
+@SWITCH_LIST = reverse sort { $SWITCH_LEVEL{$a->{hostname}} <=> $SWITCH_LEVEL{$b->{hostname}} } @{$KLASK_CFG->{switch}};
 
-my %SWITCH_PORT_COUNT = ();
+#my %SWITCH_PORT_COUNT = ();
 
 my %CMD_DB = (
    'help'                 => \&cmd_help,
@@ -269,7 +269,7 @@ sub resolve_ip_arp_host {
 #      ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
 #      }
    if ($ret{mac_address} eq 'unknow') {
-      # Another chance to have mac_address
+      # Last chance to have the mac_address
       my $cmd_arp  = shell_command "ip neigh show to $ret{ipv4_address} dev $ret{interface}";
       if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
          $ret{mac_address} = $1;
@@ -312,7 +312,7 @@ sub init_switch_names {
    print "------------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
-   for my $sw (@SWITCH) {
+   for my $sw (@SWITCH_LIST) {
       my %session = ( -hostname   => $sw->{hostname} );
          $session{-version} = $sw->{version}   || 1;
          $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
@@ -336,6 +336,16 @@ sub init_switch_names {
             $OID_NUMBER{sysLocation},
             ]
          );
+      if (!defined $result) {
+         printf {*STDERR} "ERROR: %s.\n", $session->error();
+         $session->close();
+         # Remove bad switch
+         @SWITCH_LIST = grep { $_->{hostname} ne $sw->{hostname} } @SWITCH_LIST;
+         delete $SWITCH_LEVEL{$sw->{hostname}} if exists $SWITCH_LEVEL{$sw->{hostname}};
+         delete $SWITCH_DB{$sw->{hostname}}    if exists $SWITCH_DB{$sw->{hostname}};
+         next INIT_EACH_SWITCH;
+         }
+
       $sw->{description} = $result->{$OID_NUMBER{sysName}} || $sw->{hostname};
       $sw->{model} = get_switch_model($result->{$OID_NUMBER{sysDescription}});
       if ($verb_description) {
@@ -357,7 +367,7 @@ sub init_switch_names {
       $session->close;
 
       # Ligne à virer car on récupère maintenant le modèle du switch
-      my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
+      #my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
       printf "%-26s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
       }
 
@@ -423,9 +433,9 @@ sub find_switch_port {
 
    return %ret if $mac_address eq 'unknow';;
 
-   my @switch_search = @SWITCH;
+   my @switch_search = @SWITCH_LIST;
    if ($switch_proposal ne q{}) {
-      for my $sw (@SWITCH) {
+      for my $sw (@SWITCH_LIST) {
          next if $sw->{hostname} ne $switch_proposal;
          unshift @switch_search, $sw;
          last;
@@ -494,7 +504,7 @@ sub find_all_switch_port {
    my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
    my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
-   for my $sw (@SWITCH) {
+   for my $sw (@SWITCH_LIST) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
       print "$error \n" if $error;
 
@@ -948,7 +958,7 @@ sub cmd_updatedb {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
-   for my $sw (@SWITCH){
+   for my $sw (@SWITCH_LIST){
       push @{$sw->{portignore}}, $db_switch_output_port{$sw->{hostname}}  if exists $db_switch_output_port{$sw->{hostname}};
       if ( exists $db_switch_chained_port{$sw->{hostname}} ) {
          chop $db_switch_chained_port{$sw->{hostname}};
@@ -1002,7 +1012,7 @@ sub cmd_updatedb {
             }
 
          # do not search on switch inter-connection
-         if (exists $switch_level{$resol_arp{hostname_fq}}) {
+         if (exists $SWITCH_LEVEL{$resol_arp{hostname_fq}}) {
             $computer_not_detected{$one_computer} = $current_net;
             next LOOP_ON_COMPUTER;
             }
@@ -1615,7 +1625,7 @@ sub cmd_set_vlan_port {
       die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
 
-   $switch_name = join(',', map {$_->{hostname}} @SWITCH ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -1771,7 +1781,7 @@ sub cmd_get_vlan_name {
       die "Usage: klask get-vlan-name SWITCH_NAME VLAN_ID\n";
       }
 
-   $switch_name = join(',', map {$_->{hostname}} @SWITCH ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -1824,7 +1834,7 @@ sub cmd_ip_location {
 
       my $sw_location = q{};
       LOOP_ON_ALL_SWITCH:
-      for my $sw (@SWITCH) {
+      for my $sw (@SWITCH_LIST) {
          next LOOP_ON_ALL_SWITCH if $sw_hostname ne $sw->{hostname};
          $sw_location = $sw->{location};
          last;
@@ -2020,7 +2030,7 @@ sub cmd_search_mac_on_switch {
       }
 
    $mac_address = normalize_mac_address($mac_address);
-   $switch_name = join(',', map {$_->{hostname}} @SWITCH ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -2087,8 +2097,8 @@ sub cmd_updatesw {
    my %db_switch_ip_hostnamefq = ();
 
    DETECT_ALL_ROUTER:
-#   for my $one_computer ('194.254.66.254') {
    for my $one_router ( get_list_main_router(get_list_network()) ) {
+      print "Info: router loop $one_router\n" if $verbose;
       my %resol_arp = resolve_ip_arp_host($one_router, q{*}, q{low}); # resolution arp
 
       next DETECT_ALL_ROUTER if $resol_arp{mac_address} eq 'unknow';
@@ -2120,7 +2130,7 @@ sub cmd_updatesw {
 
    my @list_all_switch = ();
    my @list_switch_ipv4 = ();
-   for my $sw (@SWITCH){
+   for my $sw (@SWITCH_LIST){
       push @list_all_switch, $sw->{hostname};
       }
 
@@ -2129,6 +2139,7 @@ sub cmd_updatesw {
    ALL_SWITCH:
    for my $one_computer (@list_all_switch) {
       my %resol_arp = resolve_ip_arp_host($one_computer, q{*}, q{low}); # arp resolution
+      print "Info: switch loop $one_computer\n" if $verbose;
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
 
       push @list_switch_ipv4, $resol_arp{ipv4_address};
@@ -2347,7 +2358,7 @@ sub cmd_exportsw_dot {
    my %db_switch_global            = %{$switch_connection->{switch_db}};
 
    my %db_building= ();
-   for my $sw (@SWITCH) {
+   for my $sw (@SWITCH_LIST) {
       my ($building, $location) = split m/ \/ /xms, $sw->{location}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
