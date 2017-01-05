@@ -232,6 +232,10 @@ sub resolve_ip_arp_host {
    my $packed_ip = scalar gethostbyname($param_ip_or_host);
    return %ret if not defined $packed_ip;
    $ret{ipv4_address} = inet_ntoa($packed_ip);
+   #if ($ret{ipv4_address} !~ m/$RE_IPv4_ADDRESS/) {
+   #   print "Error: for computer $param_ip_or_host on interface $interface, IP $ret{ipv4_address} is not valide\n";
+   #   return %ret;
+   #   }
 
    # perl -MSocket -E 'say scalar gethostbyaddr(inet_aton("194.254.66.240"), AF_INET)'
    my $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) if $already eq 'yes';
@@ -264,15 +268,25 @@ sub resolve_ip_arp_host {
    #
    # LANG=C ip neigh show to 194.254.66.62 dev eth331
    # 194.254.66.62 lladdr 00:08:7c:bb:0f:c0 REACHABLE
+   # LANG=C ip neigh show to 194.254.66.62
+   # 194.254.66.62 dev eth331 lladdr 00:08:7c:bb:0f:c0 REACHABLE
 #   my $cmd_arp  = shell_command "arp -a $param_ip_or_host -i $ret{interface}";
 #   if ( $cmd_arp =~ m{ (\S*) \s \( ( $RE_IPv4_ADDRESS ) \) \s at \s ( $RE_MAC_ADDRESS ) }xms ) {
 #      ( $ret{hostname_fq}, $ret{ipv4_address}, $ret{mac_address} )  = ($1, $2, $3);
 #      }
    if ($ret{mac_address} eq 'unknow') {
       # Last chance to have the mac_address
-      my $cmd_arp  = shell_command "ip neigh show to $ret{ipv4_address} dev $ret{interface}";
-      if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
-         $ret{mac_address} = $1;
+      if ($ret{interface} eq '*') {
+         my $cmd_arp  = shell_command "ip neigh show to $ret{ipv4_address}";
+         if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s dev \s ([\w\d\.\:]+) \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
+            ($ret{interface}, $ret{mac_address}) = ($1, $2);
+            }
+         }
+      else {
+         my $cmd_arp  = shell_command "ip neigh show to $ret{ipv4_address} dev $ret{interface}";
+         if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
+            $ret{mac_address} = $1;
+            }
          }
       }
 
@@ -368,7 +382,7 @@ sub init_switch_names {
 
       # Ligne à virer car on récupère maintenant le modèle du switch
       #my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
-      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{hostname}, $desc, $sw->{model} if $verbose;
+      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{hostname}, $sw->{description}, $sw->{model} if $verbose;
       }
 
    print "\n" if $verbose;
