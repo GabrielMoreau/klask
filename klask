@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.5.7');
+use version; our $VERSION = qv('0.5.8');
 
 use Readonly;
 use FileHandle;
@@ -2153,6 +2153,15 @@ sub cmd_updatesw {
    ALL_SWITCH:
    for my $one_switch (@list_all_switch) {
       my %resol_arp = resolve_ip_arp_host($one_switch, q{*}, q{low}); # arp resolution
+      if (exists $SWITCH_DB{$one_switch}{'fake-ip'}) {
+         print "WARNING: fake ip on switch $one_switch -> $SWITCH_DB{$one_switch}{'fake-ip'} / $resol_arp{ipv4_address}\n" if $verbose;
+         my %resol_arp_alt = resolve_ip_arp_host($SWITCH_DB{$one_switch}{'fake-ip'}, q{*}, q{low}); # arp resolution
+         if ($resol_arp_alt{mac_address} ne 'unknow') {
+            $resol_arp{mac_address}   = $resol_arp_alt{mac_address};
+            $resol_arp{interface}     = $resol_arp_alt{interface};
+            $resol_arp{ipv4_address} .= '*';
+            }
+         }
       print "Info: switch loop $one_switch\n" if $verbose;
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
 
@@ -2178,7 +2187,8 @@ sub cmd_updatesw {
       }
 
    ALL_SWITCH_IP_ADDRESS:
-   for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
+   for my $ip (@list_switch_ipv4) {
+#   for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
 
       print "VERBOSE_5: loop on $db_switch_ip_hostnamefq{$ip}\n" if $verbose;
 
