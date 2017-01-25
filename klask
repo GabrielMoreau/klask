@@ -21,7 +21,7 @@ use Socket;
 use List::Util 'shuffle';
 
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
-# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl 
+# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl
 # arping net-tools fping bind9-host arpwatch
 
 my $KLASK_VAR      = '/var/lib/klask';
@@ -650,7 +650,7 @@ sub get_human_readable_port {
 
    if ($sw_model eq 'HP2424M') {
       if ($sw_port > 24) {
-         
+
          my $reste = $sw_port - 24;
          return "A$reste";
          }
@@ -658,7 +658,7 @@ sub get_human_readable_port {
 
    if ($sw_model eq 'HP1600M') {
       if ($sw_port > 16) {
-         
+
          my $reste = $sw_port - 16;
          return "A$reste";
          }
@@ -666,7 +666,7 @@ sub get_human_readable_port {
 
    if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
       if ($sw_port > 48) {
-         
+
          my $reste = $sw_port - 48;
          return "Trk$reste";
          }
@@ -674,7 +674,7 @@ sub get_human_readable_port {
 
    if ($sw_model eq 'HP3500-24G') {
       if ($sw_port > 289) {
-         
+
          my $reste = $sw_port - 289;
          return "Trk$reste";
          }
@@ -749,7 +749,7 @@ sub get_port_human_readable_short {
 
 sub snmp_get_swithport_hr {
    my ($snmp_session, $swport) = @_;
-   
+
    my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport;
    my $result_index = $snmp_session->get_request(
       -varbindlist => [$research_index]
@@ -774,7 +774,7 @@ sub computerdb_load {
    for my $ip (keys %{$computerdb}) {
 
       next LOOP_ON_IP_ADDRESS if exists $computerdb->{$ip}{switch_port_hr} and defined $computerdb->{$ip}{switch_port_hr};
-      
+
       $computerdb->{$ip}{switch_port_hr} = $computerdb->{$ip}{switch_port};
       }
 
@@ -911,7 +911,7 @@ sub cmd_searchdb_mac {
       LOOP_ON_COMPUTER:
       for my $ip (keys %{$computerdb}) {
          next LOOP_ON_COMPUTER if $mac ne $computerdb->{$ip}{mac_address};
- 
+
          my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{timestamp};
          $year += 1900;
          $mon++;
@@ -1175,13 +1175,13 @@ sub cmd_cleandb {
    for my $vlan (shuffle @vlan_name) {
 
       my @ip_list   = shuffle get_list_ip($vlan);
-      
+
       LOOP_ON_IP_ADDRESS:
       for my $ip (@ip_list) {
 
          next LOOP_ON_IP_ADDRESS if
             not exists $computerdb->{$ip};
-            
+
             #&& $computerdb->{$ip}{timestamp} > $timestamp_barrier;
          my $ip_timestamp   = $computerdb->{$ip}{timestamp};
          my $ip_mac         = $computerdb->{$ip}{mac_address};
@@ -1193,7 +1193,7 @@ sub cmd_cleandb {
             vlan        => $vlan,
             hostname_fq => $ip_hostname_fq,
             };
-         
+
          if (
             ( $mactimedb{$ip_mac}->{timestamp} - $ip_timestamp > $timestamp_barrier
                or (
@@ -1577,7 +1577,7 @@ sub cmd_bad_vlan_id {
       my $ip_timestamp_ref = $swithportdb{$swpt}->{timestamp};
       $ip_timestamp_mod -= 15 * 24 * 3600 if $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
       $ip_timestamp_ref -= 15 * 24 * 3600 if $swithportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
-      
+
       if ($ip_timestamp_mod > $ip_timestamp_ref) {
          $swithportdb{$swpt} = {
             ip          => $ip,
@@ -1601,7 +1601,7 @@ sub cmd_bad_vlan_id {
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{mac_address} ne  $swithportdb{$swpt}->{mac_address};
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{timestamp} < $src_timestamp;
-         
+
          $src_ip = $ip;
          $src_timestamp = $computerdb->{$ip}{timestamp};
          }
@@ -1900,7 +1900,7 @@ sub cmd_ip_free {
 
          if (exists $computerdb->{$ip}) {
             next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{timestamp} > $timestamp_barrier;
-            
+
             my $mac_address = $computerdb->{$ip}{mac_address};
             LOOP_ON_DATABASE:
             for my $ip_db (keys %{$computerdb}) {
@@ -1937,7 +1937,7 @@ sub cmd_ip_free {
 
 sub cmd_ip_free_txt {
    my %result_ip = @_;
-   
+
    printf "%-15s %-40s %-16s %s\n", qw(IPv4-Address Hostname-FQ Date VLAN);
    print "-------------------------------------------------------------------------------\n";
    LOOP_ON_IP_ADDRESS:
@@ -2151,9 +2151,9 @@ sub cmd_updatesw {
    my $timestamp = time;
 
    ALL_SWITCH:
-   for my $one_computer (@list_all_switch) {
-      my %resol_arp = resolve_ip_arp_host($one_computer, q{*}, q{low}); # arp resolution
-      print "Info: switch loop $one_computer\n" if $verbose;
+   for my $one_switch (@list_all_switch) {
+      my %resol_arp = resolve_ip_arp_host($one_switch, q{*}, q{low}); # arp resolution
+      print "Info: switch loop $one_switch\n" if $verbose;
       next ALL_SWITCH if $resol_arp{mac_address} eq 'unknow';
 
       push @list_switch_ipv4, $resol_arp{ipv4_address};
@@ -2163,8 +2163,8 @@ sub cmd_updatesw {
       $where{$resol_arp{ipv4_address}} = find_all_switch_port($resol_arp{mac_address},$vlan_id); # find port on all switch
 
       if ($verbose) {
-         print "VERBOSE_3: $one_computer $resol_arp{ipv4_address} $resol_arp{mac_address}\n";
-         print "VERBOSE_3: $one_computer --- ",
+         print "VERBOSE_3: $one_switch $resol_arp{ipv4_address} $resol_arp{mac_address}\n";
+         print "VERBOSE_3: $one_switch --- ",
             join(' + ', keys %{$where{$resol_arp{ipv4_address}}}),
             "\n";
          }
@@ -2172,9 +2172,9 @@ sub cmd_updatesw {
       $db_switch_ip_hostnamefq{$resol_arp{ipv4_address}} = $resol_arp{hostname_fq};
       print "VERBOSE_4: db_switch_ip_hostnamefq $resol_arp{ipv4_address} -> $resol_arp{hostname_fq}\n" if $verbose;
 
-      $SWITCH_DB{$one_computer}->{ipv4_address} = $resol_arp{ipv4_address};
-      $SWITCH_DB{$one_computer}->{mac_address}  = $resol_arp{mac_address};
-      $SWITCH_DB{$one_computer}->{timestamp}    = $timestamp;
+      $SWITCH_DB{$one_switch}->{ipv4_address} = $resol_arp{ipv4_address};
+      $SWITCH_DB{$one_switch}->{mac_address}  = $resol_arp{mac_address};
+      $SWITCH_DB{$one_switch}->{timestamp}    = $timestamp;
       }
 
    ALL_SWITCH_IP_ADDRESS:
