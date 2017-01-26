@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.5.8');
+use version; our $VERSION = qv('0.5.9');
 
 use Readonly;
 use FileHandle;
@@ -2473,19 +2473,19 @@ klask - ports manager and finder for switch
 
 =head1 USAGE
 
- klask updatedb
+ klask updatedb [--verbose] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
  klask removedb computer*
- klask cleandb  --day number_of_day --repair-dns --verbose
+ klask cleandb  [--verbose] --day number_of_day --repair-dns --verbose
 
- klask updatesw
+ klask updatesw [--verbose]
  klask exportsw --format [txt|dot]
 
  klask searchdb --kind [host|mac] computer [mac-address]
  klask search   computer
- klask search-mac-on-switch switch mac_addr
+ klask search-mac-on-switch [--verbose] [--vlan|-i vlan-id] switch mac_addr
 
- klask ip-free --day number_of_day --format [txt|html] [vlan_name]
+ klask ip-free  [--verbose] --day number_of_day --format [txt|html] [vlan_name]
 
  klask enable  switch port
  klask disable swith port
@@ -2495,6 +2495,20 @@ klask - ports manager and finder for switch
 =head1 DESCRIPTION
 
 klask is a small tool to find where is a host in a big network. klask mean search in brittany.
+No hight level protocol like CDL, LLDP are use.
+Everything is just done with SNMP request on MAC address.
+
+Limitation : loop cannot be detected and could be problematic when create the map.
+If you use PVST or MSTP and create loop between VLAN,
+you have to use portignore functionality on switch port to cut manually loop
+(see config file below).
+
+When you use a management port to administrate the switch,
+it's not possible to create the map because the switch doesn't have a MAC address,
+so other switch cannot find downlink port...
+A way is if you have a computer directly connected on the switch is to put this IP as the fake ip for the switch.
+The MAC address associated will be use just for the map detection.
+The fake-ip parameter is defined in the config file.
 
 Klask has now a web site dedicated for it !
 
@@ -2506,32 +2520,39 @@ Klask has now a web site dedicated for it !
 
 =head2 search
 
-This command takes one or more computer in argument. It search a computer on the network and give the port and the switch on which the computer is connected.
+This command takes one or more computer in argument.
+It search a computer on the network and give the port and the switch on which the computer is connected.
 
 
 =head2 enable
 
-This command activate a port on a switch by snmp. So you need to give the switch and the port number on the command line.
+This command activate a port on a switch by SNMP.
+So you need to give the switch and the port number on the command line.
 
 
 =head2 disable
 
-This command deactivate a port on a switch by snmp. So you need to give the switch and the port number on the command line.
+This command deactivate a port on a switch by SNMP.
+So you need to give the switch and the port number on the command line.
 
 
 =head2 status
 
-This command return the status of a port number on a switch by snmp. So you need to give the switch name and the port number on the command line.
+This command return the status of a port number on a switch by SNMP.
+So you need to give the switch name and the port number on the command line.
 
 
 =head2 updatedb
 
-This command will scan networks and update a database. To know which are the cmputer scan, you have to configure the file /etc/klask/klask.conf This file is easy to read and write because klask use YAML format and not XML.
+This command will scan networks and update a database.
+To know which are the cmputer scan, you have to configure the file F</etc/klask/klask.conf>.
+This file is easy to read and write because klask use YAML format and not XML.
 
 
 =head2 exportdb
 
-This command print the content of the database. There is actually only one format. It's very easy to have more format, it's just need times...
+This command print the content of the database. There is actually only one format.
+It's very easy to have more format, it's just need times...
 
 =head2 removedb
 
@@ -2550,12 +2571,14 @@ When reverse DNS has not be done, option --repair-dns force reverse DNS check on
 
 =head2 updatesw
 
-This command build a map of your manageable switch on your network. The list of the switch must be given in the file /etc/klask/klask.conf.
+This command build a map of your manageable switch on your network.
+The list of the switch must be given in the file F</etc/klask/klask.conf>.
 
 
 =head2 exportsw --format [txt|dot]
 
-This command print the content of the switch database. There is actually two format. One is just txt for terminal and the other is the dot format from the graphviz environnement.
+This command print the content of the switch database. There is actually two format.
+One is just txt for terminal and the other is the dot format from the graphviz environnement.
 
  klask exportsw --format dot > /tmp/map.dot
  dot -Tpng /tmp/map.dot > /tmp/map.png
@@ -2564,7 +2587,9 @@ This command print the content of the switch database. There is actually two for
 
 =head1 CONFIGURATION
 
-Because klask need many parameters, it's not possible actually to use command line parameters. The configuration is done in a /etc/klask/klask.conf YAML file. This format have many advantage over XML, it's easier to read and to write !
+Because klask need many parameters, it's not possible actually to use command line parameters.
+The configuration is done in a /etc/klask/klask.conf YAML file.
+This format have many advantage over XML, it's easier to read and to write !
 
 Here an example, be aware with indent, it's important in YAML, do not use tabulation !
 
@@ -2599,8 +2624,15 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
      portignore:
        - 1
        - 2
+     fake-ip: 192.168.9.14
 
-I think it's pretty easy to understand. The default section can be overide in any section, if parameter mean something in theses sections. Network to be scan are define in the network section. You must put a add by network. Maybe i will make a delete line to suppress specific computers. The switch section define your switch. You have to write the port number to ignore, this is important if your switchs are cascade. Juste put the ports numbers between switch.
+I think it's pretty easy to understand.
+The default section can be overide in any section, if parameter mean something in theses sections.
+Network to be scan are define in the network section. You must put a add by network.
+Maybe i will make a delete line to suppress specific computers.
+The switch section define your switch.
+You have to write the port number to ignore, this is important if your switchs are cascade.
+Juste put the ports numbers between switch.
 
 
 =head1 FILES
