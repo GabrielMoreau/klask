@@ -2396,6 +2396,10 @@ sub cmd_exportsw_dot {
    print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
    print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
 
+   require DateTime;
+   my $date_now = DateTime->now;
+   print '"'.$date_now->ymd('/').' - '.$date_now->hms()."\" [ color = white, fillcolor = black, shape = polygon, sides=14, style = filled, fontcolor = white ]\n";
+
    my $b=0;
    for my $building (keys %db_building) {
       $b++;
@@ -2476,7 +2480,7 @@ klask - ports manager and finder for switch
  klask updatedb [--verbose] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
  klask removedb computer*
- klask cleandb  [--verbose] --day number_of_day --repair-dns --verbose
+ klask cleandb  [--verbose] --day number_of_day --repair-dns
 
  klask updatesw [--verbose]
  klask exportsw --format [txt|dot]
@@ -2549,7 +2553,7 @@ To know which are the cmputer scan, you have to configure the file F</etc/klask/
 This file is easy to read and write because klask use YAML format and not XML.
 
 
-=head2 exportdb
+=head2 exportdb --format [txt|html]
 
 This command print the content of the database. There is actually only one format.
 It's very easy to have more format, it's just need times...
@@ -2587,8 +2591,8 @@ One is just txt for terminal and the other is the dot format from the graphviz e
 
 =head1 CONFIGURATION
 
-Because klask need many parameters, it's not possible actually to use command line parameters.
-The configuration is done in a /etc/klask/klask.conf YAML file.
+Because klask need many parameters, it's not possible actually to use command line parameters for everything.
+The configuration is done in a F</etc/klask/klask.conf> YAML file.
 This format have many advantage over XML, it's easier to read and to write !
 
 Here an example, be aware with indent, it's important in YAML, do not use tabulation !
@@ -2603,6 +2607,7 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
        - add: 192.168.1.0/24
        - add: 192.168.2.0/24
      interface: eth0
+     vlan-id: 12
      main-router: gw1.labnet.local
 
    schoolnet:
@@ -2610,6 +2615,7 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
        - add: 192.168.6.0/24
        - add: 192.168.7.0/24
      interface: eth0.38
+     vlan-id: 13
      main-router: gw2.schoolnet.local
 
  switch:
