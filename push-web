@@ -41,7 +41,7 @@ fi
 cd ${TMP}
 
 
-LOCALTIME=$($DATE "+%Y/%m/%d %H:%M")
+LOCALTIME=$($DATE "+%Y-%m-%d %H:%M")
 
 
 $KLASK exportsw --format dot > ${TMP}/switch-map.txt

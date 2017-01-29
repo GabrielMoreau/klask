@@ -2396,9 +2396,11 @@ sub cmd_exportsw_dot {
    print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
    print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
 
-   require DateTime;
-   my $date_now = DateTime->now;
-   print '"'.$date_now->ymd('/').' - '.$date_now->hms()."\" [ color = white, fillcolor = black, shape = polygon, sides=14, style = filled, fontcolor = white ]\n";
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime time;
+   $year += 1900;
+   $mon++;
+   my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+   print "\"$date\" [ color = white, fillcolor = black, shape = polygon, sides=14, style = filled, fontcolor = white ]\n";
 
    my $b=0;
    for my $building (keys %db_building) {
