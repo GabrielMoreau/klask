@@ -1493,7 +1493,7 @@ END_HTML
          $mon++;
          my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year,$mon,$mday,$hour,$min;
 
-         my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ipv4_address; # \* for fake-ip
+         my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \.\* /xms, $ipv4_address; # \* for fake-ip
 
          my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
