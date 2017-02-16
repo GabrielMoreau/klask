@@ -2549,21 +2549,23 @@ klask - ports manager and finder for switch
 
 =head1 DESCRIPTION
 
-klask is a small tool to find where is a host in a big network. klask mean search in brittany.
+Klask is a small tool to find where is a host in a big network.
+Klask mean search in brittany.
 No hight level protocol like CDL, LLDP are use.
 Everything is just done with SNMP request on MAC address.
 
-Limitation : loop cannot be detected and could be problematic when create the map.
+Limitation : loop cannot be detected and could be problematic when the map is created (C<updatesw> method).
 If you use PVST or MSTP and create loop between VLAN,
-you have to use portignore functionality on switch port to cut manually loop
+you have to use C<portignore> functionality on switch port to cut manually loop
 (see config file below).
 
-When you use a management port to administrate the switch,
-it's not possible to create the map because the switch doesn't have a MAC address,
-so other switch cannot find downlink port...
-A way is if you have a computer directly connected on the switch is to put this IP as the fake ip for the switch.
+When you use a management port to administrate a switch,
+it's not possible to create the map with this switch because it does not have a MAC address,
+so other switch cannot find the real downlink port...
+One way to work around this problem is, if you have a computer directly connected on the switch,
+to put this IP as the fake ip for the switch.
 The MAC address associated will be use just for the map detection.
-The fake-ip parameter is defined in the config file.
+The C<fake-ip> parameter is defined in the config file.
 
 Klask has now a web site dedicated for it !
 
@@ -2622,7 +2624,7 @@ DNS computer name could also a valid entry because a DNS resolver is done at the
 
 =head2 cleandb
 
-Remove double entry (same MAC-Address) when the older one is older than X day (--day) the new one.
+Remove double entry (same MAC-Address) when the older one is older than X day (C<--day>) the new one.
 Computer name beginning by 'float' are not really taken into account but could be remove.
 
 When reverse DNS has not be done, option --repair-dns force reverse DNS check on unkown host.
@@ -2688,11 +2690,13 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
 
 I think it's pretty easy to understand.
 The default section can be overide in any section, if parameter mean something in theses sections.
-Network to be scan are define in the network section. You must put a add by network.
-Maybe i will make a delete line to suppress specific computers.
+Network to be scan are define in the network section. You must put an add by network.
+Maybe I will make a delete line to suppress specific computers.
 The switch section define your switch.
-You have to write the port number to ignore, this is important if your switchs are cascade.
-Juste put the ports numbers between switch.
+You have to write the port number to ignore, this was important if your switchs are cascade
+(right now, method C<updatesw> find them automatically)
+and is still important if you have loop (with PVST or MSTP).
+Just put the ports numbers between switch.
 
 
 =head1 FILES
