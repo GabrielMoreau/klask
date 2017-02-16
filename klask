@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.5.9');
+use version; our $VERSION = qv('0.6.0');
 
 use Readonly;
 use FileHandle;
@@ -489,7 +489,7 @@ sub find_switch_port {
          }
 
       my $swport_num = $result->{$research1};
-      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
+      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
 
       $session->close;
 
@@ -543,7 +543,7 @@ sub find_all_switch_port {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
 
          SWITCH_PORT_IGNORE:
          for my $portignore (@{$sw->{portignore}}) {
@@ -756,7 +756,7 @@ sub get_port_human_readable_short {
    return $sw_port_hr;
    }
 
-sub snmp_get_swithport_hr {
+sub snmp_get_switchport_hr {
    my ($snmp_session, $swport) = @_;
 
    my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport;
@@ -1558,7 +1558,7 @@ sub cmd_bad_vlan_id {
    my $computerdb = computerdb_load();
 
    # create a database with the most recent computer by switch port
-   my %swithportdb = ();
+   my %switchportdb = ();
    LOOP_ON_IP_ADDRESS:
    for my $ip (keys %{$computerdb}) {
       # to be improve in the future
@@ -1573,7 +1573,7 @@ sub cmd_bad_vlan_id {
       my $swpt = sprintf "%-28s  %2s",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port_hr};
-      $swithportdb{$swpt} ||= {
+      $switchportdb{$swpt} ||= {
          ip          => $ip,
          timestamp   => $ip_timestamp,
          vlan        => $computerdb->{$ip}{network},
@@ -1583,12 +1583,12 @@ sub cmd_bad_vlan_id {
 
       # if float computer, set date 15 day before warning...
       my $ip_timestamp_mod = $ip_timestamp;
-      my $ip_timestamp_ref = $swithportdb{$swpt}->{timestamp};
+      my $ip_timestamp_ref = $switchportdb{$swpt}->{timestamp};
       $ip_timestamp_mod -= 15 * 24 * 3600 if $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
-      $ip_timestamp_ref -= 15 * 24 * 3600 if $swithportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
+      $ip_timestamp_ref -= 15 * 24 * 3600 if $switchportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
 
       if ($ip_timestamp_mod > $ip_timestamp_ref) {
-         $swithportdb{$swpt} = {
+         $switchportdb{$swpt} = {
             ip          => $ip,
             timestamp   => $ip_timestamp,
             vlan        => $computerdb->{$ip}{network},
@@ -1599,15 +1599,15 @@ sub cmd_bad_vlan_id {
       }
 
    LOOP_ON_RECENT_COMPUTER:
-   for my $swpt (keys %swithportdb) {
+   for my $swpt (keys %switchportdb) {
       next LOOP_ON_RECENT_COMPUTER if $swpt =~ m/^\s*0$/;
-      next LOOP_ON_RECENT_COMPUTER if $swithportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/;
+      next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{hostname_fq} !~ m/$RE_FLOAT_HOSTNAME/;
 
-      my $src_ip = $swithportdb{$swpt}->{ip};
+      my $src_ip = $switchportdb{$swpt}->{ip};
       my $src_timestamp = 0;
       LOOP_ON_IP_ADDRESS:
       for my $ip (keys %{$computerdb}) {
-         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{mac_address} ne  $swithportdb{$swpt}->{mac_address};
+         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{mac_address} ne  $switchportdb{$swpt}->{mac_address};
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{timestamp} < $src_timestamp;
 
@@ -1617,9 +1617,9 @@ sub cmd_bad_vlan_id {
 
       # keep only if float computer is the most recent
       next LOOP_ON_RECENT_COMPUTER if $src_timestamp == 0;
-      next LOOP_ON_RECENT_COMPUTER if $swithportdb{$swpt}->{timestamp} < $src_timestamp;
+      next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{timestamp} < $src_timestamp;
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $swithportdb{$swpt}->{timestamp};
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $switchportdb{$swpt}->{timestamp};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -1632,7 +1632,7 @@ sub cmd_bad_vlan_id {
       my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{network});
 
       printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
-         $swpt, $swithportdb{$swpt}->{vlan}, $computerdb->{$src_ip}{network}, $vlan_id,
+         $swpt, $switchportdb{$swpt}->{vlan}, $computerdb->{$src_ip}{network}, $vlan_id,
          $date,
          $src_date,
          $computerdb->{$src_ip}{mac_address},
@@ -2129,7 +2129,7 @@ sub cmd_search_mac_on_switch {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_swithport_hr($session, $swport_num));
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
          print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
       else {
@@ -2544,7 +2544,7 @@ klask - ports manager and finder for switch
 
  klask enable  switch port
  klask disable switch port
- klask status  swith port
+ klask status  switch port
 
 
 =head1 DESCRIPTION
