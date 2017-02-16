@@ -2038,6 +2038,14 @@ sub cmd_status {
    my $switch_name = shift @ARGV || q{};
    my $port        = shift @ARGV || q{};
 
+   if ($switch_name eq q{} or $port eq q{}) {
+      die "Usage: klask status SWITCH_NAME PORT\n";
+      }
+
+   if (not defined $SWITCH_DB{$switch_name}) {
+      die "Switch $switch_name must be defined in klask configuration file\n";
+      }
+
    my $sw = $SWITCH_DB{$switch_name};
    my %session = ( -hostname   => $sw->{hostname} );
       $session{-version} = $sw->{version}   || 1;
