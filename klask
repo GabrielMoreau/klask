@@ -39,7 +39,7 @@ my @SWITCH_LIST = @{$KLASK_CFG->{switch}};
 my %SWITCH_LEVEL = ();
 my %SWITCH_DB    = ();
 LEVEL_OF_EACH_SWITCH:
-for my $sw (@SWITCH_LIST){
+for my $sw (@SWITCH_LIST) {
    $SWITCH_LEVEL{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
    $SWITCH_DB{$sw->{hostname}} = $sw;
 
@@ -348,19 +348,7 @@ sub init_switch_names {
 
    INIT_EACH_SWITCH:
    for my $sw (@SWITCH_LIST) {
-      my %session = ( -hostname   => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-         if (exists $sw->{version} and $sw->{version} eq '3') {
-            $session{-username} = $sw->{username} || 'snmpadmin';
-            }
-         else {
-            $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-            }
-
-      $sw->{local_session} = \%session;
-
-      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -482,7 +470,7 @@ sub find_switch_port {
 
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
-      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -540,7 +528,7 @@ sub find_all_switch_port {
    my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH_LIST) {
-      my ($session, $error) = Net::SNMP->session( %{$sw->{local_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -622,7 +610,7 @@ sub get_list_ip {
    for my $net (@vlan_name) {
       my @line  = @{$KLASK_CFG->{network}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
-         for my $method (keys %{$cmd}){
+         for my $method (keys %{$cmd}) {
             $cidrlist->add_any($cmd->{$method}) if $method eq 'add';
             }
          }
@@ -993,7 +981,7 @@ sub cmd_updatedb {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
-   for my $sw (@SWITCH_LIST){
+   for my $sw (@SWITCH_LIST) {
       push @{$sw->{portignore}}, $db_switch_output_port{$sw->{hostname}}  if exists $db_switch_output_port{$sw->{hostname}};
       if ( exists $db_switch_chained_port{$sw->{hostname}} ) {
          chop $db_switch_chained_port{$sw->{hostname}};
@@ -1667,23 +1655,13 @@ sub cmd_set_vlan_port {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $sw = $SWITCH_DB{$sw_name};
-      my %session = ( -hostname => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-      if (exists $sw->{version} and $sw->{version} eq '3') {
-         $session{-username} = $sw->{username} || 'snmpadmin';
-         }
-      else {
-         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-         }
-
       my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
       my $research2 = $OID_NUMBER{searchPort2} .'.'. 0 . mac_address_hex_to_dec($mac_address);
       print "Klask search OID $research1 on switch $sw_name\n";
       print "Klask search OID $research2 on switch $sw_name\n";
 
-      my ($session, $error) = Net::SNMP->session( %session );
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -1729,20 +1707,10 @@ sub cmd_get_vlan_port {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $sw = $SWITCH_DB{$sw_name};
-      my %session = ( -hostname => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-      if (exists $sw->{version} and $sw->{version} eq '3') {
-         $session{-username} = $sw->{username} || 'snmpadmin';
-         }
-      else {
-         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-         }
-
       my $search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
 
-      my ($session, $error) = Net::SNMP->session( %session );
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -1786,17 +1754,7 @@ sub cmd_rebootsw {
          }
 
       my $sw = $SWITCH_DB{$sw_name};
-      my %session = ( -hostname => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-      if (exists $sw->{version} and $sw->{version} eq '3') {
-         $session{-username} = $sw->{username} || 'snmpadmin';
-         }
-      else {
-         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-         }
-
-      my ($session, $error) = Net::SNMP->session( %session );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->set_request(
@@ -1823,20 +1781,10 @@ sub cmd_get_vlan_name {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $sw = $SWITCH_DB{$sw_name};
-      my %session = ( -hostname => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-      if (exists $sw->{version} and $sw->{version} eq '3') {
-         $session{-username} = $sw->{username} || 'snmpadmin';
-         }
-      else {
-         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-         }
-
       my $search_vlan_name = $OID_NUMBER{vlanName} . ".$vlan_id";
 
-      my ($session, $error) = Net::SNMP->session( %session );
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2058,17 +2006,18 @@ sub cmd_status {
       die "Switch $switch_name must be defined in klask configuration file\n";
       }
 
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port;
+   print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
+
    my $sw = $SWITCH_DB{$switch_name};
    my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
    print "$error \n" if $error;
 
-   my $oid_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port;
-   print "Info: switch $switch_name port $port SNMP OID $oid_portstatus\n" if $verbose;
    my $result = $session->get_request(
-      -varbindlist => [$oid_portstatus]
+      -varbindlist => [$search_portstatus]
       );
    if (defined $result) {
-      print "$PORT_UPDOWN{$result->{$oid_portstatus}}\n";
+      print "$PORT_UPDOWN{$result->{$search_portstatus}}\n";
       }
 
    #system "snmpget -v 1 -c public $switch_name 1.3.6.1.2.1.2.2.1.7.$port";
@@ -2101,23 +2050,13 @@ sub cmd_search_mac_on_switch {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $sw = $SWITCH_DB{$sw_name};
-      my %session = ( -hostname => $sw->{hostname} );
-         $session{-version} = $sw->{version}   || 1;
-         $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-      if (exists $sw->{version} and $sw->{version} eq '3') {
-         $session{-username} = $sw->{username} || 'snmpadmin';
-         }
-      else {
-         $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
-         }
-
       my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
       my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
       print "Klask search OID $research1 on switch $sw_name\n" if $verbose;
       print "Klask search OID $research2 on switch $sw_name\n" if $verbose;
 
-      my ($session, $error) = Net::SNMP->session( %session );
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2194,7 +2133,7 @@ sub cmd_updatesw {
 
    my @list_all_switch = ();
    my @list_switch_ipv4 = ();
-   for my $sw (@SWITCH_LIST){
+   for my $sw (@SWITCH_LIST) {
       push @list_all_switch, $sw->{hostname};
       }
 
