@@ -1969,20 +1969,78 @@ END_HTML
    }
 
 sub cmd_enable {
-   my $switch = shift;
-   my $port   = shift;
+   @ARGV = @_;
+
+   my $verbose;
+
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $port        = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $port eq q{}) {
+      die "Usage: klask disable SWITCH_NAME PORT\n";
+      }
+
+   if (not defined $SWITCH_DB{$switch_name}) {
+      die "Switch $switch_name must be defined in klask configuration file\n";
+      }
+
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port;
+   print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
+
+   my $sw = $SWITCH_DB{$switch_name};
+   my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+   print "$error \n" if $error;
+
+   my $result = $session->set_request(
+      -varbindlist => [$search_portstatus, INTEGER, 1],
+      );
+
+   $session->close;
 
    #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)
    #snmpset -v 1 -c community X.X.X.X 1.3.6.1.2.1.2.2.1.7.NoPort = 2 (down)
-   system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 1";
+   #system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 1";
    return;
    }
 
 sub cmd_disable {
-   my $switch = shift;
-   my $port   = shift;
+   @ARGV = @_;
 
-   system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 2";
+   my $verbose;
+
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $port        = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $port eq q{}) {
+      die "Usage: klask disable SWITCH_NAME PORT\n";
+      }
+
+   if (not defined $SWITCH_DB{$switch_name}) {
+      die "Switch $switch_name must be defined in klask configuration file\n";
+      }
+
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port;
+   print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
+
+   my $sw = $SWITCH_DB{$switch_name};
+   my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+   print "$error \n" if $error;
+
+   my $result = $session->set_request(
+      -varbindlist => [$search_portstatus, INTEGER, 2],
+      );
+
+   $session->close;
+
+   #system "snmpset -v 1 -c public $switch 1.3.6.1.2.1.2.2.1.7.$port = 2";
    return;
    }
 
@@ -2485,7 +2543,7 @@ klask - ports manager and finder for switch
  klask ip-free  [--verbose] --day number_of_day --format [txt|html] [vlan_name]
 
  klask enable  switch port
- klask disable swith port
+ klask disable switch port
  klask status  swith port
 
 
@@ -2525,18 +2583,21 @@ It search a computer on the network and give the port and the switch on which th
 
 This command activate a port on a switch by SNMP.
 So you need to give the switch and the port number on the command line.
+Actually, port number must be a number and not the name alias...
 
 
 =head2 disable
 
 This command deactivate a port on a switch by SNMP.
 So you need to give the switch and the port number on the command line.
+Actually, port number must be a number and not the name alias...
 
 
 =head2 status
 
 This command return the status of a port number on a switch by SNMP.
 So you need to give the switch name and the port number on the command line.
+Actually, port number must be a number and not the name alias...
 
 
 =head2 updatedb
