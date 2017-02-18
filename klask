@@ -2829,6 +2829,13 @@ You have to write the port number to ignore, this was important if your switchs 
 and is still important if you have loop (with PVST or MSTP).
 Just put the ports numbers between switch.
 
+The C<community> parameter is use to get SNMP data on switch.
+It could be overload for each switch.
+By default, it's value is C<public> and you have to configure a readonly word for safety reason.
+Some few command change the switch state as the commands L</enable> and L</disable>.
+In theses rares cases, you need a readwrite SNMP community word define in your configuration file.
+Klask then use since version C<0.6.2> the C<community-rw> parameter which by default is egal to C<private>.
+
 
 =head1 ABBREVIATION FOR PORT
 
