@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.0');
+use version; our $VERSION = qv('0.6.1');
 
 use Readonly;
 use FileHandle;
@@ -23,6 +23,10 @@ use List::Util 'shuffle';
 # apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl
 # arping net-tools fping bind9-host arpwatch
+
+################################################################
+# general initialization
+################################################################
 
 my $KLASK_VAR      = '/var/lib/klask';
 my $KLASK_CFG_FILE = '/etc/klask/klask.conf';
@@ -84,17 +88,17 @@ my %CMD_DB = (
    'rebootsw'             => \&cmd_rebootsw,
    );
 
-Readonly my %INTERNAL_PORT_MAP => (
-   0 => 'A',
-   1 => 'B',
-   2 => 'C',
-   3 => 'D',
-   4 => 'E',
-   5 => 'F',
-   6 => 'G',
-   7 => 'H',
-   );
-Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
+#Readonly my %INTERNAL_PORT_MAP => (
+#   0 => 'A',
+#   1 => 'B',
+#   2 => 'C',
+#   3 => 'D',
+#   4 => 'E',
+#   5 => 'F',
+#   6 => 'G',
+#   7 => 'H',
+#   );
+#Readonly my %INTERNAL_PORT_MAP_REV => reverse %INTERNAL_PORT_MAP;
 
 Readonly my %SWITCH_KIND => (
    # HP
@@ -179,9 +183,9 @@ Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0
 
 Readonly my $RE_FLOAT_HOSTNAME => qr{ ^float }xms;
 
-################
+################################################################
 # main program
-################
+################################################################
 
 my $cmd = shift @ARGV || 'help';
 if (defined $CMD_DB{$cmd}) {
@@ -195,27 +199,30 @@ else {
 
 exit;
 
-################
+################################################################
 # subroutine
-################
+################################################################
 
+#---------------------------------------------------------------
 sub test_running_environnement {
    die "Configuration file $KLASK_CFG_FILE does not exists. Klask need it !\n" if not -e "$KLASK_CFG_FILE";
    die "Var folder $KLASK_VAR does not exists. Klask need it !\n"              if not -d "$KLASK_VAR";
    return;
    }
 
+#---------------------------------------------------------------
 sub test_switchdb_environnement {
    die "Switch database $KLASK_SW_FILE does not exists. Launch updatesw before this command !\n" if not -e "$KLASK_SW_FILE";
    return;
    }
 
+#---------------------------------------------------------------
 sub test_maindb_environnement {
    die "Main database $KLASK_DB_FILE does not exists. Launch updatedb before this command !\n" if not -e "$KLASK_DB_FILE";
    return;
    }
 
-###
+#---------------------------------------------------------------
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fast_ping {
    # Launch this command without waiting...
@@ -223,6 +230,7 @@ sub fast_ping {
    return;
    }
 
+#---------------------------------------------------------------
 sub shell_command {
    my $cmd = shift;
 
@@ -235,7 +243,7 @@ sub shell_command {
    return $result;
    }
 
-###
+#---------------------------------------------------------------
 # donne l'@ ip, dns, arp en fonction du dns OU de l'ip
 sub resolve_ip_arp_host {
    my $param_ip_or_host = shift;
@@ -338,7 +346,7 @@ sub get_switch_model {
    return $sw_snmp_description;
    }
 
-###
+#---------------------------------------------------------------
 # va rechercher le nom des switchs pour savoir qui est qui
 sub init_switch_names {
    my ($verbose, $verb_description, $check_hostname, $check_location) = @_;
@@ -398,7 +406,7 @@ sub init_switch_names {
    return;
    }
 
-###
+#---------------------------------------------------------------
 # convertit l'hexa (uniquement 2 chiffres) en decimal
 sub digit_hex_to_dec {
    #00:0F:1F:43:E4:2B
@@ -414,7 +422,7 @@ sub digit_hex_to_dec {
    return $table{$chars[-2]}*16 + $table{$chars[-1]};
    }
 
-#--------------------------------------------------------------------------------
+#---------------------------------------------------------------
 
 sub normalize_mac_address {
    my $mac_address = shift;
@@ -429,7 +437,7 @@ sub normalize_mac_address {
    return join q{:}, map { substr( uc("00$_"), -2) } split m/ [:-] /xms, $mac_address;
    }
 
-#--------------------------------------------------------------------------------
+#---------------------------------------------------------------
 # convertit l'@ mac en decimal
 sub mac_address_hex_to_dec {
    #00:0F:1F:43:E4:2B
@@ -443,7 +451,7 @@ sub mac_address_hex_to_dec {
    return $return;
    }
 
-###
+#---------------------------------------------------------------
 # va rechercher le port et le switch sur lequel est la machine
 sub find_switch_port {
    my $mac_address     = shift;
@@ -514,7 +522,7 @@ sub find_switch_port {
    return %ret;
    }
 
-###
+#---------------------------------------------------------------
 # va rechercher les port et les switch sur lequel est la machine
 sub find_all_switch_port {
    my $mac_address = shift;
@@ -567,17 +575,20 @@ sub find_all_switch_port {
    return $ret;
    }
 
+#---------------------------------------------------------------
 sub get_list_network {
 
    return keys %{$KLASK_CFG->{network}};
    }
 
+#---------------------------------------------------------------
 sub get_current_interface {
    my $vlan_name = shift;
 
    return $KLASK_CFG->{network}{$vlan_name}{interface};
    }
 
+#---------------------------------------------------------------
 sub get_current_vlan_id {
    my $vlan_name = shift;
 
@@ -585,12 +596,14 @@ sub get_current_vlan_id {
    return $KLASK_CFG->{network}{$vlan_name}{'vlan-id'};
    }
 
+#---------------------------------------------------------------
 sub get_current_scan_mode {
    my $vlan_name = shift;
 
    return $KLASK_CFG->{network}{$vlan_name}{'scan-mode'} || $DEFAULT{'scan-mode'} || 'active';
    }
 
+#---------------------------------------------------------------
 sub get_current_vlan_name_for_interface {
    my $interface = shift;
 
@@ -600,7 +613,7 @@ sub get_current_vlan_name_for_interface {
       }
    }
 
-###
+#---------------------------------------------------------------
 # liste l'ensemble des adresses ip d'un réseau
 sub get_list_ip {
    my @vlan_name = @_;
@@ -629,6 +642,7 @@ sub get_list_ip {
    return @res;
    }
 
+#---------------------------------------------------------------
 # liste l'ensemble des routeurs du réseau
 sub get_list_main_router {
    my @vlan_name = @_;
@@ -642,6 +656,7 @@ sub get_list_main_router {
    return @res;
    }
 
+#---------------------------------------------------------------
 sub get_human_readable_port {
    my $sw_model = shift;
    my $sw_port  = shift;
@@ -649,100 +664,101 @@ sub get_human_readable_port {
    # Not need anymore
    # get port name by snmp
    return $sw_port;
-
-   if ($sw_model eq 'HP8000M') {
-
-      my $reste = (($sw_port - 1) % 8) + 1;
-      my $major = int (($sw_port - 1) / 8);
-      return "$INTERNAL_PORT_MAP{$major}$reste";
-      }
-
-   if ($sw_model eq 'HP2424M') {
-      if ($sw_port > 24) {
-
-         my $reste = $sw_port - 24;
-         return "A$reste";
-         }
-      }
-
-   if ($sw_model eq 'HP1600M') {
-      if ($sw_port > 16) {
-
-         my $reste = $sw_port - 16;
-         return "A$reste";
-         }
-      }
-
-   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
-      if ($sw_port > 48) {
-
-         my $reste = $sw_port - 48;
-         return "Trk$reste";
-         }
-      }
-
-   if ($sw_model eq 'HP3500-24G') {
-      if ($sw_port > 289) {
-
-         my $reste = $sw_port - 289;
-         return "Trk$reste";
-         }
-      }
-
-   return $sw_port;
    }
 
-sub get_numerical_port {
-   my $sw_model = shift;
-   my $sw_port  = shift;
+#   if ($sw_model eq 'HP8000M') {
+#
+#      my $reste = (($sw_port - 1) % 8) + 1;
+#      my $major = int (($sw_port - 1) / 8);
+#      return "$INTERNAL_PORT_MAP{$major}$reste";
+#      }
+#
+#   if ($sw_model eq 'HP2424M') {
+#      if ($sw_port > 24) {
+#
+#         my $reste = $sw_port - 24;
+#         return "A$reste";
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP1600M') {
+#      if ($sw_port > 16) {
+#
+#         my $reste = $sw_port - 16;
+#         return "A$reste";
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
+#      if ($sw_port > 48) {
+#
+#         my $reste = $sw_port - 48;
+#         return "Trk$reste";
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP3500-24G') {
+#      if ($sw_port > 289) {
+#
+#         my $reste = $sw_port - 289;
+#         return "Trk$reste";
+#         }
+#      }
+#
+#   return $sw_port;
 
-   if ($sw_model eq 'HP8000M') {
+#sub get_numerical_port {
+#   my $sw_model = shift;
+#   my $sw_port  = shift;
+#
+#   if ($sw_model eq 'HP8000M') {
+#
+#      my $letter = substr $sw_port, 0, 1;
+#      my $reste =  substr $sw_port, 1;
+#
+#      return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
+#      }
+#
+#   if ($sw_model eq 'HP2424M') {
+#      if ($sw_port =~ m/^A/xms ) {
+#
+#         my $reste =  substr $sw_port, 1;
+#
+#         return 24 + $reste;
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP1600M') {
+#      if ($sw_port =~ m/^A/xms ) {
+#
+#         my $reste =  substr $sw_port, 1;
+#
+#         return 16 + $reste;
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
+#      if ($sw_port =~ m/^Trk/xms ) {
+#
+#         my $reste =  substr $sw_port, 3;
+#
+#         return 48 + $reste;
+#         }
+#      }
+#
+#   if ($sw_model eq 'HP3500-24G') {
+#      if ($sw_port =~ m/^Trk/xms ) {
+#
+#         my $reste =  substr $sw_port, 3;
+#
+#         return 289 + $reste;
+#         }
+#      }
+#
+#   return $sw_port;
+#   }
 
-      my $letter = substr $sw_port, 0, 1;
-      my $reste =  substr $sw_port, 1;
-
-      return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
-      }
-
-   if ($sw_model eq 'HP2424M') {
-      if ($sw_port =~ m/^A/xms ) {
-
-         my $reste =  substr $sw_port, 1;
-
-         return 24 + $reste;
-         }
-      }
-
-   if ($sw_model eq 'HP1600M') {
-      if ($sw_port =~ m/^A/xms ) {
-
-         my $reste =  substr $sw_port, 1;
-
-         return 16 + $reste;
-         }
-      }
-
-   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
-      if ($sw_port =~ m/^Trk/xms ) {
-
-         my $reste =  substr $sw_port, 3;
-
-         return 48 + $reste;
-         }
-      }
-
-   if ($sw_model eq 'HP3500-24G') {
-      if ($sw_port =~ m/^Trk/xms ) {
-
-         my $reste =  substr $sw_port, 3;
-
-         return 289 + $reste;
-         }
-      }
-
-   return $sw_port;
-   }
-
+#---------------------------------------------------------------
 sub normalize_port_human_readable {
    my $sw_port_hr  = shift;
 
@@ -761,6 +777,7 @@ sub normalize_port_human_readable {
    return ucfirst $sw_port_hr;
    }
 
+#---------------------------------------------------------------
 sub snmp_get_switchport_hr {
    my ($snmp_session, $swport) = @_;
 
@@ -780,6 +797,7 @@ sub snmp_get_switchport_hr {
    return $swport_hr;
    }
 
+#---------------------------------------------------------------
 # Reverse search port number
 sub snmp_get_switchport_num {
    my ($snmp_session, $swport_hr, $verbose) = @_;
@@ -818,6 +836,7 @@ sub snmp_get_switchport_num {
    return $swport_num;
    }
 
+#---------------------------------------------------------------
 # Load computer database
 sub computerdb_load {
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
@@ -833,10 +852,11 @@ sub computerdb_load {
    return $computerdb;
    }
 
-################
-# Les commandes
-################
+################################################################
+# command
+################################################################
 
+#---------------------------------------------------------------
 sub cmd_help {
 
 print <<'END';
@@ -867,6 +887,7 @@ END
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_version {
 
 print <<'END';
@@ -903,6 +924,7 @@ sub cmd_search {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_searchdb {
    my @ARGV  = @_;
 
@@ -924,6 +946,7 @@ sub cmd_searchdb {
    }
 
 
+#---------------------------------------------------------------
 sub cmd_searchdb_host {
    my @computer = @_;
 
@@ -953,6 +976,7 @@ sub cmd_searchdb_host {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_searchdb_mac {
    my @mac = map { normalize_mac_address($_) } @_;
 
@@ -983,6 +1007,7 @@ sub cmd_searchdb_mac {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_updatedb {
    @ARGV = @_;
 
@@ -1172,6 +1197,7 @@ sub cmd_updatedb {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_removedb {
    my @computer = @_;
 
@@ -1200,6 +1226,7 @@ sub cmd_removedb {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_cleandb {
    my @ARGV  = @_;
 
@@ -1314,6 +1341,7 @@ sub cmd_cleandb {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportdb {
    @ARGV = @_;
 
@@ -1334,6 +1362,7 @@ sub cmd_exportdb {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportdb_txt {
    test_maindb_environnement();
 
@@ -1373,6 +1402,7 @@ sub cmd_exportdb_txt {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportdb_html {
    test_maindb_environnement();
 
@@ -1595,6 +1625,7 @@ END_HTML
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_bad_vlan_id {
    test_maindb_environnement();
 
@@ -1683,6 +1714,7 @@ sub cmd_bad_vlan_id {
       }
    }
 
+#---------------------------------------------------------------
 sub cmd_set_vlan_port {
    my $switch_name = shift || q{};
    my $mac_address = shift || q{};
@@ -1730,6 +1762,7 @@ sub cmd_set_vlan_port {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_get_vlan_port {
    @ARGV = @_;
 
@@ -1773,9 +1806,11 @@ sub cmd_get_vlan_port {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_set_vlan_name {
    }
 
+#---------------------------------------------------------------
 # snmpset -v 1 -c public sw1-batG0-legi.hmg.priv "$OID_NUMBER{'hpicfReset'}.0" i 2;
 sub cmd_rebootsw {
    @ARGV = @_;
@@ -1809,6 +1844,7 @@ sub cmd_rebootsw {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_get_vlan_name {
    my $switch_name = shift || q{};
    my $vlan_id     = shift || q{};
@@ -1847,6 +1883,7 @@ sub cmd_get_vlan_name {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_ip_location {
    my $computerdb = computerdb_load();
 
@@ -1871,6 +1908,7 @@ sub cmd_ip_location {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_ip_free {
    @ARGV = @_; # VLAN name with option
 
@@ -1947,6 +1985,7 @@ sub cmd_ip_free {
    $possible_format{$format}->(%result_ip);
    }
 
+#---------------------------------------------------------------
 sub cmd_ip_free_txt {
    my %result_ip = @_;
 
@@ -1959,6 +1998,7 @@ sub cmd_ip_free_txt {
       }
    }
 
+#---------------------------------------------------------------
 sub cmd_ip_free_html {
    my %result_ip = @_;
 
@@ -2011,6 +2051,7 @@ END_HTML
 END_HTML
    }
 
+#---------------------------------------------------------------
 sub cmd_enable {
    @ARGV = @_;
 
@@ -2055,6 +2096,7 @@ sub cmd_enable {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_disable {
    @ARGV = @_;
 
@@ -2097,6 +2139,7 @@ sub cmd_disable {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_status {
    @ARGV = @_;
 
@@ -2142,6 +2185,7 @@ sub cmd_status {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_search_mac_on_switch {
    @ARGV = @_;
 
@@ -2201,6 +2245,7 @@ sub cmd_search_mac_on_switch {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_updatesw {
    @ARGV = @_;
 
@@ -2420,6 +2465,7 @@ sub cmd_updatesw {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportsw {
    @ARGV = @_;
 
@@ -2442,6 +2488,7 @@ sub cmd_exportsw {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportsw_txt {
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -2478,6 +2525,7 @@ sub cmd_exportsw_txt {
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_exportsw_dot {
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -2579,6 +2627,10 @@ print "}\n";
    }
 
 
+################################################################
+# documentation
+################################################################
+
 __END__
 
 =head1 NAME
@@ -2644,23 +2696,22 @@ It search a computer on the network and give the port and the switch on which th
 =head2 enable
 
 This command activate a port on a switch by SNMP.
-So you need to give the switch and the port number on the command line.
-Actually, port number must be a number and not the name alias...
+So you need to give the switch and a port on the command line.
+See L<ABBREVIATION FOR PORT>.
 
 
 =head2 disable
 
 This command deactivate a port on a switch by SNMP.
-So you need to give the switch and the port number on the command line.
-Actually, port number must be a number and not the name alias...
+So you need to give the switch and a port on the command line.
+See L<ABBREVIATION FOR PORT>.
 
 
 =head2 status
 
 This command return the status of a port number on a switch by SNMP.
-So you need to give the switch name and the port number on the command line.
-Actually, port number must be a number and not the name alias...
-
+So you need to give the switch and a port on the command line.
+See L<ABBREVIATION FOR PORT>.
 
 =head2 updatedb
 
@@ -2757,6 +2808,33 @@ You have to write the port number to ignore, this was important if your switchs 
 (right now, method C<updatesw> find them automatically)
 and is still important if you have loop (with PVST or MSTP).
 Just put the ports numbers between switch.
+
+
+=head1 ABBREVIATION FOR PORT
+
+HP Procurve and Nexans switches have a simplistic numbering scheme.
+It's just number: 1, 2, 3... 24.
+On HP8000 chassis, ports names begin with an uppercase letter: A1, A2...
+Nothing is done on theses ports names.
+
+On HP Comware and DELL, port digitization schema use a port speed word (generally a very verbose word)
+followed by tree number.
+In order to have short name,
+we made the following rules:
+
+ Bridge-Aggregation     -> Br
+ FastEthernet           -> Fa
+ Forty-GigabitEthernet  -> Fo
+ FortyGigabitEthernet   -> Fo
+ GigabitEthernet        -> Gi
+ Giga                   -> Gi
+ Port-Channel           -> Po
+ Ten-GigabitEthernet    -> Te
+ TenGigabitEthernet     -> Te
+ Ten                    -> Te
+
+All Klask command automatically normalize the port name on standart output
+and also on input command line.
 
 
 =head1 FILES
