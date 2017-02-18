@@ -2635,28 +2635,28 @@ __END__
 
 =head1 NAME
 
-klask - ports manager and finder for switch
+klask - port and search manager for switches, map management
 
 
 =head1 USAGE
 
- klask updatedb [--verbose] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
  klask removedb computer*
- klask cleandb  [--verbose] --day number_of_day --repair-dns
+ klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
- klask updatesw [--verbose]
+ klask updatesw [--verbose|-v]
  klask exportsw --format [txt|dot]
 
  klask searchdb --kind [host|mac] computer [mac-address]
  klask search   computer
- klask search-mac-on-switch [--verbose] [--vlan|-i vlan-id] switch mac_addr
+ klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
- klask ip-free  [--verbose] --day number_of_day --format [txt|html] [vlan_name]
+ klask ip-free  [--verbose|-v] --day number_of_day --format [txt|html] [vlan_name]
 
- klask enable  switch port
- klask disable switch port
- klask status  switch port
+ klask enable  [--verbose|-v] switch port
+ klask disable [--verbose|-v] switch port
+ klask status  [--verbose|-v] switch port
 
 
 =head1 DESCRIPTION
@@ -2679,9 +2679,7 @@ to put this IP as the fake ip for the switch.
 The MAC address associated will be use just for the map detection.
 The C<fake-ip> parameter is defined in the config file.
 
-Klask has now a web site dedicated for it !
-
- http://servforge.legi.grenoble-inp.fr/projects/klask
+Klask has now a web site dedicated for it: L<http://servforge.legi.grenoble-inp.fr/projects/klask>!
 
 
 =head1 COMMANDS
@@ -2695,29 +2693,41 @@ It search a computer on the network and give the port and the switch on which th
 
 =head2 enable
 
+ klask enable [--verbose|-v] switch port
+
 This command activate a port on a switch by SNMP.
-So you need to give the switch and a port on the command line.
+So you need to give the switch name and a port on the command line.
 See L<ABBREVIATION FOR PORT>.
+
+You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
 =head2 disable
 
+ klask disable [--verbose|-v] switch port
+
 This command deactivate a port on a switch by SNMP.
-So you need to give the switch and a port on the command line.
+So you need to give the switch name and a port on the command line.
 See L<ABBREVIATION FOR PORT>.
+
+You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
 =head2 status
 
+ klask status [--verbose|-v] switch port
+
 This command return the status of a port number on a switch by SNMP.
-So you need to give the switch and a port on the command line.
+The return value could be C<enable> or C<disable> word.
+So you need to give the switch name and a port on the command line.
 See L<ABBREVIATION FOR PORT>.
+
 
 =head2 updatedb
 
 This command will scan networks and update a database.
 To know which are the cmputer scan, you have to configure the file F</etc/klask/klask.conf>.
-This file is easy to read and write because klask use YAML format and not XML.
+This file is easy to read and write because Klask use YAML format and not XML.
 
 
 =head2 exportdb --format [txt|html]
@@ -2738,7 +2748,7 @@ DNS computer name could also a valid entry because a DNS resolver is done at the
 Remove double entry (same MAC-Address) when the older one is older than X day (C<--day>) the new one.
 Computer name beginning by 'float' are not really taken into account but could be remove.
 
-When reverse DNS has not be done, option --repair-dns force reverse DNS check on unkown host.
+When reverse DNS has not be done, option C<--repair-dns> force reverse DNS check on unkown host.
 
 =head2 updatesw
 
@@ -2749,16 +2759,15 @@ The list of the switch must be given in the file F</etc/klask/klask.conf>.
 =head2 exportsw --format [txt|dot]
 
 This command print the content of the switch database. There is actually two format.
-One is just txt for terminal and the other is the dot format from the graphviz environnement.
+One is just C<txt> for terminal and the other is the C<dot> format from the graphviz environnement.
 
  klask exportsw --format dot > /tmp/map.dot
  dot -Tpng /tmp/map.dot > /tmp/map.png
 
 
-
 =head1 CONFIGURATION
 
-Because klask need many parameters, it's not possible actually to use command line parameters for everything.
+Because Klask need many parameters, it's not possible actually to use command line parameters for everything.
 The configuration is done in a F</etc/klask/klask.conf> YAML file.
 This format have many advantage over XML, it's easier to read and to write !
 
@@ -2804,7 +2813,7 @@ The default section can be overide in any section, if parameter mean something i
 Network to be scan are define in the network section. You must put an add by network.
 Maybe I will make a delete line to suppress specific computers.
 The switch section define your switch.
-You have to write the port number to ignore, this was important if your switchs are cascade
+You have to write the port number to ignore, this was important if your switchs are cascades
 (right now, method C<updatesw> find them automatically)
 and is still important if you have loop (with PVST or MSTP).
 Just put the ports numbers between switch.
@@ -2843,9 +2852,22 @@ and also on input command line.
  /var/lib/klask/klaskdb
  /var/lib/klask/switchdb
 
+
 =head1 SEE ALSO
 
 Net::SNMP, Net::Netmask, Net::CIDR::Lite, NetAddr::IP, YAML
+
+=over
+
+=item *
+
+Web site: L<http://servforge.legi.grenoble-inp.fr/projects/klask>
+
+=item *
+
+Online Manual: L<http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html>
+
+=back
 
 
 =head1 VERSION
