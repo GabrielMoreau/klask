@@ -869,25 +869,26 @@ sub computerdb_load {
 sub cmd_help {
 
 print <<'END';
-klask - ports manager and finder for switch
+klask - port and search manager for switches, map management
 
  klask version
+ klask help
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
  klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
- klask updatesw
+ klask updatesw [--verbose|-v]
  klask exportsw --format [txt|dot]
 
  klask searchdb computer
  klask search   computer
  klask search-mac-on-switch switch mac_addr
 
- klask ip-free --day number_of_day --format [txt|html] [vlan_name]
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
 
- klask bad-vlan-id
+ klask bad-vlan-id [--day|-d days_before_alert]
 
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
@@ -900,7 +901,7 @@ END
 sub cmd_version {
 
 print <<'END';
-Klask - ports manager and finder for switch
+klask - port and search manager for switches, map management
 Copyright (C) 2005-2017 Gabriel Moreau
 
 END
@@ -1636,6 +1637,15 @@ END_HTML
 
 #---------------------------------------------------------------
 sub cmd_bad_vlan_id {
+   @ARGV = @_;
+
+   my $days_before_alert = $DEFAULT{'days-before-alert'} || 15;
+   my $verbose;
+
+   GetOptions(
+      'day|d=i'   => \$days_before_alert,
+      );
+
    test_maindb_environnement();
 
    my $computerdb = computerdb_load();
@@ -1667,8 +1677,8 @@ sub cmd_bad_vlan_id {
       # if float computer, set date 15 day before warning...
       my $ip_timestamp_mod = $ip_timestamp;
       my $ip_timestamp_ref = $switchportdb{$swpt}->{timestamp};
-      $ip_timestamp_mod -= 15 * 24 * 3600 if $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
-      $ip_timestamp_ref -= 15 * 24 * 3600 if $switchportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
+      $ip_timestamp_mod -= $days_before_alert * 24 * 3600 if $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/;
+      $ip_timestamp_ref -= $days_before_alert * 24 * 3600 if $switchportdb{$swpt}->{hostname_fq} =~ m/$RE_FLOAT_HOSTNAME/;
 
       if ($ip_timestamp_mod > $ip_timestamp_ref) {
          $switchportdb{$swpt} = {
@@ -1920,14 +1930,14 @@ sub cmd_ip_location {
 
 #---------------------------------------------------------------
 sub cmd_ip_free {
-   @ARGV = @_; # VLAN name with option
+   @ARGV = @_;
 
-   my $days_to_dead = 365 * 2;
+   my $days_to_death = $DEFAULT{'days-to-death'} || 365 * 2;
    my $format = 'txt';
    my $verbose;
 
    GetOptions(
-      'day|d=i'      => \$days_to_dead,
+      'day|d=i'      => \$days_to_death,
       'format|f=s'   => \$format,
       'verbose|v'    => \$verbose,
       );
@@ -1946,7 +1956,7 @@ sub cmd_ip_free {
       $computerdb = computerdb_load() if -e "$KLASK_DB_FILE";
    my $timestamp = time;
 
-   my $timestamp_barrier = $timestamp - (3600 * 24 * $days_to_dead );
+   my $timestamp_barrier = $timestamp - (3600 * 24 * $days_to_death);
 
    my %result_ip = ();
 
@@ -2662,7 +2672,9 @@ klask - port and search manager for switches, map management
  klask search   computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
- klask ip-free  [--verbose|-v] --day number_of_day --format [txt|html] [vlan_name]
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
+
+ klask bad-vlan-id [--day|-d days_before_alert]
 
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
@@ -2776,17 +2788,54 @@ When reverse DNS has not be done by the past, option C<--repair-dns> force rever
 
 =head2 updatesw
 
+ klask updatesw [--verbose|-v]
+
 This command build a map of your manageable switch on your network.
-The list of the switch must be given in the file F</etc/klask/klask.conf>.
+The list of the switches must be given in the file F</etc/klask/klask.conf>.
 
 
-=head2 exportsw --format [txt|dot]
+=head2 exportsw
+
+ klask exportsw --format [txt|dot]
 
 This command print the content of the switch database. There is actually two format.
 One is just C<txt> for terminal and the other is the C<dot> format from the graphviz environnement.
 
  klask exportsw --format dot > /tmp/map.dot
  dot -Tpng /tmp/map.dot > /tmp/map.png
+
+
+=head2 ip-free
+
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
+
+This command return IP address that was not use (detected by Klask) at this time.
+The list returned could be limited to just one VLAN.
+IP returned could have been never used or no computer have been detected since the number of days specified
+(2 years by default).
+This parameter could also be define in the configuration file F</etc/klask/klask.conf> (SEE CONFIGURATION).
+
+ default:
+   days-to-death: 730
+
+Computer that does not have the good IP but takes a float one (see L</cleandb>) are taken into account.
+
+
+=head2 bad-vlan-id
+
+ klask bad-vlan-id [--day|-d days_before_alert]
+
+This command return a list of switch port that are not configure with the good VLAN.
+Computer which are in bad VLAN are detected with the float regex parameter (see L</cleandb>)
+and another prior trace where they had the good IP (good DNS name).
+The computer must stay connected on a bad VLAN more than XX days (15 days by default) before alert.
+This parameter could also define in the configuration file F</etc/klask/klask.conf> (SEE CONFIGURATION).
+
+ default:
+   days-before-alert: 15
+
+This functionality is not need if your switch use RADIUS 802.1X configuration...
+
 
 
 =head1 CONFIGURATION
