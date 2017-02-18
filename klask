@@ -2706,6 +2706,10 @@ Klask has now a web site dedicated for it: L<http://servforge.legi.grenoble-inp.
 
 =head1 COMMANDS
 
+Some command are defined in the source code but are not documented here.
+Theses could be not well defined, not finished, not well tested...
+You can read the source code and use them at your own risk
+(like for all the Klask code).
 
 =head2 search
 
@@ -2719,7 +2723,7 @@ It search a computer on the network and give the port and the switch on which th
 
 This command activate a port on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
-See L<ABBREVIATION FOR PORT>.
+See L</ABBREVIATION FOR PORT>.
 
 You need to have the SNMP write access on the switch in order to modify it's configuration.
 
@@ -2730,7 +2734,7 @@ You need to have the SNMP write access on the switch in order to modify it's con
 
 This command deactivate a port on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
-See L<ABBREVIATION FOR PORT>.
+See L</ABBREVIATION FOR PORT>.
 
 You need to have the SNMP write access on the switch in order to modify it's configuration.
 
@@ -2742,7 +2746,7 @@ You need to have the SNMP write access on the switch in order to modify it's con
 This command return the status of a port number on a switch by SNMP.
 The return value could be C<enable> or C<disable> word.
 So you need to give the switch name and a port on the command line.
-See L<ABBREVIATION FOR PORT>.
+See L</ABBREVIATION FOR PORT>.
 
 
 =head2 updatedb
@@ -2813,7 +2817,7 @@ This command return IP address that was not use (detected by Klask) at this time
 The list returned could be limited to just one VLAN.
 IP returned could have been never used or no computer have been detected since the number of days specified
 (2 years by default).
-This parameter could also be define in the configuration file F</etc/klask/klask.conf> (SEE CONFIGURATION).
+This parameter could also be define in the configuration file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
 
  default:
    days-to-death: 730
@@ -2829,7 +2833,7 @@ This command return a list of switch port that are not configure with the good V
 Computer which are in bad VLAN are detected with the float regex parameter (see L</cleandb>)
 and another prior trace where they had the good IP (good DNS name).
 The computer must stay connected on a bad VLAN more than XX days (15 days by default) before alert.
-This parameter could also define in the configuration file F</etc/klask/klask.conf> (SEE CONFIGURATION).
+This parameter could also define in the configuration file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
 
  default:
    days-before-alert: 15
