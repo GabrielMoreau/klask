@@ -758,7 +758,7 @@ sub normalize_port_human_readable {
    $sw_port_hr =~ s/^Ten/Te/i;
    $sw_port_hr =~ s/^Giga/Gi/i;
 
-   return $sw_port_hr;
+   return ucfirst $sw_port_hr;
    }
 
 sub snmp_get_switchport_hr {
@@ -2143,7 +2143,7 @@ sub cmd_status {
 
    # Retrieve numeric port value
    my $port_num = snmp_get_switchport_num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port not exist on switch $switch_name\n" if $port_num =~ m/^\d+$/;
+   die "Error : Port $port not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
    print "Info: switch $switch_name port $port ($port_num) SNMP OID $search_portstatus\n" if $verbose;
