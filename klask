@@ -181,7 +181,7 @@ Readonly my %PORT_UPDOWN => (
 Readonly my $RE_MAC_ADDRESS  => qr{ [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} : [0-9,A-Z]{2} }xms;
 Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} }xms;
 
-Readonly my $RE_FLOAT_HOSTNAME => qr{ ^float }xms;
+Readonly my $RE_FLOAT_HOSTNAME => $DEFAULT{'float-regex'} || qr{ ^float }xms;
 
 ################################################################
 # main program
@@ -873,10 +873,10 @@ klask - ports manager and finder for switch
 
  klask version
 
- klask updatedb
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
- klask removedb computer*
- klask cleandb  --day number_of_day --repair-dns --verbose
+ klask removedb IP* computer*
+ klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw
  klask exportsw --format [txt|dot]
@@ -889,9 +889,9 @@ klask - ports manager and finder for switch
 
  klask bad-vlan-id
 
- klask enable  switch port
- klask disable switch port
- klask status  switch port
+ klask enable  [--verbose|-v] switch port
+ klask disable [--verbose|-v] switch port
+ klask status  [--verbose|-v] switch port
 END
    return;
    }
@@ -2652,7 +2652,7 @@ klask - port and search manager for switches, map management
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
  klask exportdb --format [txt|html]
- klask removedb computer*
+ klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
@@ -2703,7 +2703,7 @@ It search a computer on the network and give the port and the switch on which th
 
 =head2 enable
 
- klask enable [--verbose|-v] switch port
+ klask enable  [--verbose|-v] switch port
 
 This command activate a port on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
@@ -2725,7 +2725,7 @@ You need to have the SNMP write access on the switch in order to modify it's con
 
 =head2 status
 
- klask status [--verbose|-v] switch port
+ klask status  [--verbose|-v] switch port
 
 This command return the status of a port number on a switch by SNMP.
 The return value could be C<enable> or C<disable> word.
@@ -2735,17 +2735,25 @@ See L<ABBREVIATION FOR PORT>.
 
 =head2 updatedb
 
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
+
 This command will scan networks and update a database.
 To know which are the cmputer scan, you have to configure the file F</etc/klask/klask.conf>.
 This file is easy to read and write because Klask use YAML format and not XML.
 
+Option are not stable and could be use manually when you have new switch.
+Maybe some option will be transfered in a future C<checksw> command!
 
-=head2 exportdb --format [txt|html]
+=head2 exportdb
 
-This command print the content of the database. There is actually only one format.
+ klask exportdb --format [txt|html]
+
+This command print the content of the database. There is actually only two format : txt and html.
 It's very easy to have more format, it's just need times...
 
 =head2 removedb
+
+ klask removedb IP* computer*
 
 This command remove an entry in the database.
 There is only one kind of parameter, the IP of the computers to be removed.
@@ -2755,10 +2763,16 @@ DNS computer name could also a valid entry because a DNS resolver is done at the
 
 =head2 cleandb
 
-Remove double entry (same MAC-Address) when the older one is older than X day (C<--day>) the new one.
-Computer name beginning by 'float' are not really taken into account but could be remove.
+ klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
-When reverse DNS has not be done, option C<--repair-dns> force reverse DNS check on unkown host.
+Remove double entry (same MAC-Address) in the computer database when the older one is older than X day (C<--day>) the new one.
+Computer name beginning by 'float' (regex C<^float>) are not really taken into account but could be remove.
+This could be configure with the global regex parameter C<float-regex> in the configuration file F</etc/klask/klask.conf>.
+This functionality could be use when computer define in VLAN 1
+could have a float IP when they are connected on VLAN 2.
+In the Klask database, the float DNS entries are less important.
+
+When reverse DNS has not be done by the past, option C<--repair-dns> force reverse DNS check on all unkown host.
 
 =head2 updatesw
 
@@ -2787,6 +2801,7 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
    community: public
    community-rw: private
    snmpport: 161
+   float-regex: '(?^msx: ^float )'
 
  network:
    labnet:
