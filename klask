@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.1');
+use version; our $VERSION = qv('0.6.2');
 
 use Readonly;
 use FileHandle;
@@ -775,6 +775,15 @@ sub normalize_port_human_readable {
    $sw_port_hr =~ s/^Giga/Gi/i;
 
    return ucfirst $sw_port_hr;
+   }
+
+#---------------------------------------------------------------
+sub snmp_get_rwsession {
+   my ($sw) = @_;
+
+   my %session = %{$sw->{snmp_param_session}};
+   $session{-community} = $sw->{community-rw} || $DEFAULT{community-rw} || 'private';
+   return %session;
    }
 
 #---------------------------------------------------------------
@@ -1715,6 +1724,7 @@ sub cmd_bad_vlan_id {
    }
 
 #---------------------------------------------------------------
+# not finish - do not use
 sub cmd_set_vlan_port {
    my $switch_name = shift || q{};
    my $mac_address = shift || q{};
@@ -1832,7 +1842,7 @@ sub cmd_rebootsw {
          }
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
       print "$error \n" if $error;
 
       my $result = $session->set_request(
@@ -2073,7 +2083,7 @@ sub cmd_enable {
       }
 
    my $sw = $SWITCH_DB{$switch_name};
-   my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+   my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
    print "$error \n" if $error;
 
    # Retrieve numeric port value
@@ -2118,7 +2128,7 @@ sub cmd_disable {
       }
 
    my $sw = $SWITCH_DB{$switch_name};
-   my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+   my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
    print "$error \n" if $error;
 
    # Retrieve numeric port value
@@ -2775,6 +2785,7 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
 
  default:
    community: public
+   community-rw: private
    snmpport: 161
 
  network:
@@ -2859,13 +2870,9 @@ Net::SNMP, Net::Netmask, Net::CIDR::Lite, NetAddr::IP, YAML
 
 =over
 
-=item *
+=item * L<Web site|http://servforge.legi.grenoble-inp.fr/projects/klask>
 
-Web site: L<http://servforge.legi.grenoble-inp.fr/projects/klask>
-
-=item *
-
-Online Manual: L<http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html>
+=item * L<Online Manual|http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html>
 
 =back
 
