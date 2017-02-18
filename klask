@@ -785,67 +785,38 @@ sub snmp_get_switchport_num {
    my ($snmp_session, $swport_hr, $verbose) = @_;
 
    my $swport_num = $swport_hr;
-   return $swport_num if $swport_num =~ m/^\d+$/; # direct return if already numeric
+   return $swport_num if $swport_num =~ m/^\d+$/; # direct return if already numeric (next loop is expensive)
 
    my $research_index = $OID_NUMBER{ifIndex}; # base OID
    my @args = ( -varbindlist =>  [$research_index]);
-   LOOP_OID_PORT:
+   LOOP_ON_OID_PORT:
    while ( defined $snmp_session->get_next_request(@args) ) {
       my ($oid_current) = $snmp_session->var_bind_names;
-      last if  not Net::SNMP::oid_base_match($research_index, $oid_current);
+      last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($research_index, $oid_current);
       
       my $port_ifIndex = $snmp_session->var_bind_list->{$oid_current};
       my ($port_index) = reverse split /\./, $oid_current; # last number
       printf "PORT1: %s => %s\n", $oid_current, $port_ifIndex if $verbose;
 
-      # prepare next loop
+      # prepare next loop item
       @args = (-varbindlist => [$oid_current]);
       
       my $oid_ifName = $OID_NUMBER{ifName} .'.'. $port_ifIndex;
       my $result = $snmp_session->get_request(-varbindlist => [$oid_ifName]);
-      next LOOP_OID_PORT if not defined $result;
+      next LOOP_ON_OID_PORT if not defined $result;
       
       my $current_port_hr = normalize_port_human_readable($result->{$oid_ifName});
       printf "PORT2: $oid_ifName => $current_port_hr\n" if $verbose;
       if ($current_port_hr eq $swport_hr) {
          print "PORT3: $current_port_hr <-> $port_index\n" if $verbose;
-         $swport_num = $port_index;
-         last LOOP_OID_PORT;
+         
+         # return port number ifIndex need by OID portUpDown
+         $swport_num = $port_ifIndex; # other possible value could be $port_index
+         last LOOP_ON_OID_PORT;
          }
       }
    return $swport_num;
    }
-
-#   $research_index = $OID_NUMBER{ifName}; # base OID
-#   @args = ( -varbindlist =>  [$research_index]);
-#   while ( defined $snmp_session->get_next_request(@args) ) {
-#      my ($oid_current) = $snmp_session->var_bind_names;
-#      last if not Net::SNMP::oid_base_match($research_index, $oid_current);
-#      my $current_port_hr = normalize_port_human_readable($snmp_session->var_bind_list->{$oid_current});
- #     printf "%s => %s\n", $oid_current, $current_port_hr;  # if $verbose;
-#      if ( $current_port_hr =~ m/$swport_hr/i ) {
-#         print "FIND PORT $current_port_hr  -- $swport_h\n";
-#         last
-#         }
-#      @args = (-varbindlist => [$oid_current]);
-#      }
-#   return;
-
-#   my $result_index = $snmp_session->get_bulk_request(
-#      -maxrepetitions   => 10,
-#      -varbindlist => [$research_index]
- #     );
-#   my $swifindex = $swport;
-#   $swifindex = $result_index->{$research_index} if defined $result_index;
-#
-#   my $research_hr = $OID_NUMBER{ifName} .'.'. $swifindex;
-#   my $result_hr = $snmp_session->get_request(
-#      -varbindlist => [$research_hr]
-#      );
-#   my $swport_hr = $swport;
-#   $swport_hr = normalize_port_human_readable($result_hr->{$research_hr}) if defined $result_hr;
-#   return $swport_hr;
-#   }
 
 # Load computer database
 sub computerdb_load {
