@@ -37,29 +37,29 @@ test_running_environnement();
 
 my $KLASK_CFG = YAML::Syck::LoadFile("$KLASK_CFG_FILE");
 
-my %DEFAULT     = %{$KLASK_CFG->{default}};
-my @SWITCH_LIST = @{$KLASK_CFG->{switch}};
+my %DEFAULT     = %{$KLASK_CFG->{'default'}};
+my @SWITCH_LIST = @{$KLASK_CFG->{'switch'}};
 
 my %SWITCH_LEVEL = ();
 my %SWITCH_DB    = ();
 LEVEL_OF_EACH_SWITCH:
 for my $sw (@SWITCH_LIST) {
-   $SWITCH_LEVEL{$sw->{hostname}} = $sw->{level} || $DEFAULT{switch_level}  || 2;
+   $SWITCH_LEVEL{$sw->{hostname}} = $sw->{'level'} || $DEFAULT{'switch_level'}  || 2;
    $SWITCH_DB{$sw->{hostname}} = $sw;
 
    # SNMP parameter initialisation
    my %session = ( -hostname   => $sw->{hostname} );
-   $session{-version} = $sw->{version}   || 1;
-   $session{-port}    = $sw->{snmpport}  || $DEFAULT{snmpport}  || 161;
-   if (exists $sw->{version} and $sw->{version} eq '3') {
-      $session{-username} = $sw->{username} || 'snmpadmin';
+   $session{-version} = $sw->{'version'}  || 1;
+   $session{-port}    = $sw->{'snmpport'} || $DEFAULT{'snmpport'}  || 161;
+   if (exists $sw->{'version'} and $sw->{'version'} eq '3') {
+      $session{-username} = $sw->{'username'} || 'snmpadmin';
       }
    else {
-      $session{-community} = $sw->{community} || $DEFAULT{community} || 'public';
+      $session{-community} = $sw->{'community'} || $DEFAULT{'community'} || 'public';
       }
-   $sw->{snmp_param_session} = \%session;
+   $sw->{'snmp_param_session'} = \%session;
    }
-@SWITCH_LIST = reverse sort { $SWITCH_LEVEL{$a->{hostname}} <=> $SWITCH_LEVEL{$b->{hostname}} } @{$KLASK_CFG->{switch}};
+@SWITCH_LIST = reverse sort { $SWITCH_LEVEL{$a->{hostname}} <=> $SWITCH_LEVEL{$b->{hostname}} } @{$KLASK_CFG->{'switch'}};
 
 #my %SWITCH_PORT_COUNT = ();
 
@@ -356,7 +356,7 @@ sub init_switch_names {
 
    INIT_EACH_SWITCH:
    for my $sw (@SWITCH_LIST) {
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -473,12 +473,12 @@ sub find_switch_port {
          }
       }
 
-   my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
-   my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
+   my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex_to_dec($mac_address);
+   my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
 
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -532,11 +532,11 @@ sub find_all_switch_port {
 
    return $ret if $mac_address eq 'unknow';
 
-   my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
-   my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
+   my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex_to_dec($mac_address);
+   my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH_LIST) {
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -781,8 +781,8 @@ sub normalize_port_human_readable {
 sub snmp_get_rwsession {
    my ($sw) = @_;
 
-   my %session = %{$sw->{snmp_param_session}};
-   $session{-community} = $sw->{community-rw} || $DEFAULT{community-rw} || 'private';
+   my %session = %{$sw->{'snmp_param_session'}};
+   $session{-community} = $sw->{'community-rw'} || $DEFAULT{'community-rw'} || 'private';
    return %session;
    }
 
@@ -1525,9 +1525,9 @@ END_HTML
          $arrow ='&#8680;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
       if (exists $db_switch_parent{$sw}) {
-         my $mac_address = $db_switch{$db_switch_parent{$sw}->{switch}}->{mac_address};
-         my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{switch}}->{ipv4_address};
-         my $timestamp = $db_switch{$db_switch_parent{$sw}->{switch}}->{timestamp};
+         my $mac_address = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{mac_address};
+         my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{ipv4_address};
+         my $timestamp = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{timestamp};
 
          my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
          $year += 1900;
@@ -1538,14 +1538,14 @@ END_HTML
 
          my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
-         my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{switch}, 1), $db_switch_parent{$sw}->{port_hr};
+         my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{port_hr};
 
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$db_switch_output_port{$sw}</td>
    <td>$arrow</td><td>$db_switch_parent{$sw}->{port_hr}</td>
-   <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{switch}</td>
+   <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
    <td></td>
@@ -1740,13 +1740,13 @@ sub cmd_set_vlan_port {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
-      my $research2 = $OID_NUMBER{searchPort2} .'.'. 0 . mac_address_hex_to_dec($mac_address);
+      my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex_to_dec($mac_address);
+      my $research2 = $OID_NUMBER{'searchPort2'} .'.'. 0 . mac_address_hex_to_dec($mac_address);
       print "Klask search OID $research1 on switch $sw_name\n";
       print "Klask search OID $research2 on switch $sw_name\n";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -1796,7 +1796,7 @@ sub cmd_get_vlan_port {
       my $search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -1873,7 +1873,7 @@ sub cmd_get_vlan_name {
       my $search_vlan_name = $OID_NUMBER{vlanName} . ".$vlan_id";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2171,7 +2171,7 @@ sub cmd_status {
       }
 
    my $sw = $SWITCH_DB{$switch_name};
-   my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+   my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
    print "$error \n" if $error;
 
    # Retrieve numeric port value
@@ -2222,13 +2222,13 @@ sub cmd_search_mac_on_switch {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $research1 = $OID_NUMBER{searchPort1} . mac_address_hex_to_dec($mac_address);
-      my $research2 = $OID_NUMBER{searchPort2} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
+      my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex_to_dec($mac_address);
+      my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex_to_dec($mac_address);
       print "Klask search OID $research1 on switch $sw_name\n" if $verbose;
       print "Klask search OID $research2 on switch $sw_name\n" if $verbose;
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{snmp_param_session}} );
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2441,7 +2441,7 @@ sub cmd_updatesw {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
          }
       else {
          printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
@@ -2511,7 +2511,7 @@ sub cmd_exportsw_txt {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{switch};
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
          }
       else {
          printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
@@ -2610,7 +2610,7 @@ sub cmd_exportsw_dot {
 #   print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{switch}, $db_switch_parent{$sw}->{port};
+#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{port};
          }
       else {
          printf "   \"%s:%s\" -> internet\n", $sw, $db_switch_output_port{$sw};
