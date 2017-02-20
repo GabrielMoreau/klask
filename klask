@@ -2721,7 +2721,7 @@ You can read the source code and use them at your own risk
 This command takes one or more computer in argument.
 It search a computer on the network and give the port and the switch on which the computer is connected.
 
-=head2 search
+=head2 search-mac-on-switch
 
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
@@ -2733,22 +2733,22 @@ The VLAN could help.
 
  klask enable  [--verbose|-v] switch port
 
-This command activate a port on a switch by SNMP.
+This command activate a port (or an agrregate bridge port) on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
 See L</ABBREVIATION FOR PORT>.
 
-You need to have the SNMP write access on the switch in order to modify it's configuration.
+Warning: You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
 =head2 disable
 
  klask disable [--verbose|-v] switch port
 
-This command deactivate a port on a switch by SNMP.
+This command deactivate a port (or an agrregate bridge port) on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
 See L</ABBREVIATION FOR PORT>.
 
-You need to have the SNMP write access on the switch in order to modify it's configuration.
+Warning: You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
 =head2 status
@@ -2759,6 +2759,10 @@ This command return the status of a port number on a switch by SNMP.
 The return value could be C<enable> or C<disable> word.
 So you need to give the switch name and a port on the command line.
 See L</ABBREVIATION FOR PORT>.
+
+If it's not possible to change port status with command L</enable> and L</disable>
+(SNMP community read write access),
+it's always possible to have the port status even for bridge agrregate port.
 
 
 =head2 updatedb
@@ -2772,6 +2776,16 @@ This file is easy to read and write because Klask use YAML format and not XML
 
 Option are not stable and could be use manually when you have a new kind of switch.
 Maybe some option will be transfered in a future C<checksw> command!
+
+The network parameter C<scan-mode> can have two values: C<active> or C<passive>.
+By default, a network is C<active>.
+This means that an C<fping> command is done at the beginning on all the IP of the network
+and the computers that was not detected in this pass, but where their Klask entry is less than one week,
+will have an C<arping> 
+(some OS do not respond to C<ping> but a computer have to respond to C<arping> if it want to interact with other).
+In the scan mode C<passive>, no C<fping> and no C<arping> are done.
+It's good for big subnet with few computer (telephone...).
+The idea of the C<active> scan mode is to force computer to regulary send packet over the network.
 
 =head2 exportdb
 
@@ -2871,6 +2885,7 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
    community-rw: private
    snmpport: 161
    float-regex: '(?^msx: ^float )'
+   scan-mode: active
 
  network:
    labnet:
@@ -2883,25 +2898,38 @@ Here an example, be aware with indent, it's important in YAML, do not use tabula
 
    schoolnet:
      ip-subnet:
-       - add: 192.168.6.0/24
-       - add: 192.168.7.0/24
+       - add: 192.168.3.0/24
+       - add: 192.168.4.0/24
      interface: eth0.38
      vlan-id: 13
      main-router: gw2.schoolnet.local
+     scan-mode: passive
+
+   etunet:
+     ip-subnet:
+       - add: 192.168.5.0/24
+     interface: eth2
+     vlan-id: 14
+     main-router: gw3.etunet.local
+     scan-mode: passive
 
  switch:
    - hostname: sw1.klask.local
+     location: BatY / 1 floor / K004
      portignore:
        - 1
        - 2
 
    - hostname: sw2.klask.local
-     location: BatK / 2 / K203
+     location: BatY / 2 floor / K203
      type: HP2424
      portignore:
        - 1
        - 2
      fake-ip: 192.168.9.14
+
+   - hostname: sw3.klask.local
+     location: BatY / 2 floor / K203
 
 I think it's pretty easy to understand.
 The default section can be overide in any section, if parameter mean something in theses sections.
