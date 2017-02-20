@@ -875,18 +875,18 @@ klask - port and search manager for switches, map management
  klask help
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
- klask exportdb --format [txt|html]
+ klask exportdb [--format|-f txt|html]
  klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw --format [txt|dot]
+ klask exportsw [--format|-f txt|dot]
 
- klask searchdb computer
+ klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
- klask search-mac-on-switch switch mac_addr
+ klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
- klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
  klask bad-vlan-id [--day|-d days_before_alert]
 
@@ -2660,19 +2660,22 @@ klask - port and search manager for switches, map management
 
 =head1 USAGE
 
+ klask version
+ klask help
+
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
- klask exportdb --format [txt|html]
+ klask exportdb [--format|-f txt|html]
  klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw --format [txt|dot]
+ klask exportsw [--format|-f txt|dot]
 
- klask searchdb --kind [host|mac] computer [mac-address]
+ klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
- klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
  klask bad-vlan-id [--day|-d days_before_alert]
 
@@ -2713,8 +2716,17 @@ You can read the source code and use them at your own risk
 
 =head2 search
 
+ klask search   computer
+
 This command takes one or more computer in argument.
 It search a computer on the network and give the port and the switch on which the computer is connected.
+
+=head2 search
+
+ klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
+
+This command search a MAC address on a switch.
+The VLAN could help.
 
 
 =head2 enable
@@ -2753,18 +2765,21 @@ See L</ABBREVIATION FOR PORT>.
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
 
-This command will scan networks and update a database.
-To know which are the cmputer scan, you have to configure the file F</etc/klask/klask.conf>.
-This file is easy to read and write because Klask use YAML format and not XML.
+This command will scan networks and update the computer database.
+To know which are the cmputer scanned, you have to configure the file F</etc/klask/klask.conf>.
+This file is easy to read and write because Klask use YAML format and not XML
+(see L</CONFIGURATION>).
 
-Option are not stable and could be use manually when you have new switch.
+Option are not stable and could be use manually when you have a new kind of switch.
 Maybe some option will be transfered in a future C<checksw> command!
 
 =head2 exportdb
 
- klask exportdb --format [txt|html]
+ klask exportdb [--format|-f txt|html]
 
-This command print the content of the database. There is actually only two format : txt and html.
+This command print the content of the computer database.
+There is actually only two format : TXT and HTML.
+By default, format is TXT.
 It's very easy to have more format, it's just need times...
 
 =head2 removedb
@@ -2775,7 +2790,7 @@ This command remove an entry in the database.
 There is only one kind of parameter, the IP of the computers to be removed.
 You can put as many IP as you want...
 
-DNS computer name could also a valid entry because a DNS resolver is done at the beginning.
+Computer DNS names are also a valid entry because a DNS resolver is executed at the beginning.
 
 =head2 cleandb
 
@@ -2788,22 +2803,23 @@ This functionality could be use when computer define in VLAN 1
 could have a float IP when they are connected on VLAN 2.
 In the Klask database, the float DNS entries are less important.
 
-When reverse DNS has not be done by the past, option C<--repair-dns> force reverse DNS check on all unkown host.
+When reverse DNS has not been done by the past, option C<--repair-dns> force a reverse DNS check on all unkown host.
 
 =head2 updatesw
 
  klask updatesw [--verbose|-v]
 
 This command build a map of your manageable switch on your network.
-The list of the switches must be given in the file F</etc/klask/klask.conf>.
+The list of the switches must be given in the file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
 
 
 =head2 exportsw
 
- klask exportsw --format [txt|dot]
+ klask exportsw [--format|-f txt|dot]
 
 This command print the content of the switch database. There is actually two format.
-One is just C<txt> for terminal and the other is the C<dot> format from the graphviz environnement.
+One is just TXT for terminal and the other is the DOT format from the graphviz environnement.
+By default, format is TXT.
 
  klask exportsw --format dot > /tmp/map.dot
  dot -Tpng /tmp/map.dot > /tmp/map.png
@@ -2811,7 +2827,7 @@ One is just C<txt> for terminal and the other is the C<dot> format from the grap
 
 =head2 ip-free
 
- klask ip-free [--verbose|-v] [--day|-d days-to-death] --format [txt|html] [vlan_name]
+ klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
 This command return IP address that was not use (detected by Klask) at this time.
 The list returned could be limited to just one VLAN.
