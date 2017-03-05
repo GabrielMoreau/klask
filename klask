@@ -431,7 +431,7 @@ sub normalize_mac_address {
    if ($mac_address =~ m{^ (?: [0-9A-Fa-f]{4} [-\.]){2} [0-9A-Fa-f]{4} $}xms
       or $mac_address =~ m{^ [0-9A-Fa-f]{6} - [0-9A-Fa-f]{6} $}xms
       ) {
-      $mac_address =~ s/-//g;
+      $mac_address =~ s/[-\.]//g;
       return join q{:}, unpack('(A2)*', uc($mac_address));
       }
 
@@ -2727,7 +2727,8 @@ It search a computer on the network and give the port and the switch on which th
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
 This command search a MAC address on a switch.
-The VLAN could help.
+To search on all switch, you could put C<'*'> or C<all>.
+The VLAN parameter could help.
 
 
 =head2 enable
