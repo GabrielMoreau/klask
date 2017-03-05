@@ -427,9 +427,10 @@ sub digit_hex_to_dec {
 sub normalize_mac_address {
    my $mac_address = shift;
 
-   # D07E-28D1-7AB8 or d07e28-d17ab8
-   if ($mac_address =~ m{^ (?: [0-9A-Fa-f]{4} -){2} [0-9A-Fa-f]{4} $}xms
-      or $mac_address =~ m{^ [0-9A-Fa-f]{6} - [0-9A-Fa-f]{6} $}xms) {
+   # D07E-28D1-7AB8 or D07E.28D1.7AB8 or d07e28-d17ab8
+   if ($mac_address =~ m{^ (?: [0-9A-Fa-f]{4} [-\.]){2} [0-9A-Fa-f]{4} $}xms
+      or $mac_address =~ m{^ [0-9A-Fa-f]{6} - [0-9A-Fa-f]{6} $}xms
+      ) {
       $mac_address =~ s/-//g;
       return join q{:}, unpack('(A2)*', uc($mac_address));
       }
@@ -2225,7 +2226,7 @@ sub cmd_search_mac_on_switch {
       }
 
    $mac_address = normalize_mac_address($mac_address);
-   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*} or $switch_name eq q{all};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
