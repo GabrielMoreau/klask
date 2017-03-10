@@ -1379,7 +1379,7 @@ sub cmd_exportdb_txt {
 
    my $computerdb = computerdb_load();
 
-   printf "%-27s %-4s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
+   printf "%-28s %-8s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
    print "--------------------------------------------------------------------------------------------------------------------------------------------\n";
 
    LOOP_ON_IP_ADDRESS:
@@ -1401,7 +1401,7 @@ sub cmd_exportdb_txt {
       my $vlan = '';
       $vlan = $computerdb->{$ip}{network}.'('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
 
-      printf "%-28s  %2s  <-------  %-40s %-15s %-18s %-16s %s\n",
+      printf "%-28s %8s  <-------  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port_hr},
          $computerdb->{$ip}{hostname_fq},
@@ -2536,10 +2536,10 @@ sub cmd_exportsw_txt {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
-            printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            printf "%-28s %8s  <--+  %8s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
             }
          else {
-            printf "%-28s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
+            printf "%-28s %8s  <--+            %-25s\n", $sw_connect, $port_connect, $sw;
             }
          }
       }
