@@ -1401,9 +1401,13 @@ sub cmd_exportdb_txt {
       my $vlan = '';
       $vlan = $computerdb->{$ip}{network}.'('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
 
-      printf "%-28s %8s  <-------  %-40s %-15s %-18s %-16s %s\n",
+      my $arrow ='<-------';
+         $arrow ='<=======' if $computerdb->{$ip}{switch_port_hr} =~ m/^(Trk|Br|Po)/;
+
+      printf "%-28s %8s  %8s  %-40s %-15s %-18s %-16s %s\n",
          $computerdb->{$ip}{switch_hostname} || $computerdb->{$ip}{switch_description},
          $computerdb->{$ip}{switch_port_hr},
+         $arrow,
          $computerdb->{$ip}{hostname_fq},
          $ip,
          $computerdb->{$ip}{mac_address},
@@ -2521,11 +2525,13 @@ sub cmd_exportsw_txt {
    print "Switch output port and parent port connection\n";
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
+      my $arrow ='+-->';
+         $arrow ='+==>' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s %8s  +-->  %8s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
+         printf "%-28s %8s  %4s  %8s  %-25s\n", $sw, $db_switch_output_port{$sw}, $arrow, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
          }
       else {
-         printf "%-28s %8s  +-->  %8s  router\n", $sw, $db_switch_output_port{$sw}, '';
+         printf "%-28s %8s  %4s  %8s  %-25s\n", $sw, $db_switch_output_port{$sw}, $arrow, '', 'router';
          }
       }
    print "\n";
@@ -2535,11 +2541,13 @@ sub cmd_exportsw_txt {
    for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+         my $arrow ='<--+';
+            $arrow ='<==+' if $port_connect =~ m/^(Trk|Br|Po)/;
          if (exists $db_switch_output_port{$sw}) {
-            printf "%-28s %8s  <--+  %8s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            printf "%-28s %8s  %4s  %8s  %-25s\n", $sw_connect, $port_connect, $arrow, $db_switch_output_port{$sw}, $sw;
             }
          else {
-            printf "%-28s %8s  <--+  %8s  %-25s\n", $sw_connect, $port_connect, '', $sw;
+            printf "%-28s %8s  %4s  %8s  %-25s\n", $sw_connect, $port_connect, $arrow, '', $sw;
             }
          }
       }
