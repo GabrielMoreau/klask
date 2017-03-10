@@ -1379,7 +1379,7 @@ sub cmd_exportdb_txt {
 
    my $computerdb = computerdb_load();
 
-   printf "%-28s %-8s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
+   printf "%-28s %8s            %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
    print "--------------------------------------------------------------------------------------------------------------------------------------------\n";
 
    LOOP_ON_IP_ADDRESS:
@@ -2522,10 +2522,10 @@ sub cmd_exportsw_txt {
    print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
+         printf "%-28s %8s  +-->  %8s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{port_hr}, $db_switch_parent{$sw}->{'switch'};
          }
       else {
-         printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+         printf "%-28s %8s  +-->  %8s  router\n", $sw, $db_switch_output_port{$sw}, '';
          }
       }
    print "\n";
@@ -2539,7 +2539,7 @@ sub cmd_exportsw_txt {
             printf "%-28s %8s  <--+  %8s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
             }
          else {
-            printf "%-28s %8s  <--+            %-25s\n", $sw_connect, $port_connect, $sw;
+            printf "%-28s %8s  <--+  %8s  %-25s\n", $sw_connect, $port_connect, '', $sw;
             }
          }
       }
