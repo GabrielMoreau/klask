@@ -1,0 +1,33 @@
+# bash completion for klask
+
+_klask() {
+   local cur prev
+
+   COMPREPLY=()
+   #_get_comp_words_by_ref cur prev
+   cur="${COMP_WORDS[COMP_CWORD]}"
+   prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+   case $prev in
+      -f|--format)
+         COMPREPLY=($(compgen -W "txt html dot" -- "$cur"))
+         return 0
+         ;;
+      -k|--kind)
+         COMPREPLY=($(compgen -W "host mac" -- "$cur"))
+         return 0
+         ;;
+      -i|--vlan)
+         COMPREPLY=($(compgen -W "$(grep vlan-id: /etc/klask/klask.conf|awk '{print $2}'|xargs echo -n)" -- "$cur"))
+         return 0
+         ;;
+   esac
+
+   if [[ "$cur" == -* ]]
+   then
+      COMPREPLY=($(compgen -W '-v --verbose -k --kind -f --format -d --day -i --vlan' -- "$cur"))
+   else
+      COMPREPLY=($(compgen -W "$($(which klask || echo /usr/sbin/klask) help|grep '^ klask'|awk '{print $2}'|xargs echo -n)" -- "$cur"))
+   fi
+
+   } && complete -F _klask klask

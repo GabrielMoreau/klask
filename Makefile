@@ -6,6 +6,7 @@ SHAREDIR=/usr/share/klask
 LIBDIR=/usr/lib/klask
 CRONDIR=/etc/cron.d
 ETCDIR=/etc/klask
+COMPDIR=/etc/bash_completion.d
 
 .PHONY: all install update sync upload help
 
@@ -37,6 +38,9 @@ update:
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(ETCDIR)
 	install    -m 0644 -o root -g root klask-sample.conf $(DESTDIR)/$(ETCDIR)
 	install    -m 0644 -o root -g root push-web-sample.conf $(DESTDIR)/$(ETCDIR)
+
+	@install -d -m 0755 -o root -g root $(DESTDIR)/$(COMPDIR)
+	install    -m 0644 -o root -g root klask.bash_completion $(DESTDIR)/$(COMPDIR)/klask
 
 sync:
 	svn update
