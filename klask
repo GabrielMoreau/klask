@@ -126,6 +126,7 @@ Readonly my %SWITCH_KIND => (
    BS350T           => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                     },
    # Nexans
    N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48V ES3'       },
+   N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP(PSE+) SFP-I 48/54V ES3' },
    # DELL
    PC7024           => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks'         },
    N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,'               },
