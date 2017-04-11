@@ -85,6 +85,7 @@ my %CMD_DB = (
    'get-vlan-port'        => \&cmd_get_vlan_port,
    'set-vlan-name'        => \&cmd_set_vlan_name,
    'get-vlan-name'        => \&cmd_get_vlan_name,
+   'get-vlan-list'        => \&cmd_get_vlan_list,
    'rebootsw'             => \&cmd_rebootsw,
    );
 
@@ -848,6 +849,32 @@ sub snmp_get_switchport_num {
    }
 
 #---------------------------------------------------------------
+# Get the list of all the VLAN define on a switch
+sub snmp_get_vlan_list {
+   my ($snmp_session, $verbose) = @_;
+
+   my %vlan = (); # Hash vlan number => vlan name
+
+   my $research_index = $OID_NUMBER{vlanName}; # base OID
+   my @args = ( -varbindlist =>  [$research_index]);
+   LOOP_ON_VLAN:
+   while ( defined $snmp_session->get_next_request(@args) ) {
+      my ($oid_current) = $snmp_session->var_bind_names;
+      last LOOP_ON_VLAN if not Net::SNMP::oid_base_match($research_index, $oid_current);
+
+      my $vlan_name = $snmp_session->var_bind_list->{$oid_current};
+      my ($vlan_index) = reverse split /\./, $oid_current; # last number
+      printf "VLAN: %s => %s\n", $oid_current, $vlan_name if $verbose;
+
+      $vlan{$vlan_index} = $vlan_name;
+
+      # prepare next loop item
+      @args = (-varbindlist => [$oid_current]);
+      }
+   return %vlan;
+   }
+
+#---------------------------------------------------------------
 # Load computer database
 sub computerdb_load {
    my $computerdb = YAML::Syck::LoadFile("$KLASK_DB_FILE");
@@ -895,6 +922,9 @@ klask - port and search manager for switches, map management
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
+
+ klask get-vlan-name switch vlan-id
+ klask get-vlan-list switch
 END
    return;
    }
@@ -1905,6 +1935,36 @@ sub cmd_get_vlan_name {
    }
 
 #---------------------------------------------------------------
+sub cmd_get_vlan_list {
+   my $switch_name = shift || q{};
+
+   if ($switch_name eq q{}) {
+      die "Usage: klask get-vlan-list SWITCH_NAME\n";
+      }
+
+   $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
+
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
+
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      print "$error \n" if $error;
+
+      my %vlandb = snmp_get_vlan_list($session);
+      $session->close;
+      
+      print "VLAN_ID - VLAN_NAME # $sw_name\n";
+      for my $vlanid (keys %vlandb) {
+         printf "%7i - %s\n", $vlanid, $vlandb{$vlanid};
+         }
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
 sub cmd_ip_location {
    my $computerdb = computerdb_load();
 
@@ -2687,6 +2747,9 @@ klask - port and search manager for switches, map management
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
+
+ klask get-vlan-name switch vlan-id
+ klask get-vlan-list switch
 
 
 =head1 DESCRIPTION
