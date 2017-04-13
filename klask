@@ -81,6 +81,9 @@ my %CMD_DB = (
    'ip-free'              => \&cmd_ip_free,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    'bad-vlan-id'          => \&cmd_bad_vlan_id,
+   'poe-enable'           => \&cmd_poe_enable,
+   'poe-disable'          => \&cmd_poe_disable,
+   'poe-status'           => \&cmd_poe_status,
    'port-setvlan'         => \&cmd_port_setvlan,
    'port-getvlan'         => \&cmd_port_getvlan,
    'vlan-setname'         => \&cmd_vlan_setname,
@@ -169,11 +172,12 @@ Readonly my %OID_NUMBER => (
    vlanPortDefault => '1.3.6.1.2.1.17.7.1.4.5.1.1',   # dot1qPvid
    vlanStatus      => '1.3.6.1.2.1.17.7.1.4.3.1.5',   # integer 4 Create, 6 Destroy
    vlanName        => '1.3.6.1.2.1.17.7.1.4.3.1.1',   # string
-   hpicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1', # HP reboot switch
+   HPicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1', # HP reboot switch
    ifIndex         => '1.3.6.1.2.1.17.1.4.1.2',       # dot1dBasePortIfIndex - Interface index redirection
    ifName          => '1.3.6.1.2.1.31.1.1.1.1',       # Interface name (give port number)
    portUpDown      => '1.3.6.1.2.1.2.2.1.7',          # 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)  = 2 (down)
    poeState        => '1.3.6.1.2.1.105.1.1.1.3.1',    # 1.3.6.1.2.1.105.1.1.1.3.1.NoPort = 1 (poe up)  = 2 (poe down) - Cisco and Zyxel
+   NApoeState      => '1.3.6.1.4.1.266.20.3.1.1.21',  # .NoPort = 2 (poe off)  = 8 (poe atHighPower) - Nexans
    );
 
 Readonly my %PORT_UPDOWN => (
@@ -1767,6 +1771,128 @@ sub cmd_bad_vlan_id {
    }
 
 #---------------------------------------------------------------
+sub cmd_poe_enable {
+   @ARGV = @_;
+
+   my $verbose;
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $switch_port = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $switch_port eq q{}) {
+      die "Usage: klask poe-enable SWITCH_NAME PORT\n";
+      }
+
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
+
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
+      print "$error \n" if $error;
+
+      my $result = $session->set_request(
+         -varbindlist => [$search, INTEGER, 8], # Only NEXANS
+         );
+      print $session->error()."\n" if $session->error_status();
+
+      $session->close;
+      }
+   cmd_poe_status($switch_name, $switch_port);
+   return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_poe_disable {
+   @ARGV = @_;
+
+   my $verbose;
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $switch_port = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $switch_port eq q{}) {
+      die "Usage: klask poe-disable SWITCH_NAME PORT\n";
+      }
+
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
+
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
+      print "$error \n" if $error;
+
+      my $result = $session->set_request(
+         -varbindlist => [$search, INTEGER, 2], # Only NEXANS
+         );
+      print $session->error()."\n" if $session->error_status();
+
+      $session->close;
+      }
+   cmd_poe_status($switch_name, $switch_port);
+   return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_poe_status {
+   @ARGV = @_;
+
+   my $verbose;
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $switch_port = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $switch_port eq q{}) {
+      die "Usage: klask poe-status SWITCH_NAME PORT\n";
+      }
+
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
+
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      print "$error \n" if $error;
+
+      my $result = $session->get_request(
+         -varbindlist => [$search],
+         );
+
+      if (defined $result and $result->{$search} ne 'noSuchInstance') {
+         my $poe = $result->{$search} || 'empty';
+         $poe =~ s/8/on/;
+         $poe =~ s/2/off/;
+         printf "%s  %s ~~ %s\n", $sw_name, $switch_port, $poe;
+         }
+      else {
+         print "Klask do not find POE Status on switch $sw_name on port $switch_port\n";
+         }
+
+      $session->close;
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
 # not finish - do not use
 sub cmd_port_setvlan {
    my $switch_name = shift || q{};
@@ -1864,7 +1990,7 @@ sub cmd_vlan_setname {
    }
 
 #---------------------------------------------------------------
-# snmpset -v 1 -c public sw1-batG0-legi.hmg.priv "$OID_NUMBER{'hpicfReset'}.0" i 2;
+# snmpset -v 1 -c public sw1-batG0-legi.hmg.priv "$OID_NUMBER{'HPicfReset'}.0" i 2;
 sub cmd_rebootsw {
    @ARGV = @_;
 
@@ -1889,7 +2015,7 @@ sub cmd_rebootsw {
       print "$error \n" if $error;
 
       my $result = $session->set_request(
-         -varbindlist => ["$OID_NUMBER{'hpicfReset'}.0", INTEGER, 2],
+         -varbindlist => ["$OID_NUMBER{'HPicfReset'}.0", INTEGER, 2],
          );
 
       $session->close;
