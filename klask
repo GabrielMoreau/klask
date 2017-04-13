@@ -81,11 +81,11 @@ my %CMD_DB = (
    'ip-free'              => \&cmd_ip_free,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    'bad-vlan-id'          => \&cmd_bad_vlan_id,
-   'set-vlan-port'        => \&cmd_set_vlan_port,
-   'get-vlan-port'        => \&cmd_get_vlan_port,
-   'set-vlan-name'        => \&cmd_set_vlan_name,
-   'get-vlan-name'        => \&cmd_get_vlan_name,
-   'get-vlan-list'        => \&cmd_get_vlan_list,
+   'port-setvlan'         => \&cmd_port_setvlan,
+   'port-getvlan'         => \&cmd_port_getvlan,
+   'vlan-setname'         => \&cmd_vlan_setname,
+   'vlan-getname'         => \&cmd_vlan_getname,
+   'vlan-list'            => \&cmd_vlan_list,
    'rebootsw'             => \&cmd_rebootsw,
    );
 
@@ -173,6 +173,7 @@ Readonly my %OID_NUMBER => (
    ifIndex         => '1.3.6.1.2.1.17.1.4.1.2',       # dot1dBasePortIfIndex - Interface index redirection
    ifName          => '1.3.6.1.2.1.31.1.1.1.1',       # Interface name (give port number)
    portUpDown      => '1.3.6.1.2.1.2.2.1.7',          # 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)  = 2 (down)
+   poeState        => '1.3.6.1.2.1.105.1.1.1.3.1',    # 1.3.6.1.2.1.105.1.1.1.3.1.NoPort = 1 (poe up)  = 2 (poe down) - Cisco and Zyxel
    );
 
 Readonly my %PORT_UPDOWN => (
@@ -923,8 +924,8 @@ klask - port and search manager for switches, map management
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
 
- klask get-vlan-name switch vlan-id
- klask get-vlan-list switch
+ klask vlan-getname switch vlan-id
+ klask vlan-list switch
 END
    return;
    }
@@ -941,6 +942,7 @@ END
    return;
    }
 
+#---------------------------------------------------------------
 sub cmd_search {
    my @computer = @_;
 
@@ -1766,7 +1768,7 @@ sub cmd_bad_vlan_id {
 
 #---------------------------------------------------------------
 # not finish - do not use
-sub cmd_set_vlan_port {
+sub cmd_port_setvlan {
    my $switch_name = shift || q{};
    my $mac_address = shift || q{};
 
@@ -1814,7 +1816,7 @@ sub cmd_set_vlan_port {
    }
 
 #---------------------------------------------------------------
-sub cmd_get_vlan_port {
+sub cmd_port_getvlan {
    @ARGV = @_;
 
    my $verbose;
@@ -1826,7 +1828,7 @@ sub cmd_get_vlan_port {
    my $switch_port = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $switch_port eq q{}) {
-      die "Usage: klask get-vlan-port SWITCH_NAME PORT\n";
+      die "Usage: klask port-getvlan SWITCH_NAME PORT\n";
       }
 
    for my $sw_name (split /,/, $switch_name) {
@@ -1858,7 +1860,7 @@ sub cmd_get_vlan_port {
    }
 
 #---------------------------------------------------------------
-sub cmd_set_vlan_name {
+sub cmd_vlan_setname {
    }
 
 #---------------------------------------------------------------
@@ -1896,12 +1898,12 @@ sub cmd_rebootsw {
    }
 
 #---------------------------------------------------------------
-sub cmd_get_vlan_name {
+sub cmd_vlan_getname {
    my $switch_name = shift || q{};
    my $vlan_id     = shift || q{};
 
    if ($switch_name eq q{} or $vlan_id eq q{}) {
-      die "Usage: klask get-vlan-name SWITCH_NAME VLAN_ID\n";
+      die "Usage: klask vlan-getname SWITCH_NAME VLAN_ID\n";
       }
 
    $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
@@ -1935,11 +1937,11 @@ sub cmd_get_vlan_name {
    }
 
 #---------------------------------------------------------------
-sub cmd_get_vlan_list {
+sub cmd_vlan_list {
    my $switch_name = shift || q{};
 
    if ($switch_name eq q{}) {
-      die "Usage: klask get-vlan-list SWITCH_NAME\n";
+      die "Usage: klask vlan-list SWITCH_NAME\n";
       }
 
    $switch_name = join(',', map {$_->{hostname}} @SWITCH_LIST ) if $switch_name eq q{*};
@@ -2748,8 +2750,8 @@ klask - port and search manager for switches, map management
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
 
- klask get-vlan-name switch vlan-id
- klask get-vlan-list switch
+ klask vlan-getname switch vlan-id
+ klask vlan-list switch
 
 
 =head1 DESCRIPTION
