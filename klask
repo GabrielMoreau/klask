@@ -799,20 +799,25 @@ sub snmp_get_rwsession {
 
 #---------------------------------------------------------------
 sub snmp_get_switchport_hr {
-   my ($snmp_session, $swport) = @_;
+   my ($snmp_session, $swport_num, $flag) = @_;
 
-   my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport;
-   my $result_index = $snmp_session->get_request(
-      -varbindlist => [$research_index]
-      );
-   my $swifindex = $swport;
-   $swifindex = $result_index->{$research_index} if defined $result_index;
+   # On H3C, port number and port index are not the same
+   # Double SNMP request to get the name
+   my $swport_index = $swport_num;
 
-   my $research_hr = $OID_NUMBER{ifName} .'.'. $swifindex;
+   if ($flag ne 'index') {
+      my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport_num;
+      my $result_index = $snmp_session->get_request(
+         -varbindlist => [$research_index]
+         );
+      $swport_index = $result_index->{$research_index} if defined $result_index;
+      }
+
+   my $research_hr = $OID_NUMBER{ifName} .'.'. $swport_index;
    my $result_hr = $snmp_session->get_request(
       -varbindlist => [$research_hr]
       );
-   my $swport_hr = $swport;
+   my $swport_hr = $swport_index;
    $swport_hr = normalize_port_human_readable($result_hr->{$research_hr}) if defined $result_hr;
 
    # Aggregator port
@@ -826,17 +831,17 @@ sub snmp_get_switchport_hr {
 
          # IEEE8023-LAG-MIB::dot3adAggPortSelectedAggID.28 = INTEGER: 337
          # IEEE8023-LAG-MIB::dot3adAggPortAttachedAggID.28 = INTEGER: 337
-         my $port_aggregator = $snmp_session->var_bind_list->{$oid_current};
-         my ($port_index) = reverse split /\./, $oid_current; # last number
+         my $port_aggregator_index = $snmp_session->var_bind_list->{$oid_current};
+         my ($current_port_index) = reverse split /\./, $oid_current; # last number
 
          # prepare next loop item
          @args = (-varbindlist => [$oid_current]);
 
-         next LOOP_ON_OID_PORT if $port_aggregator == 0;
-         next LOOP_ON_OID_PORT if not $port_aggregator == $swport;
+         next LOOP_ON_OID_PORT if $port_aggregator_index == 0;
+         next LOOP_ON_OID_PORT if not $port_aggregator_index == $swport_index;
 
-         my $port_name = snmp_get_switchport_hr($snmp_session, $port_index);
-         $swport_hr .= ":$port_name";
+         my $current_port_name = snmp_get_switchport_hr($snmp_session, $current_port_index, 'index');
+         $swport_hr .= ":$current_port_name";
          }
       }
    return $swport_hr;
