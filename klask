@@ -506,7 +506,7 @@ sub find_switch_port {
          }
 
       my $swport_num = $result->{$research1};
-      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
+      my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
 
       $session->close;
 
@@ -519,7 +519,7 @@ sub find_switch_port {
       SWITCH_PORT_IGNORE:
       for my $portignore (@{$sw->{portignore}}) {
          next LOOP_ON_SWITCH if $swport_hr eq $portignore;
-         my ($swport_hr_limited) = split /:/, $swport_hr; # Beginning of the swith port (Aggregator)
+         my ($swport_hr_limited) = split /|/, $swport_hr; # Beginning of the swith port (Aggregator)
          next LOOP_ON_SWITCH if $swport_hr_limited eq $portignore;
          }
 
@@ -562,7 +562,7 @@ sub find_all_switch_port {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
+         my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
 
          SWITCH_PORT_IGNORE:
          for my $portignore (@{$sw->{portignore}}) {
@@ -668,108 +668,6 @@ sub get_list_main_router {
    }
 
 #---------------------------------------------------------------
-sub get_human_readable_port {
-   my $sw_model = shift;
-   my $sw_port  = shift;
-
-   # Not need anymore
-   # get port name by snmp
-   return $sw_port;
-   }
-
-#   if ($sw_model eq 'HP8000M') {
-#
-#      my $reste = (($sw_port - 1) % 8) + 1;
-#      my $major = int (($sw_port - 1) / 8);
-#      return "$INTERNAL_PORT_MAP{$major}$reste";
-#      }
-#
-#   if ($sw_model eq 'HP2424M') {
-#      if ($sw_port > 24) {
-#
-#         my $reste = $sw_port - 24;
-#         return "A$reste";
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP1600M') {
-#      if ($sw_port > 16) {
-#
-#         my $reste = $sw_port - 16;
-#         return "A$reste";
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
-#      if ($sw_port > 48) {
-#
-#         my $reste = $sw_port - 48;
-#         return "Trk$reste";
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP3500-24G') {
-#      if ($sw_port > 289) {
-#
-#         my $reste = $sw_port - 289;
-#         return "Trk$reste";
-#         }
-#      }
-#
-#   return $sw_port;
-
-#sub get_numerical_port {
-#   my $sw_model = shift;
-#   my $sw_port  = shift;
-#
-#   if ($sw_model eq 'HP8000M') {
-#
-#      my $letter = substr $sw_port, 0, 1;
-#      my $reste =  substr $sw_port, 1;
-#
-#      return $INTERNAL_PORT_MAP_REV{$letter} * 8 + $reste;
-#      }
-#
-#   if ($sw_model eq 'HP2424M') {
-#      if ($sw_port =~ m/^A/xms ) {
-#
-#         my $reste =  substr $sw_port, 1;
-#
-#         return 24 + $reste;
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP1600M') {
-#      if ($sw_port =~ m/^A/xms ) {
-#
-#         my $reste =  substr $sw_port, 1;
-#
-#         return 16 + $reste;
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP2810-48G' or $sw_model eq 'HP2810-24G') {
-#      if ($sw_port =~ m/^Trk/xms ) {
-#
-#         my $reste =  substr $sw_port, 3;
-#
-#         return 48 + $reste;
-#         }
-#      }
-#
-#   if ($sw_model eq 'HP3500-24G') {
-#      if ($sw_port =~ m/^Trk/xms ) {
-#
-#         my $reste =  substr $sw_port, 3;
-#
-#         return 289 + $reste;
-#         }
-#      }
-#
-#   return $sw_port;
-#   }
-
-#---------------------------------------------------------------
 sub normalize_port_human_readable {
    my $sw_port_hr  = shift;
 
@@ -847,7 +745,7 @@ sub snmp_get_switchport_index2hr {
          next LOOP_ON_OID_PORT if not $port_aggregator_index == $swport_index;
 
          my $current_port_name = snmp_get_switchport_index2hr($snmp_session, $current_port_index);
-         $swport_hr .= ":$current_port_name";
+         $swport_hr .= "|$current_port_name"; # Join with | (: is already use)
          }
       }
    return $swport_hr;
@@ -859,7 +757,8 @@ sub snmp_get_switchport_hr2num {
    my ($snmp_session, $swport_hr, $verbose) = @_;
 
    # Split for Aggregator port
-   ($swport_hr) = split /:/, $swport_hr;
+   # Keep only the Aggregator part
+   ($swport_hr) = split /|/, $swport_hr;
 
    my $swport_num = $swport_hr;
    return $swport_num if $swport_num =~ m/^\d+$/; # direct return if already numeric (next loop is expensive)
@@ -1136,7 +1035,7 @@ sub cmd_updatedb {
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_chained_port = ();
    for my $swport (keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
    for my $sw (@SWITCH_LIST) {
@@ -1650,7 +1549,7 @@ END_HTML
       }
 
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
 
          my $switch_hostname_sort = sprintf '%s %3s' ,$sw_connect, $port_connect;
@@ -2484,7 +2383,7 @@ sub cmd_search_mac_on_switch {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
+         my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
          print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
       else {
@@ -2641,7 +2540,7 @@ sub cmd_updatesw {
 
          $maybe_more_than_one_switch_connected = 'yes';
 
-         my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+         my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
          my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
          print "VERBOSE_10: $swport -- ".$#sw_on_same_port." -- @sw_on_same_port\n" if $verbose;
 
@@ -2693,7 +2592,7 @@ sub cmd_updatesw {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
@@ -2765,7 +2664,7 @@ sub cmd_exportsw_txt {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          my $arrow ='<--';
             $arrow ='<==' if $port_connect =~ m/^(Trk|Br|Po)/;
@@ -2841,7 +2740,7 @@ sub cmd_exportsw_dot {
 
 
             for my $swport (keys %db_switch_connected_on_port) {
-               my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+               my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                print "\"$sw:$port_connect\" [label = \"$port_connect\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
@@ -2866,7 +2765,7 @@ sub cmd_exportsw_dot {
 #   print "Switch parent and children port inter-connection\n";
 #   print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport;
+      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "   \"%s:%s\" -> \"%s:%s\" [color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
