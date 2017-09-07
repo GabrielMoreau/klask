@@ -803,9 +803,10 @@ sub snmp_get_switchport_hr {
 
    # On H3C, port number and port index are not the same
    # Double SNMP request to get the name
+   $flag ||= 'distinct';
    my $swport_index = $swport_num;
 
-   if ($flag ne 'index') {
+   if ($flag eq 'distinct') {
       my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport_num;
       my $result_index = $snmp_session->get_request(
          -varbindlist => [$research_index]
