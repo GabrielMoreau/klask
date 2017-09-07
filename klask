@@ -506,7 +506,7 @@ sub find_switch_port {
          }
 
       my $swport_num = $result->{$research1};
-      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
+      my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
 
       $session->close;
 
@@ -562,7 +562,7 @@ sub find_all_switch_port {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
 
          SWITCH_PORT_IGNORE:
          for my $portignore (@{$sw->{portignore}}) {
@@ -798,21 +798,26 @@ sub snmp_get_rwsession {
    }
 
 #---------------------------------------------------------------
-sub snmp_get_switchport_hr {
-   my ($snmp_session, $swport_num, $flag) = @_;
+sub snmp_get_switchport_num2hr {
+   my ($snmp_session, $swport_num) = @_;
 
    # On H3C, port number and port index are not the same
    # Double SNMP request to get the name
-   $flag ||= 'distinct';
-   my $swport_index = $swport_num;
 
-   if ($flag eq 'distinct') {
-      my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport_num;
-      my $result_index = $snmp_session->get_request(
-         -varbindlist => [$research_index]
-         );
-      $swport_index = $result_index->{$research_index} if defined $result_index;
-      }
+   my $research_index = $OID_NUMBER{ifIndex} .'.'. $swport_num;
+   my $result_index = $snmp_session->get_request(
+      -varbindlist => [$research_index]
+      );
+
+   my $swport_index = $swport_num;
+   $swport_index = $result_index->{$research_index} if defined $result_index;
+
+   return snmp_get_switchport_index2hr($snmp_session, $swport_index);
+   }
+
+#---------------------------------------------------------------
+sub snmp_get_switchport_index2hr {
+   my ($snmp_session, $swport_index) = @_;
 
    my $research_hr = $OID_NUMBER{ifName} .'.'. $swport_index;
    my $result_hr = $snmp_session->get_request(
@@ -841,7 +846,7 @@ sub snmp_get_switchport_hr {
          next LOOP_ON_OID_PORT if $port_aggregator_index == 0;
          next LOOP_ON_OID_PORT if not $port_aggregator_index == $swport_index;
 
-         my $current_port_name = snmp_get_switchport_hr($snmp_session, $current_port_index, 'index');
+         my $current_port_name = snmp_get_switchport_index2hr($snmp_session, $current_port_index);
          $swport_hr .= ":$current_port_name";
          }
       }
@@ -850,7 +855,7 @@ sub snmp_get_switchport_hr {
 
 #---------------------------------------------------------------
 # Reverse search port number
-sub snmp_get_switchport_num {
+sub snmp_get_switchport_hr2num {
    my ($snmp_session, $swport_hr, $verbose) = @_;
 
    # Split for Aggregator port
@@ -2323,7 +2328,7 @@ sub cmd_enable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
    die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
@@ -2368,7 +2373,7 @@ sub cmd_disable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
    die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
@@ -2411,7 +2416,7 @@ sub cmd_status {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
    die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
@@ -2479,7 +2484,7 @@ sub cmd_search_mac_on_switch {
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
          my $swport_num = $result->{$research1};
-         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_hr($session, $swport_num));
+         my $swport_hr = get_human_readable_port($sw->{model}, snmp_get_switchport_num2hr($session, $swport_num));
          print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
       else {
