@@ -519,6 +519,8 @@ sub find_switch_port {
       SWITCH_PORT_IGNORE:
       for my $portignore (@{$sw->{portignore}}) {
          next LOOP_ON_SWITCH if $swport_hr eq $portignore;
+         my ($swport_hr_limited) = split /:/, $swport_hr; # Beginning of the swith port (Aggregator)
+         next LOOP_ON_SWITCH if $swport_hr_limited eq $portignore;
          }
 
       $ret{switch_hostname}    = $sw->{hostname};
