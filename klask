@@ -1501,7 +1501,7 @@ END_HTML
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
-   <td class="bklask-port">format_aggregator4html($computerdb->{$ip}{switch_port_hr})</td>
+   <td class="bklask-port">&format_aggregator4html($computerdb->{$ip}{switch_port_hr})</td>
    <td colspan="2">$arrow</td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
@@ -1547,8 +1547,8 @@ END_HTML
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">format_aggregator4html($db_switch_output_port{$sw})</td>
-   <td>$arrow</td><td>format_aggregator4html($db_switch_parent{$sw}->{port_hr})</td>
+   <td class="bklask-port">&format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td>$arrow</td><td>&format_aggregator4html($db_switch_parent{$sw}->{port_hr})</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1561,7 +1561,7 @@ END_HTML
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td class="bklask-port">&format_aggregator4html($db_switch_output_port{$sw})</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="router">router</td>
    <td sorttable_customkey="999999999999"></td>
@@ -1604,8 +1604,8 @@ END_HTML
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">format_aggregator4html($port_connect)</td>
-   <td>$arrow</td><td>format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td class="bklask-port">&format_aggregator4html($port_connect)</td>
+   <td>$arrow</td><td>&format_aggregator4html($db_switch_output_port{$sw})</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1618,7 +1618,7 @@ END_HTML
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">format_aggregator4html($port_connect)</td>
+   <td class="bklask-port">&format_aggregator4html($port_connect)</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="$sw">$sw</td>
    <td sorttable_customkey="">$ipv4_address</td>
