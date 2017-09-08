@@ -466,6 +466,22 @@ sub mac_address_hex2dec {
    }
 
 #---------------------------------------------------------------
+sub format_aggregator4html {
+   my $port_hr = shift;
+   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/: /; # First occurence
+   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
+   return $port_hr;
+   }
+
+#---------------------------------------------------------------
+sub format_aggregator4dot {
+   my $port_hr = shift;
+   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ - /; # First occurence
+   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
+   return $port_hr;
+   }
+
+#---------------------------------------------------------------
 # return the port and the switch where the computer is connected
 sub find_switch_port {
    my $mac_address     = shift;
@@ -1482,13 +1498,10 @@ END_HTML
       my $vlan = '';
       $vlan = $computerdb->{$ip}{network}.' ('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
 
-      my $switch_port_hr = $computerdb->{$ip}{switch_port_hr} =~ s/($SEP_AGGREGATOR_PORT)/: /r; # First occurence
-      $switch_port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
-
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
-   <td class="bklask-port">$switch_port_hr</td>
+   <td class="bklask-port">format_aggregator4html($computerdb->{$ip}{switch_port_hr})</td>
    <td colspan="2">$arrow</td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
@@ -1531,17 +1544,11 @@ END_HTML
 
          my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{port_hr};
 
-         my $switch_port_hr = $db_switch_output_port{$sw} =~ s/($SEP_AGGREGATOR_PORT)/: /r; # First occurence
-         $switch_port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
-
-         my $switch_connected_port_hr = $db_switch_parent{$sw}->{port_hr} =~ s/($SEP_AGGREGATOR_PORT)/: /r; # First occurence
-         $switch_connected_port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
-
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">$switch_port_hr</td>
-   <td>$arrow</td><td>$switch_connected_port_hr</td>
+   <td class="bklask-port">format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td>$arrow</td><td>format_aggregator4html($db_switch_parent{$sw}->{port_hr})</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1551,13 +1558,10 @@ END_HTML
 END_HTML
          }
       else {
-         my $switch_port_hr = $db_switch_output_port{$sw} =~ s/($SEP_AGGREGATOR_PORT)/: /r; # First occurence
-         $switch_port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
-
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">$switch_port_hr</td>
+   <td class="bklask-port">format_aggregator4html($db_switch_output_port{$sw})</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="router">router</td>
    <td sorttable_customkey="999999999999"></td>
@@ -1600,8 +1604,8 @@ END_HTML
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">$port_connect</td>
-   <td>$arrow</td><td>$db_switch_output_port{$sw}</td>
+   <td class="bklask-port">format_aggregator4html($port_connect)</td>
+   <td>$arrow</td><td>format_aggregator4html($db_switch_output_port{$sw})</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1614,7 +1618,7 @@ END_HTML
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">$port_connect</td>
+   <td class="bklask-port">format_aggregator4html($port_connect)</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="$sw">$sw</td>
    <td sorttable_customkey="">$ipv4_address</td>
@@ -2751,7 +2755,7 @@ sub cmd_exportsw_dot {
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
-            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"$db_switch_output_port{$sw}\", color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
+            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"".format_aggregator4dot($db_switch_output_port{$sw})"\", color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
 
             my $swname  = $sw;
                $swname .= q{\n-\n} . "$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
@@ -2764,7 +2768,7 @@ sub cmd_exportsw_dot {
                my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
-               print "\"$sw:$port_connect\" [label = \"$port_connect\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
+               print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, arrowhead= normal, arrowtail = inv]\n";
               }
             }
