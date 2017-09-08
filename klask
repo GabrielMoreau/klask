@@ -873,6 +873,10 @@ klask - port and search manager for switches, map management
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
 
+ klask poe-enable  [--verbose|-v] switch port
+ klask poe-disable [--verbose|-v] switch port
+ klask poe-status  [--verbose|-v] switch port
+
  klask vlan-getname switch vlan-id
  klask vlan-list switch
 END
@@ -1824,12 +1828,12 @@ sub cmd_poe_status {
 
       if (defined $result and $result->{$search} ne 'noSuchInstance') {
          my $poe = $result->{$search} || 'empty';
-         $poe =~ s/8/on/;
-         $poe =~ s/2/off/;
-         printf "%s  %s ~~ %s\n", $sw_name, $switch_port, $poe;
+         $poe =~ s/8/enable/;
+         $poe =~ s/2/disable/;
+         printf "%s  %s poe %s\n", $sw_name, $switch_port, $poe;
          }
       else {
-         print "Klask do not find POE Status on switch $sw_name on port $switch_port\n";
+         print "Klask do not find PoE Status on switch $sw_name on port $switch_port\n";
          }
 
       $session->close;
@@ -2821,6 +2825,10 @@ klask - port and search manager for switches, map management
  klask disable [--verbose|-v] switch port
  klask status  [--verbose|-v] switch port
 
+ klask poe-enable  [--verbose|-v] switch port
+ klask poe-disable [--verbose|-v] switch port
+ klask poe-status  [--verbose|-v] switch port
+
  klask vlan-getname switch vlan-id
  klask vlan-list switch
 
@@ -3013,6 +3021,45 @@ This parameter could also define in the configuration file F</etc/klask/klask.co
 
 This functionality is not need if your switch use RADIUS 802.1X configuration...
 
+
+=head2 poe-enable
+
+ klask poe-enable  [--verbose|-v] switch port
+
+This command activate the PoE (Power over Ethernet) on a switch port by SNMP.
+So you need to give the switch name and a port on the command line.
+See L</ABBREVIATION FOR PORT>.
+
+Warning: Only NEXANS switches are supported (we do not have other switch for testing).
+You need to have the SNMP write access on the switch in order to modify it's configuration.
+
+
+=head2 poe-disable
+
+ klask poe-disable [--verbose|-v] switch port
+
+This command deactivate the PoE (Power over Ethernet) on a switch port by SNMP.
+So you need to give the switch name and a port on the command line.
+See L</ABBREVIATION FOR PORT>.
+
+Warning: Only NEXANS switches are supported (we do not have other switch for testing).
+You need to have the SNMP write access on the switch in order to modify it's configuration.
+
+
+=head2 poe-status
+
+ klask poe-status  [--verbose|-v] switch port
+
+This command return the status of the PoE (Power over Ethernet) on a switch port by SNMP.
+The return value could be C<enable> or C<disable> word.
+So you need to give the switch name and a port on the command line.
+See L</ABBREVIATION FOR PORT>.
+
+If it's not possible to change the PoE status with command L</poe-enable> and L</poe-disable>
+(SNMP community read write access),
+it's always possible to have the PoE port status.
+
+Warning: Only NEXANS switches are supported (we do not have other switch for testing).
 
 
 =head1 CONFIGURATION
