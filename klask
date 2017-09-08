@@ -1498,10 +1498,12 @@ END_HTML
       my $vlan = '';
       $vlan = $computerdb->{$ip}{network}.' ('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
 
+      my $parent_port_hr = format_aggregator4html($computerdb->{$ip}{switch_port_hr});
+
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
-   <td class="bklask-port">&format_aggregator4html($computerdb->{$ip}{switch_port_hr})</td>
+   <td class="bklask-port">$parent_port_hr</td>
    <td colspan="2">$arrow</td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{hostname_fq}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
@@ -1544,11 +1546,14 @@ END_HTML
 
          my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{port_hr};
 
+         my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
+         my $child_port_hr  = format_aggregator4html($db_switch_parent{$sw}->{port_hr});
+
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">&format_aggregator4html($db_switch_output_port{$sw})</td>
-   <td>$arrow</td><td>&format_aggregator4html($db_switch_parent{$sw}->{port_hr})</td>
+   <td class="bklask-port">$parent_port_hr</td>
+   <td>$arrow</td><td>$child_port_hr</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1558,10 +1563,12 @@ END_HTML
 END_HTML
          }
       else {
+         my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
+
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">&format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td class="bklask-port">$parent_port_hr</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="router">router</td>
    <td sorttable_customkey="999999999999"></td>
@@ -1601,11 +1608,14 @@ END_HTML
 
             my ( $host_short ) = sprintf '%s %3s' , split( m/\./xms, $sw, 1), $db_switch_output_port{$sw};
 
+            my $parent_port_hr = format_aggregator4html($port_connect);
+            my $child_port_hr  = format_aggregator4html($db_switch_output_port{$sw});
+
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">&format_aggregator4html($port_connect)</td>
-   <td>$arrow</td><td>&format_aggregator4html($db_switch_output_port{$sw})</td>
+   <td class="bklask-port">$parent_port_hr</td>
+   <td>$arrow</td><td>$child_port_hr</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1615,10 +1625,12 @@ END_HTML
 END_HTML
             }
          else {
+            my $parent_port_hr = format_aggregator4html($port_connect);
+
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
-   <td class="bklask-port">&format_aggregator4html($port_connect)</td>
+   <td class="bklask-port">$parent_port_hr</td>
    <td>$arrow</td><td></td>
    <td sorttable_customkey="$sw">$sw</td>
    <td sorttable_customkey="">$ipv4_address</td>
