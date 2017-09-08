@@ -191,7 +191,8 @@ Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0
 
 Readonly my $RE_FLOAT_HOSTNAME => $DEFAULT{'float-regex'} || qr{ ^float }xms;
 
-Readonly my $SEP_AGGREGATOR_PORT => '|';  # : is already use to join switch and port
+Readonly my $SEP_AGGREGATOR_PORT => ',';  # : is already use to join switch and port
+Readonly my $SEP_SWITCH_PORT     => ':';
 
 
 ################################################################
@@ -1043,7 +1044,7 @@ sub cmd_updatedb {
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_chained_port = ();
    for my $swport (keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
    for my $sw (@SWITCH_LIST) {
@@ -1557,7 +1558,7 @@ END_HTML
       }
 
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
 
          my $switch_hostname_sort = sprintf '%s %3s' ,$sw_connect, $port_connect;
@@ -2534,8 +2535,8 @@ sub cmd_updatesw {
 
             my $port_hr = $db_switch_link_with{$sw}->{$connect};
 
-            $db_switch_connected_on_port{"$connect:$port_hr"} ||= {};
-            $db_switch_connected_on_port{"$connect:$port_hr"}->{$sw}++; # Just to define the key
+            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
+            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw}++; # Just to define the key
             }
          }
 
@@ -2548,7 +2549,7 @@ sub cmd_updatesw {
 
          $maybe_more_than_one_switch_connected = 'yes';
 
-         my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+         my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
          my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
          print "VERBOSE_10: $swport -- ".$#sw_on_same_port." -- @sw_on_same_port\n" if $verbose;
 
@@ -2578,8 +2579,8 @@ sub cmd_updatesw {
 
          my $port_hr = $db_switch_link_with{$sw}->{$connect};
 
-         $db_switch_connected_on_port{"$connect:$port_hr"} ||= {};
-         $db_switch_connected_on_port{"$connect:$port_hr"}->{$sw} = $port_hr;
+         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
+         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw} = $port_hr;
 
          $db_switch_parent{$sw} = {switch => $connect, port_hr => $port_hr};
          }
@@ -2600,7 +2601,7 @@ sub cmd_updatesw {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
@@ -2672,7 +2673,7 @@ sub cmd_exportsw_txt {
    print "Switch parent and children port inter-connection\n";
    print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          my $arrow ='<--';
             $arrow ='<==' if $port_connect =~ m/^(Trk|Br|Po)/;
@@ -2748,7 +2749,7 @@ sub cmd_exportsw_dot {
 
 
             for my $swport (keys %db_switch_connected_on_port) {
-               my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+               my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                print "\"$sw:$port_connect\" [label = \"$port_connect\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
@@ -2773,7 +2774,7 @@ sub cmd_exportsw_dot {
 #   print "Switch parent and children port inter-connection\n";
 #   print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect,$port_connect) = split m/ : /xms, $swport, 2;
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          if (exists $db_switch_output_port{$sw}) {
             printf "   \"%s:%s\" -> \"%s:%s\" [color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
