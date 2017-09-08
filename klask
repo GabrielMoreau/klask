@@ -2767,7 +2767,9 @@ sub cmd_exportsw_dot {
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
-            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"".format_aggregator4dot($db_switch_output_port{$sw})."\", color = black, fillcolor = lightblue,  peripheries = 2, style = filled];\n";
+            my $peripheries = 1;
+            $peripheries = 2 if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"".format_aggregator4dot($db_switch_output_port{$sw})."\", color = black, fillcolor = lightblue,  peripheries = $peripheries, style = filled];\n";
 
             my $swname  = $sw;
                $swname .= q{\n-\n} . "$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
@@ -2780,7 +2782,9 @@ sub cmd_exportsw_dot {
                my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
-               print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = 1, style = filled];\n";
+               my $peripheries = 1;
+               $peripheries = 2 if $port_connect =~ m/^(Trk|Br|Po)/;
+               print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = $peripheries, style = filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, arrowhead= normal, arrowtail = inv]\n";
               }
             }
@@ -2804,11 +2808,13 @@ sub cmd_exportsw_dot {
    for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+         my $style = 'solid';
+         $style = 'bold' if $port_connect =~ m/^(Trk|Br|Po)/;
          if (exists $db_switch_output_port{$sw}) {
-            printf "   \"%s:%s\" -> \"%s:%s\" [color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
+            printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
             }
          else {
-            printf "   \"%s\"   -> \"%s%s\"\n", $sw, $sw_connect, $port_connect;
+            printf "   \"%s\"   -> \"%s:%s\" [style=$style]\n", $sw, $sw_connect, $port_connect;
             }
          }
       }
