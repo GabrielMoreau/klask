@@ -2493,12 +2493,16 @@ sub cmd_updatesw {
    for my $one_switch (@list_all_switch) {
       my %resol_arp = resolve_ip_arp_host($one_switch, q{*}, q{low}); # arp resolution
       if (exists $SWITCH_DB{$one_switch}{'fake-ip'}) {
-         print "WARNING: fake ip on switch $one_switch -> $SWITCH_DB{$one_switch}{'fake-ip'} / $resol_arp{ipv4_address}\n" if $verbose;
-         my %resol_arp_alt = resolve_ip_arp_host($SWITCH_DB{$one_switch}{'fake-ip'}, q{*}, q{low}); # arp resolution
+         my $fake_ip = $SWITCH_DB{$one_switch}{'fake-ip'};
+         fast_ping($fake_ip);
+         print "WARNING: fake ip on switch $one_switch -> $fake_ip / $resol_arp{ipv4_address}\n" if $verbose;
+         my %resol_arp_alt = resolve_ip_arp_host($fake_ip, q{*}, q{low}); # arp resolution
          if ($resol_arp_alt{mac_address} ne 'unknow') {
             $resol_arp{mac_address}   = $resol_arp_alt{mac_address};
             $resol_arp{interface}     = $resol_arp_alt{interface};
             $resol_arp{ipv4_address} .= '*';
+            # Force a MAC trace on switch
+            system "arping -c 1 -w 1 -rR -i $resol_arp_alt{interface} $fake_ip &>/dev/null";
             }
          }
       print "Info: switch loop $one_switch\n" if $verbose;
