@@ -2798,7 +2798,9 @@ sub cmd_exportsw_dot {
 #         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{port};
          }
       else {
-         printf "   \"%s:%s\" -> internet\n", $sw, $db_switch_output_port{$sw};
+         my $style = 'solid';
+         $style = 'bold' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+         printf "   \"%s:%s\" -> internet [style=$style]\n", $sw, $db_switch_output_port{$sw};
          }
       }
    print "\n";
