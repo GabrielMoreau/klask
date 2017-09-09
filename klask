@@ -238,7 +238,7 @@ sub test_maindb_environnement {
 # fast ping dont l'objectif est de remplir la table arp de la machine
 sub fast_ping {
    # Launch this command without waiting...
-   system "fping -q -c 1 @_ >/dev/null 2>&1 &";
+   system "fping -q -c 1 @_ > /dev/null 2>&1 &";
    return;
    }
 
@@ -1205,8 +1205,7 @@ sub cmd_updatedb {
    for my $one_computer (keys %computer_not_detected) {
       my $current_net = $computer_not_detected{$one_computer};
       my $current_interface = get_current_interface($current_net);
-      system "arping -c 1 -w 1 -rR -i $current_interface $one_computer &>/dev/null" if get_current_scan_mode($current_net) eq 'active';
-#      print  "arping -c 1 -w 1 -rR -i $current_interface $one_computer 2>/dev/null\n";
+      system "arping -c 1 -w 1 -rR -i $current_interface $one_computer > /dev/null 2>&1" if get_current_scan_mode($current_net) eq 'active';
       }
    return;
    }
@@ -2502,7 +2501,7 @@ sub cmd_updatesw {
             $resol_arp{interface}     = $resol_arp_alt{interface};
             $resol_arp{ipv4_address} .= '*';
             # Force a MAC trace on switch
-            system "arping -c 1 -w 1 -rR -i $resol_arp_alt{interface} $fake_ip &>/dev/null";
+            system "arping -c 1 -w 1 -rR -i $resol_arp_alt{interface} $fake_ip > /dev/null 2>&1";
             }
          }
       print "Info: switch loop $one_switch\n" if $verbose;
