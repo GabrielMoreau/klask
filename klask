@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2017 Gabriel Moreau
+# Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 #
 # $Id$
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.4');
+use version; our $VERSION = qv('0.6.5');
 
 use Readonly;
 use FileHandle;
@@ -905,7 +905,7 @@ sub cmd_version {
 
 print <<'END';
 klask - port and search manager for switches, map management
-Copyright (C) 2005-2017 Gabriel Moreau
+Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 
 END
    print ' $Id$'."\n";
@@ -3209,6 +3209,36 @@ In the case of use an aggregator port (Po, Tk, Br ...),
 the real ports used are also return.
 
 
+=head1 SWITCH SUPPORTED
+
+Here is a list of switches where Klask gives or gave (for old switches) good results.
+We have only a few manageable switches to actually test Klask.
+It is quite possible that switches from other brands will work just as well.
+You just have to do a test on it and add the line of description that goes well in the source code.
+Contact us for any additional information.
+
+In the following list, the names of the switch types written in parentheses are the code names returned by Klask.
+This makes it possible to adjust the code names of the different manufacturers!
+
+HP: J3299A(HP224M), J4120A(HP1600M), J9029A(HP1800-8G), J9449A(HP1810-8G), J4093A(HP2424M), J9279A(HP2510G-24),
+J9280A(HP2510G-48), J4813A(HP2524), J4900A(HP2626A), J4900B(HP2626B), J4899B(HP2650), J9021A(HP2810-24G), J9022A(HP2810-48G),
+J8692A(HP3500-24G), J4903A(HP2824), J4110A(HP8000M), JE074A(HP5120-24G), JE069A(HP5120-48G), JD377A(HP5500-24G), JD374A(HP5500-24F).
+
+BayStack: BayStack 350T HW(BS350T)
+
+Nexans: GigaSwitch V3 TP SFP-I 48V ES3(NA3483-6G), GigaSwitch V3 TP.PSE.+ 48/54V ES3(NA3483-6P)
+
+DELL: PC7024(DPC7024), N2048(DN2048), N4032F(DN4032F), N4064F(DN4064F)
+
+H3C and 3COM switches have never not been tested but the new HP Comware switches are exactly the same...
+
+H3C: H3C5500
+
+3COM: 3C17203, 3C17204, 3CR17562-91, 3CR17255-91, 3CR17251-91, 3CR17571-91, 3CRWX220095A, 3CR17254-91, 3CRS48G-24S-91,
+3CRS48G-48S-91, 3C17708, 3C17709, 3C17707, 3CR17258-91, 3CR17181-91, 3CR17252-91, 3CR17253-91, 3CR17250-91, 3CR17561-91,
+3CR17572-91, 3C17702-US, 3C17700.
+
+
 =head1 FILES
 
  /etc/klask/klask.conf
@@ -3243,4 +3273,4 @@ Written by Gabriel Moreau, Grenoble - France
 
 GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2017 Gabriel Moreau.
+Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
