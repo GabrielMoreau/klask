@@ -1545,6 +1545,9 @@ END_HTML
 
          my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{'port_hr'};
 
+         my $vlan = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'};
+         $vlan .= ' ('.get_current_vlan_id($db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'}).')' if $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'};
+
          my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
          my $child_port_hr  = format_aggregator4html($db_switch_parent{$sw}->{'port_hr'});
 
@@ -1556,7 +1559,7 @@ END_HTML
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
-   <td></td>
+   <td>$vlan</td>
    <td>$date</td>
   </tr>
 END_HTML
@@ -1603,6 +1606,9 @@ END_HTML
          my $arrow ='&#8701;';
             $arrow ='&#8678;' if $port_connect =~ m/^(Trk|Br|Po)/;
 
+         my $vlan = $db_switch{$sw}->{'network'};
+         $vlan .= ' ('.get_current_vlan_id($db_switch{$sw}->{'network'}).')' if $db_switch{$sw}->{'network'};
+
          if (exists $db_switch_output_port{$sw}) {
 
             my ( $host_short ) = sprintf '%s %3s' , split( m/\./xms, $sw, 1), $db_switch_output_port{$sw};
@@ -1618,7 +1624,7 @@ END_HTML
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
-   <td></td>
+   <td>$vlan</td>
    <td>$date</td>
   </tr>
 END_HTML
@@ -1634,7 +1640,7 @@ END_HTML
    <td sorttable_customkey="$sw">$sw</td>
    <td sorttable_customkey="">$ipv4_address</td>
    <td sorttable_customkey="">$mac_address</td>
-   <td></td>
+   <td>$vlan</td>
    <td>$date</td>
   </tr>
 END_HTML
