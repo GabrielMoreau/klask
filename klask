@@ -390,7 +390,7 @@ sub init_switch_names {
          next INIT_EACH_SWITCH;
          }
 
-      $sw->{description} = $result->{$OID_NUMBER{'sysName'}} || $sw->{'hostname'};
+      $sw->{'description'} = $result->{$OID_NUMBER{'sysName'}} || $sw->{'hostname'};
       $sw->{model} = get_switch_model($result->{$OID_NUMBER{'sysDescription'}});
       if ($verb_description) {
          my $desc = $result->{$OID_NUMBER{'sysDescription'}};
@@ -411,8 +411,8 @@ sub init_switch_names {
       $session->close;
 
       # Ligne à virer car on récupère maintenant le modèle du switch
-      #my ($desc, $type) = split m/ : /xms, $sw->{description}, 2;
-      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{'hostname'}, $sw->{description}, $sw->{model} if $verbose;
+      #my ($desc, $type) = split m/ : /xms, $sw->{'description'}, 2;
+      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{'hostname'}, $sw->{'description'}, $sw->{model} if $verbose;
       }
 
    print "\n" if $verbose;
@@ -545,7 +545,7 @@ sub find_switch_port {
          }
 
       $ret{'switch_hostname'}    = $sw->{'hostname'};
-      $ret{'switch_description'} = $sw->{description};
+      $ret{'switch_description'} = $sw->{'description'};
       $ret{'switch_port'}        = $swport_num;
       $ret{'switch_port_hr'}     = $swport_hr; # human readable
 
@@ -595,8 +595,8 @@ sub find_all_switch_port {
 
          $ret->{$sw->{'hostname'}} = {};
          $ret->{$sw->{'hostname'}}{'hostname'}    = $sw->{'hostname'};
-         $ret->{$sw->{'hostname'}}{description} = $sw->{description};
-         $ret->{$sw->{'hostname'}}{port}        = $swport_num;
+         $ret->{$sw->{'hostname'}}{'description'} = $sw->{'description'};
+         $ret->{$sw->{'hostname'}}{'port'}        = $swport_num;
          $ret->{$sw->{'hostname'}}{'port_hr'}     = $swport_hr;
          }
 
@@ -608,37 +608,37 @@ sub find_all_switch_port {
 #---------------------------------------------------------------
 sub get_list_network {
 
-   return keys %{$KLASK_CFG->{network}};
+   return keys %{$KLASK_CFG->{'network'}};
    }
 
 #---------------------------------------------------------------
 sub get_current_interface {
    my $vlan_name = shift;
 
-   return $KLASK_CFG->{network}{$vlan_name}{'interface'};
+   return $KLASK_CFG->{'network'}{$vlan_name}{'interface'};
    }
 
 #---------------------------------------------------------------
 sub get_current_vlan_id {
    my $vlan_name = shift;
 
-   return 0 if not exists $KLASK_CFG->{network}{$vlan_name};
-   return $KLASK_CFG->{network}{$vlan_name}{'vlan-id'};
+   return 0 if not exists $KLASK_CFG->{'network'}{$vlan_name};
+   return $KLASK_CFG->{'network'}{$vlan_name}{'vlan-id'};
    }
 
 #---------------------------------------------------------------
 sub get_current_scan_mode {
    my $vlan_name = shift;
 
-   return $KLASK_CFG->{network}{$vlan_name}{'scan-mode'} || $DEFAULT{'scan-mode'} || 'active';
+   return $KLASK_CFG->{'network'}{$vlan_name}{'scan-mode'} || $DEFAULT{'scan-mode'} || 'active';
    }
 
 #---------------------------------------------------------------
 sub get_current_vlan_name_for_interface {
    my $interface = shift;
 
-   for my $vlan_name (keys %{$KLASK_CFG->{network}}) {
-      next if $KLASK_CFG->{network}{$vlan_name}{'interface'} ne $interface;
+   for my $vlan_name (keys %{$KLASK_CFG->{'network'}}) {
+      next if $KLASK_CFG->{'network'}{$vlan_name}{'interface'} ne $interface;
       return $vlan_name;
       }
    }
@@ -651,7 +651,7 @@ sub get_list_ip {
    my $cidrlist = Net::CIDR::Lite->new;
 
    for my $net (@vlan_name) {
-      my @line  = @{$KLASK_CFG->{network}{$net}{'ip-subnet'}};
+      my @line  = @{$KLASK_CFG->{'network'}{$net}{'ip-subnet'}};
       for my $cmd (@line) {
          for my $method (keys %{$cmd}) {
             $cidrlist->add_any($cmd->{$method}) if $method eq 'add';
@@ -680,7 +680,7 @@ sub get_list_main_router {
    my @res = ();
 
    for my $net (@vlan_name) {
-      push @res, $KLASK_CFG->{network}{$net}{'main-router'};
+      push @res, $KLASK_CFG->{'network'}{$net}{'main-router'};
       }
 
    return @res;
@@ -1135,7 +1135,7 @@ sub cmd_updatedb {
 
          my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
          my $vlan_id   = get_current_vlan_id($vlan_name);
-         my %where = find_switch_port($resol_arp{'mac_address'}, $switch_proposal,$vlan_id);
+         my %where = find_switch_port($resol_arp{'mac_address'}, $switch_proposal, $vlan_id);
 
          #192.168.24.156:
          #  arp: 00:0B:DB:D5:F6:65
@@ -1396,7 +1396,7 @@ sub cmd_exportdb_txt {
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
       my $vlan = '';
-      $vlan = $computerdb->{$ip}{network}.'('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
+      $vlan = $computerdb->{$ip}{'network'}.'('.get_current_vlan_id($computerdb->{$ip}{'network'}).')' if $computerdb->{$ip}{'network'};
 
       my $arrow ='<-----------';
          $arrow ='<===========' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
@@ -1495,7 +1495,7 @@ END_HTML
       my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{'hostname_fq'};
 
       my $vlan = '';
-      $vlan = $computerdb->{$ip}{network}.' ('.get_current_vlan_id($computerdb->{$ip}{network}).')' if $computerdb->{$ip}{network};
+      $vlan = $computerdb->{$ip}{'network'}.' ('.get_current_vlan_id($computerdb->{$ip}{'network'}).')' if $computerdb->{$ip}{'network'};
 
       my $parent_port_hr = format_aggregator4html($computerdb->{$ip}{'switch_port_hr'});
 
@@ -1683,7 +1683,7 @@ sub cmd_bad_vlan_id {
       $switchportdb{$swpt} ||= {
          ip          => $ip,
          timestamp   => $ip_timestamp,
-         vlan        => $computerdb->{$ip}{network},
+         vlan        => $computerdb->{$ip}{'network'},
          hostname_fq => $ip_hostname_fq,
          mac_address => $ip_mac,
          };
@@ -1698,7 +1698,7 @@ sub cmd_bad_vlan_id {
          $switchportdb{$swpt} = {
             ip          => $ip,
             timestamp   => $ip_timestamp,
-            vlan        => $computerdb->{$ip}{network},
+            vlan        => $computerdb->{$ip}{'network'},
             hostname_fq => $ip_hostname_fq,
             mac_address => $ip_mac,
             };
@@ -1736,10 +1736,10 @@ sub cmd_bad_vlan_id {
       $mon++;
       my $src_date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{network});
+      my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{'network'});
 
       printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
-         $swpt, $switchportdb{$swpt}->{'vlan'}, $computerdb->{$src_ip}{network}, $vlan_id,
+         $swpt, $switchportdb{$swpt}->{'vlan'}, $computerdb->{$src_ip}{'network'}, $vlan_id,
          $date,
          $src_date,
          $computerdb->{$src_ip}{'mac_address'},
@@ -2458,7 +2458,7 @@ sub cmd_updatesw {
 
       my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
       my $vlan_id   = get_current_vlan_id($vlan_name);
-      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'},$vlan_id); # retrouve les emplacements des routeurs
+      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # retrouve les emplacements des routeurs
       }
 
    ALL_ROUTER_IP_ADDRESS:
@@ -2471,7 +2471,7 @@ sub cmd_updatesw {
 
          my $switch = $where{$ip_router}->{$switch_detected};
 
-         next ALL_SWITCH_CONNECTED if $switch->{port} eq '0';
+         next ALL_SWITCH_CONNECTED if $switch->{'port'} eq '0';
 
          $db_switch_output_port{$switch->{'hostname'}} = $switch->{'port_hr'};
          print "VERBOSE_2: output port $switch->{'hostname'} : $switch->{'port_hr'}\n" if $verbose;
@@ -2511,7 +2511,7 @@ sub cmd_updatesw {
 
       my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
       my $vlan_id   = get_current_vlan_id($vlan_name);
-      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'},$vlan_id); # find port on all switch
+      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # find port on all switch
 
       if ($verbose) {
          print "VERBOSE_3: $one_switch $resol_arp{'ipv4_address'} $resol_arp{'mac_address'}\n";
@@ -2526,6 +2526,7 @@ sub cmd_updatesw {
       $SWITCH_DB{$one_switch}->{'ipv4_address'} = $resol_arp{'ipv4_address'};
       $SWITCH_DB{$one_switch}->{'mac_address'}  = $resol_arp{'mac_address'};
       $SWITCH_DB{$one_switch}->{'timestamp'}    = $timestamp;
+      $SWITCH_DB{$one_switch}->{'network'}      = $vlan_name;
       }
 
    ALL_SWITCH_IP_ADDRESS:
@@ -2543,7 +2544,7 @@ sub cmd_updatesw {
          my $switch = $where{$ip}->{$switch_detected};
          print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{'hostname'} : $switch->{'port_hr'}\n" if $verbose;
 
-         next if $switch->{port}     eq '0';
+         next if $switch->{'port'}     eq '0';
          next if $switch->{'port_hr'}  eq $db_switch_output_port{$switch->{'hostname'}};
          next if $switch->{'hostname'} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{'hostname'};
 
@@ -2800,7 +2801,7 @@ sub cmd_exportsw_dot {
 #   print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{port};
+#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{'port'};
          }
       else {
          my $style = 'solid';
