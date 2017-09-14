@@ -2649,6 +2649,7 @@ sub cmd_updatesw {
       connected_on_port => \%db_switch_connected_on_port,
       link_with         => \%db_switch_link_with,
       switch_db         => \%SWITCH_DB,
+      timestamp         => $timestamp,
       };
 
    YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
@@ -2729,6 +2730,7 @@ sub cmd_exportsw_dot {
    my %db_switch_connected_on_port = %{$switch_connection->{connected_on_port}};
    my %db_switch_link_with         = %{$switch_connection->{link_with}};
    my %db_switch_global            = %{$switch_connection->{switch_db}};
+   my $timestamp                   = $switch_connection->{'timestamp'};
 
    my %db_building= ();
    for my $sw (@SWITCH_LIST) {
@@ -2746,7 +2748,7 @@ sub cmd_exportsw_dot {
    print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
    print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
 
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime time;
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
    $year += 1900;
    $mon++;
    my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
