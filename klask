@@ -1480,8 +1480,10 @@ END_HTML
 #      my $typerow = $odd_or_even % 2 ? 'odd' : 'even';
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
-      my $arrow ='&#8592;';
-         $arrow ='&#8656;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      #my $arrow ='&#8592;';
+      #   $arrow ='&#8656;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      my $arrow ='&#8636;';
+         $arrow ='&#10602;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
 
       my $switch_hostname = $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'} || 'unkown';
       chomp $switch_hostname;
