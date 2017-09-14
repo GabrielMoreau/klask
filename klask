@@ -1526,8 +1526,10 @@ END_HTML
 
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
-      my $arrow ='&#8702;';
-         $arrow ='&#8680;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+      #my $arrow ='&#8702;';
+      #   $arrow ='&#8680;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+      my $arrow ='&#10236;';
+         $arrow ='&#10238;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
       if (exists $db_switch_parent{$sw}) {
          my $mac_address  = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'mac_address'};
@@ -1603,8 +1605,10 @@ END_HTML
 
          $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
-         my $arrow ='&#8701;';
-            $arrow ='&#8678;' if $port_connect =~ m/^(Trk|Br|Po)/;
+         #my $arrow ='&#8701;';
+         #   $arrow ='&#8678;' if $port_connect =~ m/^(Trk|Br|Po)/;
+         my $arrow ='&#10235;';
+            $arrow ='&#10237;' if $port_connect =~ m/^(Trk|Br|Po)/;
 
          my $vlan = $db_switch{$sw}->{'network'};
          $vlan .= ' ('.get_current_vlan_id($db_switch{$sw}->{'network'}).')' if $db_switch{$sw}->{'network'};
