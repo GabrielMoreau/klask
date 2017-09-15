@@ -526,8 +526,8 @@ sub find_switch_port {
          next LOOP_ON_SWITCH;
          }
 
-      my $swport_num = $result->{$research1};
-      my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
+      my $swport_id = $result->{$research1};
+      my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
 
       $session->close;
 
@@ -546,7 +546,7 @@ sub find_switch_port {
 
       $ret{'switch_hostname'}    = $sw->{'hostname'};
       $ret{'switch_description'} = $sw->{'description'};
-      $ret{'switch_port_id'}     = $swport_num;
+      $ret{'switch_port_id'}     = $swport_id;
       $ret{'switch_port_hr'}     = $swport_hr; # human readable
 
       last LOOP_ON_SWITCH;
@@ -582,8 +582,8 @@ sub find_all_switch_port {
          }
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport_num = $result->{$research1};
-         my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
+         my $swport_id = $result->{$research1};
+         my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
 
          SWITCH_PORT_IGNORE:
          for my $portignore (@{$sw->{portignore}}) {
@@ -596,7 +596,7 @@ sub find_all_switch_port {
          $ret->{$sw->{'hostname'}} = {};
          $ret->{$sw->{'hostname'}}{'hostname'}    = $sw->{'hostname'};
          $ret->{$sw->{'hostname'}}{'description'} = $sw->{'description'};
-         $ret->{$sw->{'hostname'}}{'port'}        = $swport_num;
+         $ret->{$sw->{'hostname'}}{'port'}        = $swport_id;
          $ret->{$sw->{'hostname'}}{'port_hr'}     = $swport_hr;
          }
 
@@ -715,33 +715,33 @@ sub snmp_get_rwsession {
    }
 
 #---------------------------------------------------------------
-sub snmp_get_switchport_num2hr {
-   my ($snmp_session, $swport_num) = @_;
+sub snmp_get_switchport_id2hr {
+   my ($snmp_session, $swport_id) = @_;
 
-   # On H3C, port number and port index are not the same
+   # On H3C, port id (port_id) and port index (port_ix) are not the same
    # Double SNMP request to get the name
-   # First get the index, second get the name
+   # First get the index, second get the name (port_hr)
 
-   my $research_index = $OID_NUMBER{'ifIndex'} .'.'. $swport_num;
-   my $result_index = $snmp_session->get_request(
-      -varbindlist => [$research_index]
+   my $research_ix = $OID_NUMBER{'ifIndex'} .'.'. $swport_id;
+   my $result_ix = $snmp_session->get_request(
+      -varbindlist => [$research_ix]
       );
 
-   my $swport_index = $swport_num;
-   $swport_index = $result_index->{$research_index} if defined $result_index;
+   my $swport_ix = $swport_id;
+   $swport_ix = $result_ix->{$research_ix} if defined $result_ix;
 
-   return snmp_get_switchport_index2hr($snmp_session, $swport_index);
+   return snmp_get_switchport_ix2hr($snmp_session, $swport_ix);
    }
 
 #---------------------------------------------------------------
-sub snmp_get_switchport_index2hr {
-   my ($snmp_session, $swport_index) = @_;
+sub snmp_get_switchport_ix2hr {
+   my ($snmp_session, $swport_ix) = @_;
 
-   my $research_hr = $OID_NUMBER{'ifName'} .'.'. $swport_index;
+   my $research_hr = $OID_NUMBER{'ifName'} .'.'. $swport_ix;
    my $result_hr = $snmp_session->get_request(
       -varbindlist => [$research_hr]
       );
-   my $swport_hr = $swport_index;
+   my $swport_hr = $swport_ix;
    $swport_hr = normalize_port_human_readable($result_hr->{$research_hr}) if defined $result_hr;
 
    # Aggregator port
@@ -756,15 +756,15 @@ sub snmp_get_switchport_index2hr {
          # IEEE8023-LAG-MIB::dot3adAggPortSelectedAggID.28 = INTEGER: 337
          # IEEE8023-LAG-MIB::dot3adAggPortAttachedAggID.28 = INTEGER: 337
          my $port_aggregator_index = $snmp_session->var_bind_list->{$oid_current};
-         my ($current_port_index) = reverse split /\./, $oid_current; # last number
+         my ($current_port_ix) = reverse split /\./, $oid_current; # last number
 
          # prepare next loop item
          @args = (-varbindlist => [$oid_current]);
 
          next LOOP_ON_OID_PORT if $port_aggregator_index == 0;
-         next LOOP_ON_OID_PORT if not $port_aggregator_index == $swport_index;
+         next LOOP_ON_OID_PORT if not $port_aggregator_index == $swport_ix;
 
-         my $current_port_name = snmp_get_switchport_index2hr($snmp_session, $current_port_index);
+         my $current_port_name = snmp_get_switchport_ix2hr($snmp_session, $current_port_ix);
          $swport_hr .= "$SEP_AGGREGATOR_PORT$current_port_name";
          }
       }
@@ -773,26 +773,26 @@ sub snmp_get_switchport_index2hr {
 
 #---------------------------------------------------------------
 # Reverse search port number
-sub snmp_get_switchport_hr2num {
+sub snmp_get_switchport_hr2id {
    my ($snmp_session, $swport_hr, $verbose) = @_;
 
    # Split for Aggregator port
    # Keep only the Aggregator part
    ($swport_hr) = split /$SEP_AGGREGATOR_PORT/, $swport_hr;
 
-   my $swport_num = $swport_hr;
+   my $swport_id = $swport_hr;
    # direct return if already numeric (next loop is expensive) / old or simple switch
-   return $swport_num if $swport_num =~ m/^\d+$/;
+   return $swport_id if $swport_id =~ m/^\d+$/;
 
-   my $research_index = $OID_NUMBER{'ifIndex'}; # base OID
-   my @args = ( -varbindlist =>  [$research_index]);
+   my $research_ix = $OID_NUMBER{'ifIndex'}; # base OID
+   my @args = ( -varbindlist =>  [$research_ix]);
    LOOP_ON_OID_PORT:
    while ( defined $snmp_session->get_next_request(@args) ) {
       my ($oid_current) = $snmp_session->var_bind_names;
-      last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($research_index, $oid_current);
+      last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($research_ix, $oid_current);
       
       my $port_ifIndex = $snmp_session->var_bind_list->{$oid_current};
-      my ($port_index) = reverse split /\./, $oid_current; # last number
+      my ($port_ix) = reverse split /\./, $oid_current; # last number
       printf "PORT1: %s => %s\n", $oid_current, $port_ifIndex if $verbose;
 
       # prepare next loop item
@@ -805,14 +805,14 @@ sub snmp_get_switchport_hr2num {
       my $current_port_hr = normalize_port_human_readable($result->{$oid_ifName});
       printf "PORT2: $oid_ifName => $current_port_hr\n" if $verbose;
       if ($current_port_hr eq $swport_hr) {
-         print "PORT3: $current_port_hr <-> $port_index\n" if $verbose;
+         print "PORT3: $current_port_hr <-> $port_ix\n" if $verbose;
          
          # return port number ifIndex need by OID portUpDown
-         $swport_num = $port_ifIndex; # other possible value could be $port_index
+         $swport_id = $port_ifIndex; # other possible value could be $port_ix
          last LOOP_ON_OID_PORT;
          }
       }
-   return $swport_num;
+   return $swport_id;
    }
 
 #---------------------------------------------------------------
@@ -2328,10 +2328,10 @@ sub cmd_enable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
    print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
@@ -2373,10 +2373,10 @@ sub cmd_disable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
    print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
@@ -2416,11 +2416,11 @@ sub cmd_status {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_num = snmp_get_switchport_hr2num($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_num =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
+   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_num;
-   print "Info: switch $switch_name port $port ($port_num) SNMP OID $search_portstatus\n" if $verbose;
+   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   print "Info: switch $switch_name port $port ($port_id) SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->get_request(
       -varbindlist => [$search_portstatus]
@@ -2483,8 +2483,8 @@ sub cmd_search_mac_on_switch {
          }
 
       if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport_num = $result->{$research1};
-         my $swport_hr = snmp_get_switchport_num2hr($session, $swport_num);
+         my $swport_id = $result->{$research1};
+         my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
          print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
       else {
