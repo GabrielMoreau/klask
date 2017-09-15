@@ -1482,8 +1482,8 @@ END_HTML
 
       #my $arrow ='&#8592;';
       #   $arrow ='&#8656;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
-      my $arrow ='&#8636;';
-         $arrow ='&#10602;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      my $arrow ='&#10229;';
+         $arrow ='&#10232;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
 
       my $switch_hostname = $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'} || 'unkown';
       chomp $switch_hostname;
@@ -1505,7 +1505,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td colspan="2">$arrow</td>
+   <td>$arrow</td><td></td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{'hostname_fq'}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
    <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{'mac_address'}</td>
@@ -1513,6 +1513,7 @@ END_HTML
    <td>$date</td>
   </tr>
 END_HTML
+#   <td colspan="2">$arrow</td>
       }
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -1522,6 +1523,8 @@ END_HTML
    my %db_switch_connected_on_port = %{$switch_connection->{'connected_on_port'}};
    my %db_switch                   = %{$switch_connection->{'switch_db'}};
 
+   # Output switch connection
+   LOOP_ON_OUTPUT_SWITCH:
    for my $sw (sort keys %db_switch_output_port) {
 
       my $switch_hostname_sort = sprintf '%s %3s' ,$sw, $db_switch_output_port{$sw};
@@ -1534,6 +1537,10 @@ END_HTML
          $arrow ='&#10238;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
       if (exists $db_switch_parent{$sw}) {
+         # Link to uplink switch
+         next LOOP_ON_OUTPUT_SWITCH;
+         
+         # Do not print anymore
          my $mac_address  = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'mac_address'};
          my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'ipv4_address'};
          my $timestamp    = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'timestamp'};
@@ -1569,8 +1576,46 @@ END_HTML
 END_HTML
          }
       else {
+         # Router
          my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
 
+         my $host_short = sprintf '%s %3s' ,$sw, $db_switch_output_port{$sw};
+
+         my $mac_address = $db_switch{$sw}->{'mac_address'};
+         my $ipv4_address = $db_switch{$sw}->{'ipv4_address'};
+         my $timestamp = $db_switch{$sw}->{'timestamp'};
+
+         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+         $year += 1900;
+         $mon++;
+         my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+
+         my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ [\.\*] /xms, $ipv4_address; # \* for fake-ip
+
+         my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
+
+         my $vlan = $db_switch{$sw}->{'network'};
+         $vlan .= ' ('.get_current_vlan_id($db_switch{$sw}->{'network'}).')' if $db_switch{$sw}->{'network'};
+
+         my $arrow ='&#10235;';
+            $arrow ='&#10237;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+
+         print <<"END_HTML";
+  <tr class="$typerow">
+   <td sorttable_customkey="router">router</td>
+   <td class="bklask-port"></td>
+   <td>$arrow</td><td>$parent_port_hr</td>
+   <td sorttable_customkey="$host_short">$sw</td>
+   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
+   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td>$vlan</td>
+   <td>$date</td>
+  </tr>
+END_HTML
+
+         next LOOP_ON_OUTPUT_SWITCH;
+
+         # Old print
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
@@ -1586,6 +1631,7 @@ END_HTML
          }
       }
 
+   # Child switch connection : parent <- child
    for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
