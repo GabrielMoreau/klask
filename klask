@@ -490,7 +490,7 @@ sub find_switch_port {
 
    my %ret;
    $ret{'switch_description'} = 'unknow';
-   $ret{'switch_port'} = '0';
+   $ret{'switch_port_id'} = '0';
 
    return %ret if $mac_address eq 'unknow';;
 
@@ -546,7 +546,7 @@ sub find_switch_port {
 
       $ret{'switch_hostname'}    = $sw->{'hostname'};
       $ret{'switch_description'} = $sw->{'description'};
-      $ret{'switch_port'}        = $swport_num;
+      $ret{'switch_port_id'}     = $swport_num;
       $ret{'switch_port_hr'}     = $swport_hr; # human readable
 
       last LOOP_ON_SWITCH;
@@ -849,9 +849,15 @@ sub computerdb_load {
    LOOP_ON_IP_ADDRESS:
    for my $ip (keys %{$computerdb}) {
 
+      # Rename switch_port -> switch_port_id (2017/09/15)
+      if (not exists $computerdb->{$ip}{'switch_port_id' and exists $computerdb->{$ip}{'switch_port'}}) {
+         $computerdb->{$ip}{'switch_port_id'} = $computerdb->{$ip}{'switch_port'} if defined $computerdb->{$ip}{'switch_port'};
+         }
+      delete $computerdb->{$ip}{'switch_port'} if exists $computerdb->{$ip}{'switch_port'};
+
       next LOOP_ON_IP_ADDRESS if exists $computerdb->{$ip}{'switch_port_hr'} and defined $computerdb->{$ip}{'switch_port_hr'};
 
-      $computerdb->{$ip}{'switch_port_hr'} = $computerdb->{$ip}{'switch_port'};
+      $computerdb->{$ip}{'switch_port_hr'} = $computerdb->{$ip}{'switch_port_id'};
       }
 
    return $computerdb;
@@ -1158,7 +1164,7 @@ sub cmd_updatedb {
                mac_address        => $resol_arp{'mac_address'},
                switch_hostname    => $where{'switch_hostname'},
                switch_description => $where{'switch_description'},
-               switch_port        => $where{'switch_port'},
+               switch_port_id     => $where{'switch_port_id'},
                switch_port_hr     => $where{'switch_port_hr'},
                timestamp          => $timestamp,
                network            => $current_net,
@@ -1174,7 +1180,7 @@ sub cmd_updatedb {
                mac_address        => $resol_arp{'mac_address'},
                switch_hostname    => $where{'switch_hostname'},
                switch_description => $where{'switch_description'},
-               switch_port        => $where{'switch_port'},
+               switch_port_id     => $where{'switch_port_id'},
                switch_port_hr     => $where{'switch_port_hr'},
                timestamp          => $resol_arp{'timestamp'},
                network            => $current_net,
@@ -1487,7 +1493,7 @@ END_HTML
 
       my $switch_hostname = $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'} || 'unkown';
       chomp $switch_hostname;
-      my $switch_hostname_sort = sprintf '%s %3s' ,$switch_hostname, $computerdb->{$ip}{'switch_port_hr'};
+      my $switch_hostname_sort = sprintf '%s %06i' ,$switch_hostname, $computerdb->{$ip}{'switch_port_id'}; # Take switch index
 
       my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
 
@@ -1730,7 +1736,7 @@ sub cmd_bad_vlan_id {
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'hostname_fq'} eq ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}); # switch on himself !
       next LOOP_ON_IP_ADDRESS if ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}) eq 'unknow';
-      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'switch_port'} eq '0';
+      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'switch_port_id'} eq '0';
 
       my $ip_timestamp   = $computerdb->{$ip}{'timestamp'};
       my $ip_mac         = $computerdb->{$ip}{'mac_address'};
