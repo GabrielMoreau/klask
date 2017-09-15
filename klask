@@ -1604,7 +1604,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="router">router</td>
    <td class="bklask-port"></td>
-   <td><table boder="0"><tr><td>$arrow</td><td>$child_port_hr</td></tr></table></td>
+   <td><table boder="0"><tr><td>$arrow</td><td>$parent_port_hr</td></tr></table></td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
