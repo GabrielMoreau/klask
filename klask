@@ -596,7 +596,7 @@ sub find_all_switch_port {
          $ret->{$sw->{'hostname'}} = {};
          $ret->{$sw->{'hostname'}}{'hostname'}    = $sw->{'hostname'};
          $ret->{$sw->{'hostname'}}{'description'} = $sw->{'description'};
-         $ret->{$sw->{'hostname'}}{'port'}        = $swport_id;
+         $ret->{$sw->{'hostname'}}{'port_id'}     = $swport_id;
          $ret->{$sw->{'hostname'}}{'port_hr'}     = $swport_hr;
          }
 
@@ -2536,7 +2536,7 @@ sub cmd_updatesw {
 
          my $switch = $where{$ip_router}->{$switch_detected};
 
-         next ALL_SWITCH_CONNECTED if $switch->{'port'} eq '0';
+         next ALL_SWITCH_CONNECTED if $switch->{'port_id'} eq '0';
 
          $db_switch_output_port{$switch->{'hostname'}} = $switch->{'port_hr'};
          print "VERBOSE_2: output port $switch->{'hostname'} : $switch->{'port_hr'}\n" if $verbose;
@@ -2609,7 +2609,7 @@ sub cmd_updatesw {
          my $switch = $where{$ip}->{$switch_detected};
          print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{'hostname'} : $switch->{'port_hr'}\n" if $verbose;
 
-         next if $switch->{'port'}     eq '0';
+         next if $switch->{'port_id'}  eq '0';
          next if $switch->{'port_hr'}  eq $db_switch_output_port{$switch->{'hostname'}};
          next if $switch->{'hostname'} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{'hostname'};
 
@@ -2866,7 +2866,7 @@ sub cmd_exportsw_dot {
 #   print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
-#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{'port'};
+#         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{'port_id'};
          }
       else {
          my $style = 'solid';
