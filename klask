@@ -849,9 +849,10 @@ sub computerdb_load {
    LOOP_ON_IP_ADDRESS:
    for my $ip (keys %{$computerdb}) {
 
-      # Rename switch_port -> switch_port_id (2017/09/15)
+      # Rename switch_port -> switch_port_id (2017/09/15)
       if (not exists $computerdb->{$ip}{'switch_port_id' and exists $computerdb->{$ip}{'switch_port'}}) {
          $computerdb->{$ip}{'switch_port_id'} = $computerdb->{$ip}{'switch_port'} if defined $computerdb->{$ip}{'switch_port'};
+         $computerdb->{$ip}{'switch_port_id'} = 0 if $computerdb->{$ip}{'switch_port_id'} !~ m/^\d+$/; # force numeric
          }
       delete $computerdb->{$ip}{'switch_port'} if exists $computerdb->{$ip}{'switch_port'};
 
