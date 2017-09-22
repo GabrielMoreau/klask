@@ -820,7 +820,7 @@ sub snmp_get_switchport_hr2id {
 sub snmp_get_vlan_list {
    my ($snmp_session, $verbose) = @_;
 
-   my %vlan = (); # Hash vlan number => vlan name
+   my %vlandb = (); # Hash vlan number => vlan name
 
    my $research_index = $OID_NUMBER{'vlanName'}; # base OID
    my @args = ( -varbindlist =>  [$research_index]);
@@ -830,15 +830,15 @@ sub snmp_get_vlan_list {
       last LOOP_ON_VLAN if not Net::SNMP::oid_base_match($research_index, $oid_current);
 
       my $vlan_name = $snmp_session->var_bind_list->{$oid_current};
-      my ($vlan_index) = reverse split /\./, $oid_current; # last number
+      my ($vlan_id) = reverse split /\./, $oid_current; # last number
       printf "VLAN: %s => %s\n", $oid_current, $vlan_name if $verbose;
 
-      $vlan{$vlan_index} = $vlan_name;
+      $vlandb{$vlan_id} = $vlan_name;
 
       # prepare next loop item
       @args = (-varbindlist => [$oid_current]);
       }
-   return %vlan;
+   return %vlandb;
    }
 
 #---------------------------------------------------------------
@@ -2128,8 +2128,8 @@ sub cmd_vlan_list {
       $session->close;
       
       print "VLAN_ID - VLAN_NAME # $sw_name\n";
-      for my $vlanid (keys %vlandb) {
-         printf "%7i - %s\n", $vlanid, $vlandb{$vlanid};
+      for my $vlan_id (keys %vlandb) {
+         printf "%7i - %s\n", $vlan_id, $vlandb{$vlan_id};
          }
       }
    return;
