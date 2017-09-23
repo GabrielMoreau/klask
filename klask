@@ -1834,7 +1834,7 @@ sub cmd_poe_enable {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
@@ -1872,7 +1872,7 @@ sub cmd_poe_disable {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
@@ -1910,7 +1910,7 @@ sub cmd_poe_status {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS Switch and low port number
+      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
@@ -1921,13 +1921,13 @@ sub cmd_poe_status {
          );
 
       if (defined $result and $result->{$search} ne 'noSuchInstance') {
-         my $poe = $result->{$search} || 'empty';
-         $poe =~ s/8/enable/;
-         $poe =~ s/2/disable/;
-         printf "%s  %s poe %s\n", $sw_name, $switch_port, $poe;
+         my $poe_status = $result->{$search} || 'empty';
+         $poe_status =~ s/8/enable/;
+         $poe_status =~ s/2/disable/;
+         printf "%s  %s poe %s\n", $sw_name, $switch_port, $poe_status;
          }
       else {
-         print "Klask do not find PoE Status on switch $sw_name on port $switch_port\n";
+         print "Klask do not find PoE status on switch $sw_name on port $switch_port\n";
          }
 
       $session->close;
@@ -2314,9 +2314,9 @@ sub cmd_enable {
       );
 
    my $switch_name = shift @ARGV || q{};
-   my $port        = shift @ARGV || q{};
+   my $port_hr     = shift @ARGV || q{};
 
-   if ($switch_name eq q{} or $port eq q{}) {
+   if ($switch_name eq q{} or $port_hr eq q{}) {
       die "Usage: klask disable SWITCH_NAME PORT\n";
       }
 
@@ -2329,11 +2329,11 @@ sub cmd_enable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
+   die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
+   print "Info: switch $switch_name port $port_hr SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
       -varbindlist => [$search_portstatus, INTEGER, 1],
@@ -2359,9 +2359,9 @@ sub cmd_disable {
       );
 
    my $switch_name = shift @ARGV || q{};
-   my $port        = shift @ARGV || q{};
+   my $port_hr     = shift @ARGV || q{};
 
-   if ($switch_name eq q{} or $port eq q{}) {
+   if ($switch_name eq q{} or $port_hr eq q{}) {
       die "Usage: klask disable SWITCH_NAME PORT\n";
       }
 
@@ -2374,11 +2374,11 @@ sub cmd_disable {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
+   die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port SNMP OID $search_portstatus\n" if $verbose;
+   print "Info: switch $switch_name port $port_hr SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
       -varbindlist => [$search_portstatus, INTEGER, 2],
@@ -2402,9 +2402,9 @@ sub cmd_status {
       );
 
    my $switch_name = shift @ARGV || q{};
-   my $port        = shift @ARGV || q{};
+   my $port_hr     = shift @ARGV || q{};
 
-   if ($switch_name eq q{} or $port eq q{}) {
+   if ($switch_name eq q{} or $port_hr eq q{}) {
       die "Usage: klask status SWITCH_NAME PORT\n";
       }
 
@@ -2417,11 +2417,11 @@ sub cmd_status {
    print "$error \n" if $error;
 
    # Retrieve numeric port value
-   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port), $verbose ? 'yes' : '');
-   die "Error : Port $port does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
+   my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
+   die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
    my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port ($port_id) SNMP OID $search_portstatus\n" if $verbose;
+   print "Info: switch $switch_name port $port_hr ($port_id) SNMP OID $search_portstatus\n" if $verbose;
 
    my $result = $session->get_request(
       -varbindlist => [$search_portstatus]
