@@ -503,8 +503,8 @@ sub find_switch_port {
          }
       }
 
-   my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-   my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
+   my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
+   my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
 
    LOOP_ON_SWITCH:
    for my $sw (@switch_search) {
@@ -512,21 +512,21 @@ sub find_switch_port {
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1]
+         -varbindlist => [$oid_search_port1]
          );
       if (not defined $result) {
          $result = $session->get_request(
-            -varbindlist => [$research2]
+            -varbindlist => [$oid_search_port2]
             );
-         $result->{$research1} = $result->{$research2} if defined $result;
+         $result->{$oid_search_port1} = $result->{$oid_search_port2} if defined $result;
          }
 
-      if (not (defined $result and $result->{$research1} ne 'noSuchInstance')) {
+      if (not (defined $result and $result->{$oid_search_port1} ne 'noSuchInstance')) {
          $session->close;
          next LOOP_ON_SWITCH;
          }
 
-      my $swport_id = $result->{$research1};
+      my $swport_id = $result->{$oid_search_port1};
       my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
 
       $session->close;
@@ -564,25 +564,25 @@ sub find_all_switch_port {
 
    return $ret if $mac_address eq 'unknow';
 
-   my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-   my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
+   my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
+   my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
    LOOP_ON_ALL_SWITCH:
    for my $sw (@SWITCH_LIST) {
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1]
+         -varbindlist => [$oid_search_port1]
          );
       if (not defined $result) {
          $result = $session->get_request(
-            -varbindlist => [$research2]
+            -varbindlist => [$oid_search_port2]
             );
-         $result->{$research1} = $result->{$research2} if defined $result;
+         $result->{$oid_search_port1} = $result->{$oid_search_port2} if defined $result;
          }
 
-      if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport_id = $result->{$research1};
+      if (defined $result and $result->{$oid_search_port1} ne 'noSuchInstance') {
+         my $swport_id = $result->{$oid_search_port1};
          my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
 
          SWITCH_PORT_IGNORE:
@@ -722,13 +722,13 @@ sub snmp_get_switchport_id2hr {
    # Double SNMP request to get the name
    # First get the index, second get the name (port_hr)
 
-   my $research_ix = $OID_NUMBER{'ifIndex'} .'.'. $swport_id;
+   my $oid_search_ix = $OID_NUMBER{'ifIndex'} .'.'. $swport_id;
    my $result_ix = $snmp_session->get_request(
-      -varbindlist => [$research_ix]
+      -varbindlist => [$oid_search_ix]
       );
 
    my $swport_ix = $swport_id;
-   $swport_ix = $result_ix->{$research_ix} if defined $result_ix;
+   $swport_ix = $result_ix->{$oid_search_ix} if defined $result_ix;
 
    return snmp_get_switchport_ix2hr($snmp_session, $swport_ix);
    }
@@ -737,21 +737,21 @@ sub snmp_get_switchport_id2hr {
 sub snmp_get_switchport_ix2hr {
    my ($snmp_session, $swport_ix) = @_;
 
-   my $research_hr = $OID_NUMBER{'ifName'} .'.'. $swport_ix;
+   my $oid_search_hr = $OID_NUMBER{'ifName'} .'.'. $swport_ix;
    my $result_hr = $snmp_session->get_request(
-      -varbindlist => [$research_hr]
+      -varbindlist => [$oid_search_hr]
       );
    my $swport_hr = $swport_ix;
-   $swport_hr = normalize_port_human_readable($result_hr->{$research_hr}) if defined $result_hr;
+   $swport_hr = normalize_port_human_readable($result_hr->{$oid_search_hr}) if defined $result_hr;
 
    # Aggregator port
    if ($swport_hr =~ m/^(Trk|Br|Po)/) {
-      my $research_index = $OID_NUMBER{'ifAggregator'}; # base OID
-      my @args = ( -varbindlist =>  [$research_index]);
+      my $oid_search_index = $OID_NUMBER{'ifAggregator'}; # base OID
+      my @args = ( -varbindlist =>  [$oid_search_index]);
       LOOP_ON_OID_PORT:
       while ( defined $snmp_session->get_next_request(@args) ) {
          my ($oid_current) = $snmp_session->var_bind_names;
-         last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($research_index, $oid_current);
+         last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($oid_search_index, $oid_current);
 
          # IEEE8023-LAG-MIB::dot3adAggPortSelectedAggID.28 = INTEGER: 337
          # IEEE8023-LAG-MIB::dot3adAggPortAttachedAggID.28 = INTEGER: 337
@@ -784,12 +784,12 @@ sub snmp_get_switchport_hr2id {
    # direct return if already numeric (next loop is expensive) / old or simple switch
    return $swport_id if $swport_id =~ m/^\d+$/;
 
-   my $research_ix = $OID_NUMBER{'ifIndex'}; # base OID
-   my @args = ( -varbindlist =>  [$research_ix]);
+   my $oid_search_ix = $OID_NUMBER{'ifIndex'}; # base OID
+   my @args = ( -varbindlist =>  [$oid_search_ix]);
    LOOP_ON_OID_PORT:
    while ( defined $snmp_session->get_next_request(@args) ) {
       my ($oid_current) = $snmp_session->var_bind_names;
-      last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($research_ix, $oid_current);
+      last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($oid_search_ix, $oid_current);
       
       my $port_ifIndex = $snmp_session->var_bind_list->{$oid_current};
       my ($port_ix) = reverse split /\./, $oid_current; # last number
@@ -798,12 +798,12 @@ sub snmp_get_switchport_hr2id {
       # prepare next loop item
       @args = (-varbindlist => [$oid_current]);
       
-      my $oid_ifName = $OID_NUMBER{'ifName'} .'.'. $port_ifIndex;
-      my $result = $snmp_session->get_request(-varbindlist => [$oid_ifName]);
+      my $oid_search_ifName = $OID_NUMBER{'ifName'} .'.'. $port_ifIndex;
+      my $result = $snmp_session->get_request(-varbindlist => [$oid_search_ifName]);
       next LOOP_ON_OID_PORT if not defined $result;
       
-      my $current_port_hr = normalize_port_human_readable($result->{$oid_ifName});
-      printf "PORT2: $oid_ifName => $current_port_hr\n" if $verbose;
+      my $current_port_hr = normalize_port_human_readable($result->{$oid_search_ifName});
+      printf "PORT2: $oid_search_ifName => $current_port_hr\n" if $verbose;
       if ($current_port_hr eq $swport_hr) {
          print "PORT3: $current_port_hr <-> $port_ix\n" if $verbose;
          
@@ -822,12 +822,12 @@ sub snmp_get_vlan_list {
 
    my %vlandb = (); # Hash vlan number => vlan name
 
-   my $research_index = $OID_NUMBER{'vlanName'}; # base OID
-   my @args = ( -varbindlist =>  [$research_index]);
+   my $oid_search_index = $OID_NUMBER{'vlanName'}; # base OID
+   my @args = ( -varbindlist =>  [$oid_search_index]);
    LOOP_ON_VLAN:
    while ( defined $snmp_session->get_next_request(@args) ) {
       my ($oid_current) = $snmp_session->var_bind_names;
-      last LOOP_ON_VLAN if not Net::SNMP::oid_base_match($research_index, $oid_current);
+      last LOOP_ON_VLAN if not Net::SNMP::oid_base_match($oid_search_index, $oid_current);
 
       my $vlan_name = $snmp_session->var_bind_list->{$oid_current};
       my ($vlan_id) = reverse split /\./, $oid_current; # last number
@@ -1834,14 +1834,14 @@ sub cmd_poe_enable {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
+      my $oid_search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
       print "$error \n" if $error;
 
       my $result = $session->set_request(
-         -varbindlist => [$search, INTEGER, 8], # Only NEXANS
+         -varbindlist => [$oid_search, INTEGER, 8], # Only NEXANS
          );
       print $session->error()."\n" if $session->error_status();
 
@@ -1872,14 +1872,14 @@ sub cmd_poe_disable {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
+      my $oid_search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
       print "$error \n" if $error;
 
       my $result = $session->set_request(
-         -varbindlist => [$search, INTEGER, 2], # Only NEXANS
+         -varbindlist => [$oid_search, INTEGER, 2], # Only NEXANS
          );
       print $session->error()."\n" if $session->error_status();
 
@@ -1910,18 +1910,18 @@ sub cmd_poe_status {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
+      my $oid_search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$search],
+         -varbindlist => [$oid_search],
          );
 
-      if (defined $result and $result->{$search} ne 'noSuchInstance') {
-         my $poe_status = $result->{$search} || 'empty';
+      if (defined $result and $result->{$oid_search} ne 'noSuchInstance') {
+         my $poe_status = $result->{$oid_search} || 'empty';
          $poe_status =~ s/8/enable/;
          $poe_status =~ s/2/disable/;
          printf "%s  %s poe %s\n", $sw_name, $switch_port, $poe_status;
@@ -1952,27 +1952,27 @@ sub cmd_port_setvlan {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-      my $research2 = $OID_NUMBER{'searchPort2'} .'.'. 0 . mac_address_hex2dec($mac_address);
-      print "Klask search OID $research1 on switch $sw_name\n";
-      print "Klask search OID $research2 on switch $sw_name\n";
+      my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
+      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. 0 . mac_address_hex2dec($mac_address);
+      print "Klask search OID $oid_search_port1 on switch $sw_name\n";
+      print "Klask search OID $oid_search_port2 on switch $sw_name\n";
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1]
+         -varbindlist => [$oid_search_port1]
          );
       if (not defined $result) {
          $result = $session->get_request(
-            -varbindlist => [$research2]
+            -varbindlist => [$oid_search_port2]
             );
-         $result->{$research1} = $result->{$research2} if defined $result;
+         $result->{$oid_search_port1} = $result->{$oid_search_port2} if defined $result;
          }
 
-      if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport = $result->{$research1};
+      if (defined $result and $result->{$oid_search_port1} ne 'noSuchInstance') {
+         my $swport = $result->{$oid_search_port1};
          print "Klask find MAC $mac_address on switch $sw_name port $swport\n";
          }
       else {
@@ -2005,18 +2005,18 @@ sub cmd_port_getvlan {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
+      my $oid_search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$search],
+         -varbindlist => [$oid_search],
          );
 
-      if (defined $result and $result->{$search} ne 'noSuchInstance') {
-         my $vlan_id = $result->{$search} || 'empty';
+      if (defined $result and $result->{$oid_search} ne 'noSuchInstance') {
+         my $vlan_id = $result->{$oid_search} || 'empty';
          print "Klask VLAN Id $vlan_id on switch $sw_name on port $switch_port\n";
          }
       else {
@@ -2082,18 +2082,18 @@ sub cmd_vlan_getname {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $search_vlan_name = $OID_NUMBER{'vlanName'} . ".$vlan_id";
+      my $oid_search_vlan_name = $OID_NUMBER{'vlanName'} . ".$vlan_id";
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$search_vlan_name]
+         -varbindlist => [$oid_search_vlan_name]
          );
 
-      if (defined $result and $result->{$search_vlan_name} ne 'noSuchInstance') {
-         my $vlan_name = $result->{$search_vlan_name} || 'empty';
+      if (defined $result and $result->{$oid_search_vlan_name} ne 'noSuchInstance') {
+         my $vlan_name = $result->{$oid_search_vlan_name} || 'empty';
          print "Klask find VLAN $vlan_id on switch $sw_name with name $vlan_name\n";
          }
       else {
@@ -2332,11 +2332,11 @@ sub cmd_enable {
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port_hr SNMP OID $search_portstatus\n" if $verbose;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   print "Info: switch $switch_name port $port_hr SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
-      -varbindlist => [$search_portstatus, INTEGER, 1],
+      -varbindlist => [$oid_search_portstatus, INTEGER, 1],
       );
    print $session->error()."\n" if $session->error_status();
 
@@ -2377,11 +2377,11 @@ sub cmd_disable {
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port_hr SNMP OID $search_portstatus\n" if $verbose;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   print "Info: switch $switch_name port $port_hr SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
-      -varbindlist => [$search_portstatus, INTEGER, 2],
+      -varbindlist => [$oid_search_portstatus, INTEGER, 2],
       );
    print $session->error()."\n" if $session->error_status();
 
@@ -2420,15 +2420,15 @@ sub cmd_status {
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
-   print "Info: switch $switch_name port $port_hr ($port_id) SNMP OID $search_portstatus\n" if $verbose;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   print "Info: switch $switch_name port $port_hr ($port_id) SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->get_request(
-      -varbindlist => [$search_portstatus]
+      -varbindlist => [$oid_search_portstatus]
       );
    print $session->error()."\n" if $session->error_status();
    if (defined $result) {
-      print "$PORT_UPDOWN{$result->{$search_portstatus}}\n";
+      print "$PORT_UPDOWN{$result->{$oid_search_portstatus}}\n";
       }
 
    $session->close;
@@ -2464,27 +2464,27 @@ sub cmd_search_mac_on_switch {
          die "Switch $sw_name must be defined in klask configuration file\n";
          }
 
-      my $research1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-      my $research2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
-      print "Klask search OID $research1 on switch $sw_name\n" if $verbose;
-      print "Klask search OID $research2 on switch $sw_name\n" if $verbose;
+      my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
+      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
+      print "Klask search OID $oid_search_port1 on switch $sw_name\n" if $verbose;
+      print "Klask search OID $oid_search_port2 on switch $sw_name\n" if $verbose;
 
       my $sw = $SWITCH_DB{$sw_name};
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
       my $result = $session->get_request(
-         -varbindlist => [$research1]
+         -varbindlist => [$oid_search_port1]
          );
       if (not defined $result) {
          $result = $session->get_request(
-            -varbindlist => [$research2]
+            -varbindlist => [$oid_search_port2]
             );
-         $result->{$research1} = $result->{$research2} if defined $result;
+         $result->{$oid_search_port1} = $result->{$oid_search_port2} if defined $result;
          }
 
-      if (defined $result and $result->{$research1} ne 'noSuchInstance') {
-         my $swport_id = $result->{$research1};
+      if (defined $result and $result->{$oid_search_port1} ne 'noSuchInstance') {
+         my $swport_id = $result->{$oid_search_port1};
          my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
          print "Klask find MAC $mac_address on switch $sw_name port $swport_hr\n";
          }
