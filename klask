@@ -2817,30 +2817,30 @@ sub cmd_exportsw_dot {
    print "rankdir = LR;\n";
    #print "splines=polyline;\n";
 
-   print "site [label = \"site\", color = black, fillcolor = gold, shape = invhouse, style = filled];\n";
-   print "internet [label = \"internet\", color = black, fillcolor = cyan, shape = house, style = filled];\n";
+   print "site [label=\"site\", color=black, fillcolor=gold, shape=invhouse, style=filled];\n";
+   print "internet [label=\"internet\", color=black, fillcolor=cyan, shape=house, style=filled];\n";
 
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
    $year += 1900;
    $mon++;
    my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
-   print "\"$date\" [ color = white, fillcolor = black, shape = polygon, sides=14, style = filled, fontcolor = white ]\n";
+   print "\"$date\" [color=white, fillcolor=black, shape=polygon, sides=14, style=filled, fontcolor=white];\n";
    print "site -> \"$date\" [color = white];\n";
 
    my $b=0;
    for my $building (keys %db_building) {
       $b++;
 
-      print "\"building$b\" [label = \"$building\", color = black, fillcolor = gold, style = filled];\n";
-      print "site -> \"building$b\" [len = 2, color = firebrick];\n";
+      print "\"building$b\" [label=\"$building\", color=black, fillcolor=gold, style=filled];\n";
+      print "site -> \"building$b\" [len=2, color=firebrick];\n";
 
       my $l = 0;
       for my $loc (keys %{$db_building{$building}}) {
          $l++;
 
-         print "\"location$b-$l\" [label = \"$building" . q{/} . join(q{\n}, split(m{ / }xms, $loc)) . "\", color = black, fillcolor = orange, style = filled];\n";
-#         print "\"location$b-$l\" [label = \"$building / $loc\", color = black, fillcolor = orange, style = filled];\n";
-         print "\"building$b\" -> \"location$b-$l\" [len = 2, color = firebrick]\n";
+         print "\"location$b-$l\" [label=\"$building" . q{/} . join(q{\n}, split(m{ / }xms, $loc)) . "\", color=black, fillcolor=orange, style=filled];\n";
+#         print "\"location$b-$l\" [label=\"$building / $loc\", color=black, fillcolor=orange, style=filled];\n";
+         print "\"building$b\" -> \"location$b-$l\" [len=2, color=firebrick]\n";
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
@@ -2850,13 +2850,13 @@ sub cmd_exportsw_dot {
                $peripheries = 2;
                $color = "\"$color:invis:$color\"";
                }
-            print "\"$sw:$db_switch_output_port{$sw}\" [label = \"".format_aggregator4dot($db_switch_output_port{$sw})."\", color = black, fillcolor = lightblue,  peripheries = $peripheries, style = filled];\n";
+            print "\"$sw:$db_switch_output_port{$sw}\" [label=\"".format_aggregator4dot($db_switch_output_port{$sw})."\", color=black, fillcolor=lightblue, peripheries=$peripheries, style=filled];\n";
 
             my $swname  = $sw;
                $swname .= q{\n-\n} . "$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
-            print "\"$sw\" [label = \"$swname\", color = black, fillcolor = palegreen, shape = rect, style = filled];\n";
-            print "\"location$b-$l\" -> \"$sw\" [len = 2, color = firebrick, arrowtail = dot]\n";
-            print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, color = $color, arrowhead = normal, arrowtail = invdot]\n";
+            print "\"$sw\" [label=\"$swname\", color=black, fillcolor=palegreen, shape=rect, style=filled];\n";
+            print "\"location$b-$l\" -> \"$sw\" [len=2, color=firebrick, arrowtail=dot];\n";
+            print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=invdot];\n";
 
 
             for my $swport (keys %db_switch_connected_on_port) {
@@ -2869,18 +2869,18 @@ sub cmd_exportsw_dot {
                   $peripheries = 2;
                   $color = "\"$color:invis:$color\"";
                   }
-               print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = $peripheries, style = filled];\n";
-               print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color = $color, arrowhead= normal, arrowtail = inv]\n";
+               print "\"$sw:$port_connect\" [label=\"".format_aggregator4dot($port_connect)."\", color=black, fillcolor=plum, peripheries=$peripheries, style=filled];\n";
+               print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=inv];\n";
                
                $db_switch_line{$sw}++;
-               if ($db_switch_line{$sw} % 9 == 0) {
-                  # Create invisible node
-                  $invisible_node++;
-                  my $invisible = '__Invisible_' . $invisible_node;
-                  print "$invisible [shape=none, label=\"\"]\n";
-                  print "\"$sw:$port_connect\" -> $invisible [style=invis]\n";
-                  print "$invisible            -> \"$sw\"    [style=invis]\n";
-                  }
+               #if ($db_switch_line{$sw} % 9 == 0) {
+               #   # Create invisible node
+               #   $invisible_node++;
+               #   my $invisible = '__Invisible_' . $invisible_node;
+               #   print "$invisible [shape=none, label=\"\"]\n";
+               #   print "\"$sw:$port_connect\" -> $invisible [style=invis]\n";
+               #   print "$invisible            -> \"$sw\"    [style=invis]\n";
+               #   }
               }
             }
          }
@@ -2899,7 +2899,7 @@ sub cmd_exportsw_dot {
             $style = 'bold';
             $color = "\"$color:invis:$color\"";
             }
-         printf "   \"%s:%s\" -> internet [style=$style, color = $color]\n", $sw, $db_switch_output_port{$sw};
+         printf "   \"%s:%s\" -> internet [style=$style, color=$color];\n", $sw, $db_switch_output_port{$sw};
          }
       }
    print "\n";
@@ -2916,10 +2916,19 @@ sub cmd_exportsw_dot {
             $color = "\"$color:invis:$color\"";
             }
          if (exists $db_switch_output_port{$sw}) {
-            printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color = $color]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
+            printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color=$color];\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
+
+            if ($db_switch_line{$sw_connect} % 9 == 0) {
+               # Create invisible node
+               $invisible_node++;
+               my $invisible = '__Invisible_' . $invisible_node;
+               print  "   $invisible [shape=none, label=\"\"];\n";
+               printf "   \"%s:%s\"  -> $invisible [style=invis];\n", $sw, $db_switch_output_port{$sw};
+               printf "   $invisible -> \"%s:%s\"  [style=invis];\n", $sw_connect, $port_connect;
+               }
             }
          else {
-            printf "   \"%s\"   -> \"%s:%s\" [style=$style]\n", $sw, $sw_connect, $port_connect;
+            printf "   \"%s\"   -> \"%s:%s\" [style=$style];\n", $sw, $sw_connect, $port_connect;
             }
          }
       }
