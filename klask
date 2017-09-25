@@ -2859,7 +2859,11 @@ sub cmd_exportsw_dot {
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                my $peripheries = 1;
-               $peripheries = 2 if $port_connect =~ m/^(Trk|Br|Po)/;
+               my $color = 'black';
+               if ($port_connect =~ m/^(Trk|Br|Po)/) {
+                  $peripheries = 2;
+                  $color = "\"$color:invis:$color\"";
+                  }
                print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = $peripheries, style = filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color = $color, arrowhead= normal, arrowtail = inv]\n";
               }
