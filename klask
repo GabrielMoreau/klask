@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.6');
+use version; our $VERSION = qv('0.6.7');
 
 use Readonly;
 use FileHandle;
@@ -2817,7 +2817,7 @@ sub cmd_exportsw_dot {
 
 
    print "digraph G {\n";
-   print "rankdir = LR;\n";
+   print "rankdir=LR;\n";
    #print "splines=polyline;\n";
 
    print "site [label=\"site\", color=black, fillcolor=gold, shape=invhouse, style=filled];\n";
@@ -2828,7 +2828,7 @@ sub cmd_exportsw_dot {
    $mon++;
    my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
    print "\"$date\" [color=white, fillcolor=black, shape=polygon, sides=14, style=filled, fontcolor=white];\n";
-   print "site -> \"$date\" [color = white];\n";
+   print "site -> \"$date\" [color=white];\n";
 
    my $b=0;
    for my $building (keys %db_building) {
