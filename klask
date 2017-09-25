@@ -2827,7 +2827,7 @@ sub cmd_exportsw_dot {
    $year += 1900;
    $mon++;
    my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
-   print "\"$date\" [label=\"DATE\\n$date\", color=white, fillcolor=black, shape=polygon, sides=14, style=filled, fontcolor=white];\n";
+   print "\"$date\" [label=\"MAP DATE\\n\\n$date\", color=white, fillcolor=black, shape=polygon, sides=14, style=filled, fontcolor=white];\n";
    print "site -> \"$date\" [style=invis];\n";
 
    my $b=0;
