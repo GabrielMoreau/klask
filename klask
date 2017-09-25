@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.5');
+use version; our $VERSION = qv('0.6.6');
 
 use Readonly;
 use FileHandle;
@@ -2871,8 +2871,12 @@ sub cmd_exportsw_dot {
          }
       else {
          my $style = 'solid';
-         $style = 'bold' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
-         printf "   \"%s:%s\" -> internet [style=$style, color = navyblue]\n", $sw, $db_switch_output_port{$sw};
+         my $color = 'navyblue';
+         if ($db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/) {
+            $style = 'bold';
+            $color = "\"$color:invis:$color\"";
+            }
+         printf "   \"%s:%s\" -> internet [style=$style, color = $color]\n", $sw, $db_switch_output_port{$sw};
          }
       }
    print "\n";
@@ -2883,9 +2887,13 @@ sub cmd_exportsw_dot {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          my $style = 'solid';
-         $style = 'bold' if $port_connect =~ m/^(Trk|Br|Po)/;
+         my $color = 'navyblue';
+         if ($port_connect =~ m/^(Trk|Br|Po)/) {
+            $style = 'bold';
+            $color = "\"$color:invis:$color\"";
+            }
          if (exists $db_switch_output_port{$sw}) {
-            printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color = navyblue]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
+            printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color = $color]\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
             }
          else {
             printf "   \"%s\"   -> \"%s:%s\" [style=$style]\n", $sw, $sw_connect, $port_connect;
