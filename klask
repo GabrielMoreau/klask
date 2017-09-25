@@ -2799,12 +2799,17 @@ sub cmd_exportsw_dot {
    my %db_switch_global            = %{$switch_connection->{'switch_db'}};
    my $timestamp                   =   $switch_connection->{'timestamp'};
 
+   my $invisible_node = 0; # Count number of invisible node
+
    my %db_building= ();
+   my %db_switch_line = (); # Number of line drawed on a switch
    for my $sw (@SWITCH_LIST) {
       my ($building, $location) = split m/ \/ /xms, $sw->{'location'}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
       $db_building{$building}->{$location}{ $sw->{'hostname'} } = 'y';
+      
+      $db_switch_line{$sw} = 0;
       }
 
 
@@ -2866,6 +2871,16 @@ sub cmd_exportsw_dot {
                   }
                print "\"$sw:$port_connect\" [label = \"".format_aggregator4dot($port_connect)."\", color = black, fillcolor = plum,  peripheries = $peripheries, style = filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color = $color, arrowhead= normal, arrowtail = inv]\n";
+               
+               $db_switch_line{$sw}++;
+               if ($db_switch_line{$sw} % 9 == 0) {
+                  # Create invisible node
+                  $invisible_node++;
+                  my $invisible = '__Invisible_' . $invisible_node;
+                  print "$invisible [shape=none, label=\"\"]\n";
+                  print "\"$sw:$port_connect\" -> $invisible [style=invis]\n";
+                  print "$invisible            -> \"$sw\"    [style=invis]\n";
+                  }
               }
             }
          }
