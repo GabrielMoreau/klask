@@ -2848,10 +2848,10 @@ sub cmd_exportsw_dot {
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
             my $peripheries = 1;
-            my $color = 'black';
+            my $color = 'lightblue';
             if ($db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/) {
                $peripheries = 2;
-               $color = "\"$color:invis:$color\"";
+               $color = "\"$color:$color\"";
                }
             print "\"$sw:$db_switch_output_port{$sw}\" [label=\"".format_aggregator4dot($db_switch_output_port{$sw})."\", color=black, fillcolor=lightblue, peripheries=$peripheries, style=filled];\n";
 
@@ -2867,10 +2867,10 @@ sub cmd_exportsw_dot {
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                my $peripheries = 1;
-               my $color = 'black';
+               my $color = 'plum';
                if ($port_connect =~ m/^(Trk|Br|Po)/) {
                   $peripheries = 2;
-                  $color = "\"$color:invis:$color\"";
+                  $color = "\"$color:$color\"";
                   }
                print "\"$sw:$port_connect\" [label=\"".format_aggregator4dot($port_connect)."\", color=black, fillcolor=plum, peripheries=$peripheries, style=filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=inv];\n";
@@ -2897,7 +2897,7 @@ sub cmd_exportsw_dot {
          }
       else {
          my $style = 'solid';
-         my $color = 'navyblue';
+         my $color = 'black'; # navyblue
          if ($db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/) {
             $style = 'bold';
             $color = "\"$color:invis:$color\"";
@@ -2913,7 +2913,7 @@ sub cmd_exportsw_dot {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          my $style = 'solid';
-         my $color = 'navyblue';
+         my $color = 'black'; # navyblue
          if ($port_connect =~ m/^(Trk|Br|Po)/) {
             $style = 'bold';
             $color = "\"$color:invis:$color\"";
