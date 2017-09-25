@@ -44,7 +44,7 @@ cd ${TMP}
 LOCALTIME=$($DATE "+%Y-%m-%d %H:%M")
 
 
-$KLASK exportsw --format dot > ${TMP}/switch-map.txt
+$KLASK exportsw --format dot --modulo 9 > ${TMP}/switch-map.txt
 
 
 $KLASK exportdb > ${TMP}/hostname-db.txt

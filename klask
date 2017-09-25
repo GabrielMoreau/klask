@@ -2730,9 +2730,11 @@ sub cmd_exportsw {
    test_switchdb_environnement();
 
    my $format = 'txt';
+   my $modulo = 0;
 
    GetOptions(
       'format|f=s'  => \$format,
+      'modulo|m=i'  => \$modulo,
       );
 
    my %possible_format = (
@@ -2742,7 +2744,7 @@ sub cmd_exportsw {
 
    $format = 'txt' if not defined $possible_format{$format};
 
-   $possible_format{$format}->(@ARGV);
+   $possible_format{$format}->($modulo, @ARGV);
    return;
    }
 
@@ -2789,6 +2791,7 @@ sub cmd_exportsw_txt {
 
 #---------------------------------------------------------------
 sub cmd_exportsw_dot {
+   my $modulo = shift;
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
@@ -2872,7 +2875,7 @@ sub cmd_exportsw_dot {
                print "\"$sw:$port_connect\" [label=\"".format_aggregator4dot($port_connect)."\", color=black, fillcolor=plum, peripheries=$peripheries, style=filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=inv];\n";
                
-               $db_switch_line{$sw}++;
+               #$db_switch_line{$sw}++;
                #if ($db_switch_line{$sw} % 9 == 0) {
                #   # Create invisible node
                #   $invisible_node++;
@@ -2918,7 +2921,9 @@ sub cmd_exportsw_dot {
          if (exists $db_switch_output_port{$sw}) {
             printf "   \"%s:%s\" -> \"%s:%s\" [style=$style, color=$color];\n", $sw, $db_switch_output_port{$sw}, $sw_connect, $port_connect;
 
-            if ($db_switch_line{$sw_connect} % 9 == 0) {
+            next if $modulo == 0; # No shift (invisible nodes) in graph
+            $db_switch_line{$sw_connect}++;
+            if ($db_switch_line{$sw_connect} % $modulo == 0) {
                # Create invisible node
                $invisible_node++;
                my $invisible = '__Invisible_' . $invisible_node;
