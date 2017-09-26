@@ -2846,7 +2846,7 @@ sub cmd_exportsw_dot {
 
          print "\"location$b-$l\" [label=\"$building" . q{/} . join(q{\n}, split(m{ / }xms, $loc)) . "\", color=black, fillcolor=orange, style=filled];\n";
 #         print "\"location$b-$l\" [label=\"$building / $loc\", color=black, fillcolor=orange, style=filled];\n";
-         print "\"building$b\" -> \"location$b-$l\" [len=2, color=firebrick]\n";
+         print "\"building$b\" -> \"location$b-$l\" [len=2, color=firebrick];\n";
 
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
