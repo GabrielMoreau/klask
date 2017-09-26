@@ -790,23 +790,23 @@ sub snmp_get_switchport_hr2id {
    while ( defined $snmp_session->get_next_request(@args) ) {
       my ($oid_current) = $snmp_session->var_bind_names;
       last LOOP_ON_OID_PORT if  not Net::SNMP::oid_base_match($oid_search_ix, $oid_current);
-      
+
       my $port_ifIndex = $snmp_session->var_bind_list->{$oid_current};
       my ($port_ix) = reverse split /\./, $oid_current; # last number
       printf "PORT1: %s => %s\n", $oid_current, $port_ifIndex if $verbose;
 
       # prepare next loop item
       @args = (-varbindlist => [$oid_current]);
-      
+
       my $oid_search_ifName = $OID_NUMBER{'ifName'} .'.'. $port_ifIndex;
       my $result = $snmp_session->get_request(-varbindlist => [$oid_search_ifName]);
       next LOOP_ON_OID_PORT if not defined $result;
-      
+
       my $current_port_hr = normalize_port_human_readable($result->{$oid_search_ifName});
       printf "PORT2: $oid_search_ifName => $current_port_hr\n" if $verbose;
       if ($current_port_hr eq $swport_hr) {
          print "PORT3: $current_port_hr <-> $port_ix\n" if $verbose;
-         
+
          # return port number ifIndex need by OID portUpDown
          $swport_id = $port_ifIndex; # other possible value could be $port_ix
          last LOOP_ON_OID_PORT;
@@ -1546,7 +1546,7 @@ END_HTML
       if (exists $db_switch_parent{$sw}) {
          # Link to uplink switch
          next LOOP_ON_OUTPUT_SWITCH;
-         
+
          # Do not print anymore
          my $mac_address  = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'mac_address'};
          my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'ipv4_address'};
@@ -2126,7 +2126,7 @@ sub cmd_vlan_list {
 
       my %vlandb = snmp_get_vlan_list($session);
       $session->close;
-      
+
       print "VLAN_ID - VLAN_NAME # $sw_name\n";
       for my $vlan_id (keys %vlandb) {
          printf "%7i - %s\n", $vlan_id, $vlandb{$vlan_id};
@@ -2814,7 +2814,7 @@ sub cmd_exportsw_dot {
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
       $db_building{$building}->{$location}{ $sw->{'hostname'} } = 'y';
-      
+
       $db_switch_line{$sw} = 0;
       }
 
@@ -2877,7 +2877,7 @@ sub cmd_exportsw_dot {
                   }
                print "\"$sw:$port_connect\" [label=\"".format_aggregator4dot($port_connect)."\", color=black, fillcolor=plum, peripheries=$peripheries, style=filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=inv];\n";
-               
+
                #$db_switch_line{$sw}++;
                #if ($db_switch_line{$sw} % 9 == 0) {
                #   # Create invisible node
@@ -3098,7 +3098,7 @@ The network parameter C<scan-mode> can have two values: C<active> or C<passive>.
 By default, a network is C<active>.
 This means that an C<fping> command is done at the beginning on all the IP of the network
 and the computers that was not detected in this pass, but where their Klask entry is less than one week,
-will have an C<arping> 
+will have an C<arping>
 (some OS do not respond to C<ping> but a computer have to respond to C<arping> if it want to interact with other).
 In the scan mode C<passive>, no C<fping> and no C<arping> are done.
 It's good for big subnet with few computer (telephone...).
