@@ -9,6 +9,9 @@ REMOTE_SERVER=localhost
 REMOTE_USER=''
 REMOTE_FOLDER=/var/www/klask/
 
+GRAPH_MODULO=9
+GRAPH_SHIFT=1
+
 if [ -f /etc/klask/push-web.conf ]
 then
    . /etc/klask/push-web.conf
@@ -44,7 +47,7 @@ cd ${TMP}
 LOCALTIME=$($DATE "+%Y-%m-%d %H:%M")
 
 
-$KLASK exportsw --format dot --modulo 9 > ${TMP}/switch-map.txt
+$KLASK exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt
 
 
 $KLASK exportdb > ${TMP}/hostname-db.txt
