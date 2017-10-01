@@ -368,7 +368,7 @@ sub init_switch_names {
    print "------------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
-   for my $sw (@SWITCH_LIST) {
+   for my $sw (my @CLONE = @SWITCH_LIST) { # Make a local clone because some element can be deleted
       my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
       print "$error \n" if $error;
 
