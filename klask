@@ -2809,7 +2809,7 @@ sub cmd_exportsw_dot {
 
    my %db_building= ();
    my %db_switch_line = (); # Number of line drawed on a switch
-   for my $sw (@SWITCH_LIST) {
+   for my $sw (values %db_switch_global) {
       my ($building, $location) = split m/ \/ /xms, $sw->{'location'}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
