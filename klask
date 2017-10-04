@@ -1082,7 +1082,7 @@ sub cmd_updatedb {
    my $switch_checksum = get_switchdb_checksum(%SWITCH_DB);
    # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
-   if $switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
+   if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
       print "ERROR: switch database must be rebuild\n";
       }
 
