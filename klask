@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.6.7');
+use version; our $VERSION = qv('0.7.0');
 
 use Readonly;
 use FileHandle;
@@ -1117,7 +1117,7 @@ klask - port and search manager for switches, map management
  klask version
  klask help
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
  klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
@@ -1272,13 +1272,14 @@ sub cmd_searchdb_mac {
 sub cmd_updatedb {
    @ARGV = @_;
 
-   my ($verbose, $verb_description, $check_hostname, $check_location);
+   my ($verbose, $verb_description, $check_hostname, $check_location, $no_rebuildsw);
 
    GetOptions(
       'verbose|v'          => \$verbose,
       'verb-description|d' => \$verb_description,
       'chk-hostname|h'     => \$check_hostname,
       'chk-location|l'     => \$check_location,
+      'no-rebuildsw|-R'    => \$no_rebuildsw,
       );
 
    my @network = @ARGV;
@@ -1306,8 +1307,12 @@ sub cmd_updatedb {
    # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
    if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
-      print "WARNING: switch database is going to be rebuilt\n";
-      update_switchdb(verbose => $verbose);
+      if ($no_rebuildsw) {
+         print "WARNING: switch database is outdate, please rebuild if with updatesw command\n";
+      else {
+         print "WARNING: switch database is going to be rebuilt\n";
+         update_switchdb(verbose => $verbose)
+         }
       }
 
    my %db_switch_output_port       = %{$switch_connection->{'output_port'}};
@@ -3005,7 +3010,7 @@ klask - port and search manager for switches, map management
  klask version
  klask help
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
  klask removedb IP* computer*
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
@@ -3118,7 +3123,7 @@ it's always possible to have the port status even for bridge agrregate port.
 
 =head2 updatedb
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
 
 This command will scan networks and update the computer database.
 To know which are the cmputer scanned, you have to configure the file F</etc/klask/klask.conf>.
@@ -3137,6 +3142,9 @@ will have an C<arping>
 In the scan mode C<passive>, no C<fping> and no C<arping> are done.
 It's good for big subnet with few computer (telephone...).
 The idea of the C<active> scan mode is to force computer to regulary send packet over the network.
+
+At the beginning, the command verify that the switch map checksum is always valid.
+Otherwise, a rebuild procedure will ne done automatically.
 
 =head2 exportdb
 
@@ -3177,6 +3185,8 @@ When reverse DNS has not been done by the past, option C<--repair-dns> force a r
 This command build a map of your manageable switch on your network.
 The list of the switches must be given in the file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
 
+The database has a checksum which depend of all the active switches.
+It's use when rebuilding the database in case of change in switch configuration (one more for example).
 
 =head2 exportsw
 
