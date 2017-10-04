@@ -1309,6 +1309,7 @@ sub cmd_updatedb {
    if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
       if ($no_rebuildsw) {
          print "WARNING: switch database is outdate, please rebuild if with updatesw command\n";
+         }
       else {
          print "WARNING: switch database is going to be rebuilt\n";
          update_switchdb(verbose => $verbose)
