@@ -1279,7 +1279,7 @@ sub cmd_updatedb {
       'verb-description|d' => \$verb_description,
       'chk-hostname|h'     => \$check_hostname,
       'chk-location|l'     => \$check_location,
-      'no-rebuildsw|-R'    => \$no_rebuildsw,
+      'no-rebuildsw|R'     => \$no_rebuildsw,
       );
 
    my @network = @ARGV;
