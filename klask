@@ -865,6 +865,22 @@ sub computerdb_load {
    return $computerdb;
    }
 
+#---------------------------------------------------------------
+sub get_switchdb_checksum {
+   my %switch_db = @_; # same as global %SWITCH_DB
+
+   my $checksum_data = '';
+   for my $sw_name (sort keys %switch_db) { # sort to always have the same order
+      $checksum_data .= join ':',
+         $switch_db{$sw_name}->{'description'},
+         $switch_db{$sw_name}->{model},
+         $switch_db{$sw_name}->{'hostname'},
+         "\n";
+      }
+
+   return sha512_base64($checksum_data);
+   }
+
 ################################################################
 # command
 ################################################################
@@ -1062,8 +1078,14 @@ sub cmd_updatedb {
 
    init_switch_names('yes', $verb_description, $check_hostname, $check_location);    #nomme les switchs
 
-   { # Remplis le champs portignore des ports d'inter-connection pour chaque switch
+   {
+   my $switch_checksum = get_switchdb_checksum(%SWITCH_DB);
+   # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
+   if $switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
+      print "ERROR: switch database must be rebuild\n";
+      }
+
    my %db_switch_output_port       = %{$switch_connection->{'output_port'}};
    my %db_switch_connected_on_port = %{$switch_connection->{'connected_on_port'}};
    my %db_switch_chained_port = ();
@@ -2711,14 +2733,6 @@ sub cmd_updatesw {
          }
       }
 
-   my $checksum_data = ''
-   for my $sw_name (keys %SWITCH_DB) {
-      $checksum_data .= join ':', $SWITCH_DB{$sw_name}->{'description'},
-         $SWITCH_DB{$sw_name}->{model},
-         $SWITCH_DB{$sw_name}->{'hostname'},
-         "\n";
-      }
-
    my $switch_connection = {
       output_port       => \%db_switch_output_port,
       parent            => \%db_switch_parent,
@@ -2726,7 +2740,7 @@ sub cmd_updatesw {
       link_with         => \%db_switch_link_with,
       switch_db         => \%SWITCH_DB,
       timestamp         => $timestamp,
-      checksum          => sha512_base64($checksum_data),
+      checksum          => get_switchdb_checksum(%SWITCH_DB),
       };
 
    YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
