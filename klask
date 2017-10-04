@@ -881,6 +881,229 @@ sub get_switchdb_checksum {
    return sha512_base64($checksum_data);
    }
 
+#---------------------------------------------------------------
+sub update_switchdb {
+   my %args = (
+      verbose => 0,
+      @_);
+
+   init_switch_names('yes');    #nomme les switchs
+   print "\n";
+
+   my %where = ();
+   my %db_switch_output_port = ();
+   my %db_switch_ip_hostnamefq = ();
+
+   DETECT_ALL_ROUTER:
+   for my $one_router ( get_list_main_router(get_list_network()) ) {
+      print "Info: router loop $one_router\n" if $args{'verbose'};
+      my %resol_arp = resolve_ip_arp_host($one_router, q{*}, q{low}); # resolution arp
+
+      next DETECT_ALL_ROUTER if $resol_arp{'mac_address'} eq 'unknow';
+      print "VERBOSE_1: Router detected $resol_arp{'ipv4_address'} - $resol_arp{'mac_address'}\n" if $args{'verbose'};
+
+      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
+      my $vlan_id   = get_current_vlan_id($vlan_name);
+      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # retrouve les emplacements des routeurs
+      }
+
+   ALL_ROUTER_IP_ADDRESS:
+   for my $ip_router (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
+
+      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip_router}; # /a priori/ idiot car ne sers à rien...
+
+      ALL_SWITCH_CONNECTED:
+      for my $switch_detected ( keys %{$where{$ip_router}} ) {
+
+         my $switch = $where{$ip_router}->{$switch_detected};
+
+         next ALL_SWITCH_CONNECTED if $switch->{'port_id'} eq '0';
+
+         $db_switch_output_port{$switch->{'hostname'}} = $switch->{'port_hr'};
+         print "VERBOSE_2: output port $switch->{'hostname'} : $switch->{'port_hr'}\n" if $args{'verbose'};
+         }
+      }
+
+   my %db_switch_link_with = ();
+
+   my @list_all_switch = ();
+   my @list_switch_ipv4 = ();
+   for my $sw (@SWITCH_LIST) {
+      push @list_all_switch, $sw->{'hostname'};
+      }
+
+   my $timestamp = time;
+
+   ALL_SWITCH:
+   for my $one_switch (@list_all_switch) {
+      my %resol_arp = resolve_ip_arp_host($one_switch, q{*}, q{low}); # arp resolution
+      if (exists $SWITCH_DB{$one_switch}{'fake-ip'}) {
+         my $fake_ip = $SWITCH_DB{$one_switch}{'fake-ip'};
+         fast_ping($fake_ip);
+         print "WARNING: fake ip on switch $one_switch -> $fake_ip / $resol_arp{'ipv4_address'}\n" if $args{'verbose'};
+         my %resol_arp_alt = resolve_ip_arp_host($fake_ip, q{*}, q{low}); # arp resolution
+         if ($resol_arp_alt{'mac_address'} ne 'unknow') {
+            $resol_arp{'mac_address'}   = $resol_arp_alt{'mac_address'};
+            $resol_arp{'interface'}     = $resol_arp_alt{'interface'};
+            $resol_arp{'ipv4_address'} .= '*';
+            # Force a MAC trace on switch
+            system "arping -c 1 -w 1 -rR -i $resol_arp_alt{'interface'} $fake_ip > /dev/null 2>&1";
+            }
+         }
+      print "Info: switch loop $one_switch\n" if $args{'verbose'};
+      next ALL_SWITCH if $resol_arp{'mac_address'} eq 'unknow';
+
+      push @list_switch_ipv4, $resol_arp{'ipv4_address'};
+
+      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
+      my $vlan_id   = get_current_vlan_id($vlan_name);
+      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # find port on all switch
+
+      if ($args{'verbose'}) {
+         print "VERBOSE_3: $one_switch $resol_arp{'ipv4_address'} $resol_arp{'mac_address'}\n";
+         print "VERBOSE_3: $one_switch --- ",
+            join(' + ', keys %{$where{$resol_arp{'ipv4_address'}}}),
+            "\n";
+         }
+
+      $db_switch_ip_hostnamefq{$resol_arp{'ipv4_address'}} = $resol_arp{'hostname_fq'};
+      print "VERBOSE_4: db_switch_ip_hostnamefq $resol_arp{'ipv4_address'} -> $resol_arp{'hostname_fq'}\n" if $args{'verbose'};
+
+      $SWITCH_DB{$one_switch}->{'ipv4_address'} = $resol_arp{'ipv4_address'};
+      $SWITCH_DB{$one_switch}->{'mac_address'}  = $resol_arp{'mac_address'};
+      $SWITCH_DB{$one_switch}->{'timestamp'}    = $timestamp;
+      $SWITCH_DB{$one_switch}->{'network'}      = $vlan_name;
+      }
+
+   ALL_SWITCH_IP_ADDRESS:
+   for my $ip (@list_switch_ipv4) {
+#   for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
+
+      print "VERBOSE_5: loop on $db_switch_ip_hostnamefq{$ip}\n" if $args{'verbose'};
+
+      next ALL_SWITCH_IP_ADDRESS if not exists $where{$ip};
+#      next ALL_SWITCH_IP_ADDRESS if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostnamefq{$ip} };
+
+      DETECTED_SWITCH:
+      for my $switch_detected ( keys %{$where{$ip}} ) {
+
+         my $switch = $where{$ip}->{$switch_detected};
+         print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{'hostname'} : $switch->{'port_hr'}\n" if $args{'verbose'};
+
+         next if $switch->{'port_id'}  eq '0';
+         next if $switch->{'port_hr'}  eq $db_switch_output_port{$switch->{'hostname'}};
+         next if $switch->{'hostname'} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{'hostname'};
+
+         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} } ||= {};
+         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} }->{ $switch->{'hostname'} } = $switch->{'port_hr'};
+         print "VERBOSE_7: +++++\n" if $args{'verbose'};
+         }
+
+      }
+
+   my %db_switch_connected_on_port = ();
+   my $maybe_more_than_one_switch_connected = 'yes';
+   my $cloop = 0;
+
+   while ($maybe_more_than_one_switch_connected eq 'yes' and $cloop < 100) {
+      $cloop++;
+      print "VERBOSE_9: cloop reduction step: $cloop\n" if $args{'verbose'};
+      for my $sw (keys %db_switch_link_with) {
+         for my $connect (keys %{$db_switch_link_with{$sw}}) {
+
+            my $port_hr = $db_switch_link_with{$sw}->{$connect};
+
+            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
+            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw}++; # Just to define the key
+            }
+         }
+
+      $maybe_more_than_one_switch_connected  = 'no';
+
+      SWITCH_AND_PORT:
+      for my $swport (keys %db_switch_connected_on_port) {
+
+         next if keys %{$db_switch_connected_on_port{$swport}} == 1;
+
+         $maybe_more_than_one_switch_connected = 'yes';
+
+         my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
+         my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
+         print "VERBOSE_10: $swport -- ".$#sw_on_same_port." -- @sw_on_same_port\n" if $args{'verbose'};
+
+         CONNECTED:
+         for my $sw_connected (@sw_on_same_port) {
+
+            next CONNECTED if not keys %{$db_switch_link_with{$sw_connected}} == 1;
+
+            $db_switch_connected_on_port{$swport} = {$sw_connected => 1};
+
+            for my $other_sw (@sw_on_same_port) {
+               next if $other_sw eq $sw_connected;
+
+               delete $db_switch_link_with{$other_sw}->{$sw_connect};
+               }
+
+            # We can not do better for this switch for this loop
+            next SWITCH_AND_PORT;
+            }
+         }
+      }
+
+   my %db_switch_parent =();
+
+   for my $sw (keys %db_switch_link_with) {
+      for my $connect (keys %{$db_switch_link_with{$sw}}) {
+
+         my $port_hr = $db_switch_link_with{$sw}->{$connect};
+
+         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
+         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw} = $port_hr;
+
+         $db_switch_parent{$sw} = {switch => $connect, port_hr => $port_hr};
+         }
+      }
+
+   print "Switch output port and parent port connection\n";
+   print "---------------------------------------------\n";
+   for my $sw (sort keys %db_switch_output_port) {
+      if (exists $db_switch_parent{$sw}) {
+         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'port_hr'}, $db_switch_parent{$sw}->{'switch'};
+         }
+      else {
+         printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
+         }
+      }
+   print "\n";
+
+   print "Switch parent and children port inter-connection\n";
+   print "------------------------------------------------\n";
+   for my $swport (sort keys %db_switch_connected_on_port) {
+      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
+      for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+         if (exists $db_switch_output_port{$sw}) {
+            printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
+            }
+         else {
+            printf "%-28s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
+            }
+         }
+      }
+
+   my $switch_connection = {
+      output_port       => \%db_switch_output_port,
+      parent            => \%db_switch_parent,
+      connected_on_port => \%db_switch_connected_on_port,
+      link_with         => \%db_switch_link_with,
+      switch_db         => \%SWITCH_DB,
+      timestamp         => $timestamp,
+      checksum          => get_switchdb_checksum(%SWITCH_DB),
+      };
+
+   YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
+   return;
+   }
+
 ################################################################
 # command
 ################################################################
@@ -1083,7 +1306,8 @@ sub cmd_updatedb {
    # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
    if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
-      print "ERROR: switch database must be rebuild\n";
+      print "WARNING: switch database is going to be rebuilt\n";
+      update_switchdb(verbose => $verbose);
       }
 
    my %db_switch_output_port       = %{$switch_connection->{'output_port'}};
@@ -2517,229 +2741,6 @@ sub cmd_search_mac_on_switch {
 
       $session->close;
       }
-   return;
-   }
-
-#---------------------------------------------------------------
-sub update_switchdb {
-   my %args = (
-      verbose => 0,
-      @_);
-
-   init_switch_names('yes');    #nomme les switchs
-   print "\n";
-
-   my %where = ();
-   my %db_switch_output_port = ();
-   my %db_switch_ip_hostnamefq = ();
-
-   DETECT_ALL_ROUTER:
-   for my $one_router ( get_list_main_router(get_list_network()) ) {
-      print "Info: router loop $one_router\n" if $args{'verbose'};
-      my %resol_arp = resolve_ip_arp_host($one_router, q{*}, q{low}); # resolution arp
-
-      next DETECT_ALL_ROUTER if $resol_arp{'mac_address'} eq 'unknow';
-      print "VERBOSE_1: Router detected $resol_arp{'ipv4_address'} - $resol_arp{'mac_address'}\n" if $args{'verbose'};
-
-      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
-      my $vlan_id   = get_current_vlan_id($vlan_name);
-      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # retrouve les emplacements des routeurs
-      }
-
-   ALL_ROUTER_IP_ADDRESS:
-   for my $ip_router (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
-
-      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip_router}; # /a priori/ idiot car ne sers à rien...
-
-      ALL_SWITCH_CONNECTED:
-      for my $switch_detected ( keys %{$where{$ip_router}} ) {
-
-         my $switch = $where{$ip_router}->{$switch_detected};
-
-         next ALL_SWITCH_CONNECTED if $switch->{'port_id'} eq '0';
-
-         $db_switch_output_port{$switch->{'hostname'}} = $switch->{'port_hr'};
-         print "VERBOSE_2: output port $switch->{'hostname'} : $switch->{'port_hr'}\n" if $args{'verbose'};
-         }
-      }
-
-   my %db_switch_link_with = ();
-
-   my @list_all_switch = ();
-   my @list_switch_ipv4 = ();
-   for my $sw (@SWITCH_LIST) {
-      push @list_all_switch, $sw->{'hostname'};
-      }
-
-   my $timestamp = time;
-
-   ALL_SWITCH:
-   for my $one_switch (@list_all_switch) {
-      my %resol_arp = resolve_ip_arp_host($one_switch, q{*}, q{low}); # arp resolution
-      if (exists $SWITCH_DB{$one_switch}{'fake-ip'}) {
-         my $fake_ip = $SWITCH_DB{$one_switch}{'fake-ip'};
-         fast_ping($fake_ip);
-         print "WARNING: fake ip on switch $one_switch -> $fake_ip / $resol_arp{'ipv4_address'}\n" if $args{'verbose'};
-         my %resol_arp_alt = resolve_ip_arp_host($fake_ip, q{*}, q{low}); # arp resolution
-         if ($resol_arp_alt{'mac_address'} ne 'unknow') {
-            $resol_arp{'mac_address'}   = $resol_arp_alt{'mac_address'};
-            $resol_arp{'interface'}     = $resol_arp_alt{'interface'};
-            $resol_arp{'ipv4_address'} .= '*';
-            # Force a MAC trace on switch
-            system "arping -c 1 -w 1 -rR -i $resol_arp_alt{'interface'} $fake_ip > /dev/null 2>&1";
-            }
-         }
-      print "Info: switch loop $one_switch\n" if $args{'verbose'};
-      next ALL_SWITCH if $resol_arp{'mac_address'} eq 'unknow';
-
-      push @list_switch_ipv4, $resol_arp{'ipv4_address'};
-
-      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
-      my $vlan_id   = get_current_vlan_id($vlan_name);
-      $where{$resol_arp{'ipv4_address'}} = find_all_switch_port($resol_arp{'mac_address'}, $vlan_id); # find port on all switch
-
-      if ($args{'verbose'}) {
-         print "VERBOSE_3: $one_switch $resol_arp{'ipv4_address'} $resol_arp{'mac_address'}\n";
-         print "VERBOSE_3: $one_switch --- ",
-            join(' + ', keys %{$where{$resol_arp{'ipv4_address'}}}),
-            "\n";
-         }
-
-      $db_switch_ip_hostnamefq{$resol_arp{'ipv4_address'}} = $resol_arp{'hostname_fq'};
-      print "VERBOSE_4: db_switch_ip_hostnamefq $resol_arp{'ipv4_address'} -> $resol_arp{'hostname_fq'}\n" if $args{'verbose'};
-
-      $SWITCH_DB{$one_switch}->{'ipv4_address'} = $resol_arp{'ipv4_address'};
-      $SWITCH_DB{$one_switch}->{'mac_address'}  = $resol_arp{'mac_address'};
-      $SWITCH_DB{$one_switch}->{'timestamp'}    = $timestamp;
-      $SWITCH_DB{$one_switch}->{'network'}      = $vlan_name;
-      }
-
-   ALL_SWITCH_IP_ADDRESS:
-   for my $ip (@list_switch_ipv4) {
-#   for my $ip (Net::Netmask::sort_by_ip_address(@list_switch_ipv4)) {
-
-      print "VERBOSE_5: loop on $db_switch_ip_hostnamefq{$ip}\n" if $args{'verbose'};
-
-      next ALL_SWITCH_IP_ADDRESS if not exists $where{$ip};
-#      next ALL_SWITCH_IP_ADDRESS if not exists $SWITCH_PORT_COUNT{ $db_switch_ip_hostnamefq{$ip} };
-
-      DETECTED_SWITCH:
-      for my $switch_detected ( keys %{$where{$ip}} ) {
-
-         my $switch = $where{$ip}->{$switch_detected};
-         print "VERBOSE_6: $db_switch_ip_hostnamefq{$ip} -> $switch->{'hostname'} : $switch->{'port_hr'}\n" if $args{'verbose'};
-
-         next if $switch->{'port_id'}  eq '0';
-         next if $switch->{'port_hr'}  eq $db_switch_output_port{$switch->{'hostname'}};
-         next if $switch->{'hostname'} eq $db_switch_ip_hostnamefq{$ip}; # $computerdb->{$ip}{'hostname'};
-
-         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} } ||= {};
-         $db_switch_link_with{ $db_switch_ip_hostnamefq{$ip} }->{ $switch->{'hostname'} } = $switch->{'port_hr'};
-         print "VERBOSE_7: +++++\n" if $args{'verbose'};
-         }
-
-      }
-
-   my %db_switch_connected_on_port = ();
-   my $maybe_more_than_one_switch_connected = 'yes';
-   my $cloop = 0;
-
-   while ($maybe_more_than_one_switch_connected eq 'yes' and $cloop < 100) {
-      $cloop++;
-      print "VERBOSE_9: cloop reduction step: $cloop\n" if $args{'verbose'};
-      for my $sw (keys %db_switch_link_with) {
-         for my $connect (keys %{$db_switch_link_with{$sw}}) {
-
-            my $port_hr = $db_switch_link_with{$sw}->{$connect};
-
-            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
-            $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw}++; # Just to define the key
-            }
-         }
-
-      $maybe_more_than_one_switch_connected  = 'no';
-
-      SWITCH_AND_PORT:
-      for my $swport (keys %db_switch_connected_on_port) {
-
-         next if keys %{$db_switch_connected_on_port{$swport}} == 1;
-
-         $maybe_more_than_one_switch_connected = 'yes';
-
-         my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
-         my @sw_on_same_port = keys %{$db_switch_connected_on_port{$swport}};
-         print "VERBOSE_10: $swport -- ".$#sw_on_same_port." -- @sw_on_same_port\n" if $args{'verbose'};
-
-         CONNECTED:
-         for my $sw_connected (@sw_on_same_port) {
-
-            next CONNECTED if not keys %{$db_switch_link_with{$sw_connected}} == 1;
-
-            $db_switch_connected_on_port{$swport} = {$sw_connected => 1};
-
-            for my $other_sw (@sw_on_same_port) {
-               next if $other_sw eq $sw_connected;
-
-               delete $db_switch_link_with{$other_sw}->{$sw_connect};
-               }
-
-            # We can not do better for this switch for this loop
-            next SWITCH_AND_PORT;
-            }
-         }
-      }
-
-   my %db_switch_parent =();
-
-   for my $sw (keys %db_switch_link_with) {
-      for my $connect (keys %{$db_switch_link_with{$sw}}) {
-
-         my $port_hr = $db_switch_link_with{$sw}->{$connect};
-
-         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"} ||= {};
-         $db_switch_connected_on_port{"$connect$SEP_SWITCH_PORT$port_hr"}->{$sw} = $port_hr;
-
-         $db_switch_parent{$sw} = {switch => $connect, port_hr => $port_hr};
-         }
-      }
-
-   print "Switch output port and parent port connection\n";
-   print "---------------------------------------------\n";
-   for my $sw (sort keys %db_switch_output_port) {
-      if (exists $db_switch_parent{$sw}) {
-         printf "%-28s  %2s  +-->  %2s  %-25s\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'port_hr'}, $db_switch_parent{$sw}->{'switch'};
-         }
-      else {
-         printf "%-28s  %2s  +-->  router\n", $sw, $db_switch_output_port{$sw};
-         }
-      }
-   print "\n";
-
-   print "Switch parent and children port inter-connection\n";
-   print "------------------------------------------------\n";
-   for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
-      for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
-         if (exists $db_switch_output_port{$sw}) {
-            printf "%-28s  %2s  <--+  %2s  %-25s\n", $sw_connect, $port_connect, $db_switch_output_port{$sw}, $sw;
-            }
-         else {
-            printf "%-28s  %2s  <--+      %-25s\n", $sw_connect, $port_connect, $sw;
-            }
-         }
-      }
-
-   my $switch_connection = {
-      output_port       => \%db_switch_output_port,
-      parent            => \%db_switch_parent,
-      connected_on_port => \%db_switch_connected_on_port,
-      link_with         => \%db_switch_link_with,
-      switch_db         => \%SWITCH_DB,
-      timestamp         => $timestamp,
-      checksum          => get_switchdb_checksum(%SWITCH_DB),
-      };
-
-   YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
    return;
    }
 
