@@ -2521,14 +2521,10 @@ sub cmd_search_mac_on_switch {
    }
 
 #---------------------------------------------------------------
-sub cmd_updatesw {
-   @ARGV = @_;
-
-   my $verbose;
-
-   GetOptions(
-      'verbose|v' => \$verbose,
-      );
+sub update_switchdb {
+   my %args = (
+      verbose => 0,
+      @_);
 
    init_switch_names('yes');    #nomme les switchs
    print "\n";
@@ -2745,6 +2741,19 @@ sub cmd_updatesw {
 
    YAML::Syck::DumpFile("$KLASK_SW_FILE", $switch_connection);
    return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_updatesw {
+   @ARGV = @_;
+
+   my $verbose;
+
+   GetOptions(
+      'verbose|v' => \$verbose,
+      );
+   
+   update_switchdb(verbose => $verbose);
    }
 
 #---------------------------------------------------------------
