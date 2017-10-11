@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.0');
+use version; our $VERSION = qv('0.7.1');
 
 use Readonly;
 use FileHandle;
@@ -90,6 +90,7 @@ my %CMD_DB = (
    'vlan-setname'         => \&cmd_vlan_setname,
    'vlan-getname'         => \&cmd_vlan_getname,
    'vlan-list'            => \&cmd_vlan_list,
+   'host-setlocation'     => \&cmd_host_setlocation,
    'rebootsw'             => \&cmd_rebootsw,
    );
 
@@ -2179,6 +2180,44 @@ sub cmd_poe_status {
       else {
          print "Klask do not find PoE status on switch $sw_name on port $switch_port\n";
          }
+
+      $session->close;
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_host_setlocation {
+   @ARGV = @_;
+
+   my ($verbose, $force);
+   GetOptions(
+      'verbose|v' => \$verbose,
+      'force|f'   => \$force,
+      );
+
+   my $switch_name = shift @ARGV || q{};
+   my $switch_location = shift @ARGV || q{};
+
+   if ($switch_name eq q{} or $switch_location eq q{}) {
+      die "Usage: klask host-setlocation SWITCH_NAME LOCATION\n";
+      }
+
+   for my $sw_name (split /,/, $switch_name) {
+      if (not defined $SWITCH_DB{$sw_name}) {
+         die "Switch $sw_name must be defined in klask configuration file\n";
+         }
+
+      my $oid_search = $OID_NUMBER{'sysLocation'};
+
+      my $sw = $SWITCH_DB{$sw_name};
+      my ($session, $error) = Net::SNMP->session(snmp_get_rwsession($sw));
+      print "$error \n" if $error;
+
+      my $result = $session->set_request(
+         -varbindlist => [$oid_search, OCTET_STRING, $switch_location],
+         );
+      print $session->error()."\n" if $session->error_status();
 
       $session->close;
       }
