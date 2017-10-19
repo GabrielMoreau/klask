@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.1');
+use version; our $VERSION = qv('0.7.2');
 
 use Readonly;
 use FileHandle;
@@ -2986,6 +2986,9 @@ sub cmd_exportsw_dot {
       }
    print "\n";
 
+   # shift graph between 1 or 2 when $graph_shift = 3
+   my $graph_breaker = 1;
+
 #   print "Switch parent and children port inter-connection\n";
 #   print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
@@ -3008,7 +3011,8 @@ sub cmd_exportsw_dot {
                my $invisible = '__Invisible_' . $invisible_node;
                print  "   \"$invisible.a\" [shape=none, label=\"\"];\n";
                printf "   \"%s:%s\"  -> \"$invisible.a\" [style=invis];\n", $sw, $db_switch_output_port{$sw};
-               if ($graph_shift == 2) {
+               $graph_breaker++;
+               if ($graph_shift == 2 or ($graph_shift == 3 and ($graph_breaker % 2) == 0)) {
                   # Two invisible node
                   print  "   \"$invisible.b\" [shape=none, label=\"\"];\n";
                   print  "   \"$invisible.a\" -> \"$invisible.b\" [style=invis];\n";
