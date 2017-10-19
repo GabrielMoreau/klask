@@ -207,7 +207,7 @@ if (defined $CMD_DB{$cmd}) {
    }
 else {
    print {*STDERR} "klask: command $cmd not found\n\n";
-   $CMD_DB{help}->();
+   $CMD_DB{'help'}->();
    exit 1;
    }
 
@@ -353,7 +353,7 @@ sub get_switch_model {
    $sw_snmp_description =~ s/[\n\r]/ /g;
 
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/ms; # option xms break search, why ?
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{'match'}/ms; # option xms break search, why ?
 
       return $SWITCH_KIND{$sw_kind}->{'model'};
       }
@@ -368,7 +368,7 @@ sub get_switch_revision {
    $sw_snmp_description =~ s/[\n\r]/ /g;
 
    for my $sw_kind (keys %SWITCH_KIND) {
-      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/ms; # option xms break search, why ?
+      next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{'match'}/ms; # option xms break search, why ?
       last if not exists $SWITCH_KIND{$sw_kind}->{'revision'};
 
       my ($revision) = $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{'revision'}/xms;
@@ -555,7 +555,7 @@ sub find_switch_port {
       # cette partie est a ameliore, voir a configurer dans l'entete
       # 21->24 45->48
       SWITCH_PORT_IGNORE:
-      for my $portignore (@{$sw->{portignore}}) {
+      for my $portignore (@{$sw->{'portignore'}}) {
          next LOOP_ON_SWITCH if $swport_hr eq $portignore;
          my ($swport_hr_limited) = split /$SEP_AGGREGATOR_PORT/, $swport_hr; # Beginning of the swith port (Aggregator)
          next LOOP_ON_SWITCH if $swport_hr_limited eq $portignore;
@@ -603,7 +603,7 @@ sub find_all_switch_port {
          my $swport_hr = snmp_get_switchport_id2hr($session, $swport_id);
 
          SWITCH_PORT_IGNORE:
-         for my $portignore (@{$sw->{portignore}}) {
+         for my $portignore (@{$sw->{'portignore'}}) {
             if ($swport_hr eq $portignore) {
                $session->close;
                next LOOP_ON_ALL_SWITCH
@@ -1340,12 +1340,12 @@ sub cmd_updatedb {
       $db_switch_chained_port{$sw_connect} .= "$port_connect:";
       }
    for my $sw (@SWITCH_LIST) {
-      push @{$sw->{portignore}}, $db_switch_output_port{$sw->{'hostname'}}  if exists $db_switch_output_port{$sw->{'hostname'}};
+      push @{$sw->{'portignore'}}, $db_switch_output_port{$sw->{'hostname'}}  if exists $db_switch_output_port{$sw->{'hostname'}};
       if ( exists $db_switch_chained_port{$sw->{'hostname'}} ) {
          chop $db_switch_chained_port{$sw->{'hostname'}};
-         push @{$sw->{portignore}}, split m/ : /xms, $db_switch_chained_port{$sw->{'hostname'}};
+         push @{$sw->{'portignore'}}, split m/ : /xms, $db_switch_chained_port{$sw->{'hostname'}};
          }
-#      print "$sw->{'hostname'} ++ @{$sw->{portignore}}\n";
+#      print "$sw->{'hostname'} ++ @{$sw->{'portignore'}}\n";
       }
    }
 
@@ -1589,8 +1589,8 @@ sub cmd_cleandb {
                not $ip_hostname_fq =~ m/$RE_FLOAT_HOSTNAME/
                or $mactimedb{$ip_mac}->{'hostname_fq'} =~ m/$RE_FLOAT_HOSTNAME/
                )) {
-            print "remove ip ".$mactimedb{$ip_mac}->{ip}."\n" if $verbose;
-            delete $computerdb->{$mactimedb{$ip_mac}->{ip}};
+            print "remove ip ".$mactimedb{$ip_mac}->{'ip'}."\n" if $verbose;
+            delete $computerdb->{$mactimedb{$ip_mac}->{'ip'}};
             $database_has_changed++;
             }
 
@@ -2045,7 +2045,7 @@ sub cmd_bad_vlan_id {
       next LOOP_ON_RECENT_COMPUTER if $swpt =~ m/^\s*0$/;
       next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{'hostname_fq'} !~ m/$RE_FLOAT_HOSTNAME/;
 
-      my $src_ip = $switchportdb{$swpt}->{ip};
+      my $src_ip = $switchportdb{$swpt}->{'ip'};
       my $src_timestamp = 0;
       LOOP_ON_IP_ADDRESS:
       for my $ip (keys %{$computerdb}) {
