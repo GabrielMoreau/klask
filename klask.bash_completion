@@ -21,11 +21,16 @@ _klask() {
          COMPREPLY=($(compgen -W "$(grep vlan-id: /etc/klask/klask.conf|awk '{print $2}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
+      -s|--shift)
+         COMPREPLY=($(compgen -W "1 2 3" -- "$cur"))
+         return 0
+         ;;
    esac
 
-   if [[ "$cur" == -* ]]
+   if [[ "$cur" == '-*' || $COMP_CWORD -gt 1 ]]
    then
-      COMPREPLY=($(compgen -W '-v --verbose -k --kind -f --format -d --day -i --vlan' -- "$cur"))
+      #COMPREPLY=($(compgen -W '-v --verbose -k --kind -f --format -d --day -i --vlan -m --modulo -s --shift' -- "$cur"))
+      COMPREPLY=($(compgen -W "$(klask  help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'|xargs echo -n)" -- "$cur"))
    else
       COMPREPLY=($(compgen -W "$($(which klask || echo /usr/sbin/klask) help|grep '^ klask'|awk '{print $2}'|xargs echo -n)" -- "$cur"))
    fi

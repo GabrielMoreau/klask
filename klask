@@ -1121,7 +1121,7 @@ klask - port and search manager for switches, map management
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw [--format|-f txt|dot]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -3057,7 +3057,7 @@ klask - port and search manager for switches, map management
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw [--format|-f txt|dot]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -3231,7 +3231,7 @@ It's use when rebuilding the database in case of change in switch configuration 
 
 =head2 exportsw
 
- klask exportsw [--format|-f txt|dot]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY]
 
 This command print the content of the switch database. There is actually two format.
 One is just TXT for terminal and the other is the DOT format from the graphviz environnement.
@@ -3240,6 +3240,15 @@ By default, format is TXT.
  klask exportsw --format dot > /tmp/map.dot
  dot -Tpng /tmp/map.dot > /tmp/map.png
 
+In case you have too many switch connected on one switch,
+the graphviz result graph could be too much vertical.
+With C<--modulo> > 0, you can specify how many switches (connected on one switch) are on the same columns
+before shifting them to one column to the left and back again.
+The C<--shift> parameter must be 1, 2 or 3.
+With C<--shift> egual to 2, the shift will be to two column to the left.
+With 3, it will be 1 to the left and 2 to the left one time over two !
+In practise, we just add virtuals nodes in the dot file,
+that means the result graph is generated with theses virtuals but invisibles nodes...
 
 =head2 ip-free
 
