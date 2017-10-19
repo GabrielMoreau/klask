@@ -355,7 +355,7 @@ sub get_switch_model {
    for my $sw_kind (keys %SWITCH_KIND) {
       next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/ms; # option xms break search, why ?
 
-      return $SWITCH_KIND{$sw_kind}->{model};
+      return $SWITCH_KIND{$sw_kind}->{'model'};
       }
 
    return $sw_snmp_description;
@@ -369,9 +369,9 @@ sub get_switch_revision {
 
    for my $sw_kind (keys %SWITCH_KIND) {
       next if not $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{match}/ms; # option xms break search, why ?
-      last if not exists $SWITCH_KIND{$sw_kind}->{revision};
+      last if not exists $SWITCH_KIND{$sw_kind}->{'revision'};
 
-      my ($revision) = $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{revision}/xms;
+      my ($revision) = $sw_snmp_description =~ m/$SWITCH_KIND{$sw_kind}->{'revision'}/xms;
       return $revision || 'unknow';
       }
 
@@ -410,9 +410,9 @@ sub init_switch_names {
          }
 
       $sw->{'description'} = $result->{$OID_NUMBER{'sysName'}} || $sw->{'hostname'};
-      $sw->{model} = get_switch_model($result->{$OID_NUMBER{'sysDescription'}});
-      $sw->{revision} = get_switch_revision($result->{$OID_NUMBER{'sysDescription'}});
-      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{'hostname'}, $sw->{'description'}, $sw->{model}.'('.$sw->{revision}.')' if $verbose;
+      $sw->{'model'} = get_switch_model($result->{$OID_NUMBER{'sysDescription'}});
+      $sw->{'revision'} = get_switch_revision($result->{$OID_NUMBER{'sysDescription'}});
+      printf "%-26s 0--------->>>> %-25s %s\n", $sw->{'hostname'}, $sw->{'description'}, $sw->{'model'}.'('.$sw->{'revision'}.')' if $verbose;
 
       if ($verb_description) {
          my $desc = $result->{$OID_NUMBER{'sysDescription'}};
@@ -889,7 +889,7 @@ sub get_switchdb_checksum {
    for my $sw_name (sort keys %switch_db) { # sort to always have the same order
       $checksum_data .= join ':',
          $switch_db{$sw_name}->{'description'},
-         $switch_db{$sw_name}->{model},
+         $switch_db{$sw_name}->{'model'},
          $switch_db{$sw_name}->{'hostname'},
          "\n";
       }
@@ -2953,7 +2953,7 @@ sub cmd_exportsw_dot {
             print "\"$sw:$db_switch_output_port{$sw}\" [label=\"".format_aggregator4dot($db_switch_output_port{$sw})."\", color=black, fillcolor=lightblue, peripheries=$peripheries, style=filled];\n";
 
             my $swname  = $sw;
-               $swname .= q{\n-\n} . "$db_switch_global{$sw}->{model}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{model};
+               $swname .= q{\n-\n} . "$db_switch_global{$sw}->{'model'}" if exists $db_switch_global{$sw} and exists $db_switch_global{$sw}->{'model'};
             print "\"$sw\" [label=\"$swname\", color=black, fillcolor=palegreen, shape=rect, style=filled];\n";
             print "\"location$b-$l\" -> \"$sw\" [len=2, color=firebrick, arrowtail=dot];\n";
             print "\"$sw\" -> \"$sw:$db_switch_output_port{$sw}\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=invdot];\n";
