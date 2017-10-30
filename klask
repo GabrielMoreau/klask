@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.4');
+use version; our $VERSION = qv('0.7.5');
 
 use Readonly;
 use FileHandle;
@@ -1843,7 +1843,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td><table boder="0" class="noborder"><tr><td>$arrow</td><td>$child_port_hr</td></tr></table></td>
+   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $child_port_hr</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1881,7 +1881,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="router">router</td>
    <td class="bklask-port"></td>
-   <td><table boder="0" class="noborder"><tr><td>$arrow</td><td>$parent_port_hr</td></tr></table></td>
+   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $parent_port_hr</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1950,7 +1950,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td><table boder="0" class="noborder"><tr><td>$arrow</td><td>$child_port_hr</td></tr></table></td>
+   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $child_port_hr</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -2847,6 +2847,11 @@ sub cmd_exportsw {
 
 #---------------------------------------------------------------
 sub cmd_exportsw_txt {
+   my %args = (
+      way   => 'all',
+      list  => 0,
+      @_);
+
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
    my %db_switch_output_port       = %{$switch_connection->{'output_port'}};
