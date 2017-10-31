@@ -50,9 +50,10 @@ LOCALTIME=$($DATE "+%Y-%m-%d %H:%M")
 $KLASK exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt
 
 
-$KLASK exportdb > ${TMP}/hostname-db.txt
-$KLASK exportsw > ${TMP}/switch-db.txt
-$KLASK ip-free  > ${TMP}/ipfree-db.txt
+$KLASK exportdb    > ${TMP}/hostname-db.txt
+$KLASK exportsw    > ${TMP}/switch-db.txt
+$KLASK ip-free     > ${TMP}/ipfree-db.txt
+$KLASK bad-vlan-id > ${TMP}/badvlan-db.txt
 
 
 $CAT <<END > ${TMP}/index.html
@@ -76,24 +77,26 @@ function refresh() {
 <body onload="delayedRefresh">
 <h1>
 <b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
+- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
 <div id="navbar">
  <ul>
   <li id="selected"><a href="index.html">IP detected</a></li>
-  <li><a href="ip-free.html">IP free</a></li>
+  <li><a href="ip-free.html">IP available</a></li>
   <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
-Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
-<a href="hostname-db.txt">Machines</a>,
-<a href="switch-db.txt">Commutateurs</a>,
-<a href="ipfree-db.txt">IP disponibles</a>,
-<a href="switch-map.txt">Carte</a>.
+The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
+<a href="hostname-db.txt">Computers</a>,
+<a href="switch-db.txt">Switches</a>,
+<a href="ipfree-db.txt">IP available</a>,
+<a href="badvlan-db.txt">Bad VLAN ID</a>,
+<a href="switch-map.txt">Map</a>.
 </p>
 END
 
@@ -115,24 +118,26 @@ $CAT <<END > ${TMP}/ip-free.html
 <body>
 <h1>
 <b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
+- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
 <div id="navbar">
  <ul>
   <li><a href="index.html">IP detected</a></li>
-  <li id="selected"><a href="ip-free.html">IP free</a></li>
+  <li id="selected"><a href="ip-free.html">IP available</a></li>
   <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
-Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
-<a href="hostname-db.txt">Machines</a>,
-<a href="switch-db.txt">Commutateurs</a>,
-<a href="ipfree-db.txt">IP disponibles</a>,
-<a href="switch-map.txt">Carte</a>.
+The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
+<a href="hostname-db.txt">Computers</a>,
+<a href="switch-db.txt">Switches</a>,
+<a href="ipfree-db.txt">IP available</a>,
+<a href="bad-vlan-id-db.txt">Bad VLAN ID</a>,
+<a href="switch-map.txt">Map</a>.
 </p>
 END
 
@@ -155,24 +160,26 @@ $CAT <<END > ${TMP}/bad-vlan-id.html
 <body>
 <h1>
 <b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
+- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
 <div id="navbar">
  <ul>
   <li><a href="index.html">IP detected</a></li>
-  <li><a href="ip-free.html">IP free</a></li>
+  <li><a href="ip-free.html">IP available</a></li>
   <li id="selected"><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
-Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
-<a href="hostname-db.txt">Machines</a>,
-<a href="switch-db.txt">Commutateurs</a>,
-<a href="ipfree-db.txt">IP disponibles</a>,
-<a href="switch-map.txt">Carte</a>.
+The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
+<a href="hostname-db.txt">Computers</a>,
+<a href="switch-db.txt">Switches</a>,
+<a href="ipfree-db.txt">IP available</a>,
+<a href="bad-vlan-id-db.txt">Bad VLAN ID</a>,
+<a href="switch-map.txt">Map</a>.
 </p>
 END
 
