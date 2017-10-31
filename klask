@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.5');
+use version; our $VERSION = qv('0.7.6');
 
 use Readonly;
 use FileHandle;
@@ -1180,6 +1180,8 @@ sub cmd_version {
 print <<'END';
 klask - port and search manager for switches, map management
 Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+License GPL version 2 or later and Perl equivalent
+Version $VERSION
 
 END
    print ' $Id$'."\n";
