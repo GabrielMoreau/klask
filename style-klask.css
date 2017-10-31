@@ -3,6 +3,7 @@ h1{
    text-align  : center;
    font-family : Verdana;
    font-size   : 120%;
+   margin      : 2.5ex;
    }
 
 table.sortable {
@@ -17,7 +18,7 @@ table.sortable caption {
    }
 
 table.sortable th {
-   color           : #FFF;
+   color           : #333;
    background      : #000;
    }
 
@@ -74,9 +75,17 @@ td.bklask-arrow {
 .circle {
    padding        : 2ex;
    border-radius  : 50%;
-   color          : #fff;
+   color          : #FFF;
    text-align     : center;
-   background     : #000
+   background     : #333;
+   }
+
+.circle a {
+   text-decoration: none;
+   }
+
+.circle a:hover {
+   background: #AAA;
    }
 
 #navbar ul {
@@ -87,27 +96,27 @@ td.bklask-arrow {
 
 #navbar li {
    float: left;
-   border: 1px solid #bbb;
+   border: 1px solid #BBB;
    border-bottom-width: 0;
    margin: 0;
-   border-top-left-radius : 1.5ex;
+   border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
    }
 
 #navbar a {
    text-decoration: none;
    display: block;
-   background: #eee;
+   background: #EEE;
    padding: 0.8ex 2.5ex;
    color: #00c;
    width: 20ex;
    text-align: center;
-   border-top-left-radius : 1.5ex;
+   border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
    }
 
 #navbar a:hover {
-   background: #ddf;
+   background: #DDF;
    }
 
 #navbar #selected {

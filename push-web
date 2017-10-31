@@ -76,7 +76,7 @@ function refresh() {
 </head>
 <body onload="delayedRefresh">
 <h1>
-<div class="circle"><b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b></div>
+<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
 Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
 the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
