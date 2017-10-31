@@ -2599,13 +2599,29 @@ sub cmd_ip_free {
 sub cmd_ip_free_txt {
    my %result_ip = @_;
 
-   printf "%-15s %-40s %-16s %s\n", qw(IPv4-Address Hostname-FQ Date VLAN);
-   print "-------------------------------------------------------------------------------\n";
+   my $tb_computer = Text::Table->new(
+      {align => 'left', align_title => 'left', title => 'IPv4-Address'},
+      {align => 'left', align_title => 'left', title => 'Hostname-FQ'},
+      {align => 'left', align_title => 'left', title => 'VLAN'},
+      {align => 'left', align_title => 'left', title => 'Date'},
+      );
+
+   #printf "%-15s %-40s %-16s %s\n", qw(IPv4-Address Hostname-FQ Date VLAN);
+   #print "-------------------------------------------------------------------------------\n";
    LOOP_ON_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(keys %result_ip)) {
-         my $vlan_nameid = $result_ip{$ip}->{'vlan'}.'('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
-         printf "%-15s %-40s %-16s %s\n", $ip, $result_ip{$ip}->{'hostname_fq'}, $result_ip{$ip}->{'date_last_detection'}, $vlan_nameid;
+      my $vlan_nameid = $result_ip{$ip}->{'vlan'}.'('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
+      #printf "%-15s %-40s %-16s %s\n", $ip, $result_ip{$ip}->{'hostname_fq'}, $result_ip{$ip}->{'date_last_detection'}, $vlan_nameid;
+      $tb_computer->add(
+         $ip,
+         $result_ip{$ip}->{'hostname_fq'},
+         $vlan_nameid,
+         $result_ip{$ip}->{'date_last_detection'},
+         ;
       }
+   print $tb_computer->title();
+   print $tb_computer->rule('-');
+   print $tb_computer->body();
    }
 
 #---------------------------------------------------------------
@@ -2617,10 +2633,10 @@ sub cmd_ip_free_html {
  <caption>Klask Free IP Database</caption>
  <thead>
   <tr>
-   <th scope="col" class="klask-header-left">IPv4-Address</th>
-   <th scope="col" class="sorttable_alpha">Hostname-FQ</th>
-   <th scope="col" class="sorttable_alpha">VLAN</th>
-   <th scope="col" class="klask-header-right">Date</th>
+   <th scope="col" class="klask-header-left">IPv4-Address &#8645</th>
+   <th scope="col" class="sorttable_alpha">Hostname-FQ &#8645</th>
+   <th scope="col" class="sorttable_alpha">VLAN &#8645</th>
+   <th scope="col" class="klask-header-right">Date &#8645</th>
   </tr>
  </thead>
  <tfoot>
@@ -2644,12 +2660,14 @@ END_HTML
       my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
       my ( $host_short ) = split m/ \. /xms, $result_ip{$ip}->{'hostname_fq'};
 
-      my $vlan_nameid = $result_ip{$ip}->{'vlan'}.'('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
+      my $vlan_nameid = $result_ip{$ip}->{'vlan'}.' ('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
+
+      fqdn_html_breakable(my $hostname_fq_html = $result_ip{$ip}->{'hostname_fq'});
 
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$ip_sort">$ip</td>
-   <td sorttable_customkey="$host_short">$result_ip{$ip}->{'hostname_fq'}</td>
+   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
    <td>$vlan_nameid</td>
    <td>$result_ip{$ip}->{'date_last_detection'}</td>
   </tr>
