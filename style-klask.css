@@ -88,9 +88,9 @@ td.bklask-arrow {
    text-decoration: none;
    display: block;
    background: #eee;
-   padding: 0.24em 1em;
+   padding: 0.8ex 2.5ex;
    color: #00c;
-   width: 8em;
+   width: 20ex;
    text-align: center;
    }
 
@@ -113,5 +113,8 @@ td.bklask-arrow {
 #content {
    border: 1px solid black;
    clear: both;
-   padding: 0 1em;
+   padding-left: 0.5ex;
+   padding-right: 0.5ex;
+   padding-top: 0ex;
+   padding-bottom: 1.5ex;
    }
