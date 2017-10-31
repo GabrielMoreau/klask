@@ -67,6 +67,6 @@ td.bklask-port {
 
 td.bklask-arrow {
   text-align      : left;
-  text-indent     : -6ex;
-  padding-left    : 7ex;
+  text-indent     : -6em;
+  padding-left    : 7em !important;
   }
