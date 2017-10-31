@@ -2073,6 +2073,27 @@ sub cmd_bad_vlan_id {
          }
       }
 
+   # swL2-legi-1.hmg.priv          Gi1/0/3 / legi-calcul +-> legi-683  (337)  2017-10-31/10:30 2017-09-08/11:02 78:24:AF:88:69:64 meige8pcsv149.legi.grenoble-inp.fr
+   my $tb_bad = Text::Table->new(
+      {align  => 'left',   align_title => 'left',   title => 'Switch'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'right',  align_title => 'right',  title => 'Port'},
+      {is_sep => 1,              title => ' ',       body => ' !'},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN_Bad'},
+      {is_sep => 1,              title => ' ',       body => ' +-> '},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN_Name'},
+      {is_sep => 1,              title => ' ',       body => ' ('},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN_Number'},
+      {is_sep => 1,              title => ' ',       body => ') '},
+      {align  => 'left',   align_title => 'left',   title => 'Date_Float'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'Date_Good'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'MAC-Address'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'Hostname-FQ'},
+      );
+
    LOOP_ON_RECENT_COMPUTER:
    for my $swpt (keys %switchportdb) {
       next LOOP_ON_RECENT_COMPUTER if $swpt =~ m/^\s*0$/;
@@ -2105,14 +2126,27 @@ sub cmd_bad_vlan_id {
       my $src_date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
       my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{'network'});
-
-      printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
-         $swpt, $switchportdb{$swpt}->{'vlan'}, $computerdb->{$src_ip}{'network'}, $vlan_id,
+      my ($switch_hostname, $port_hr) = split /\s+/, $swpt, 2;
+      $tb_bad->add(
+         $switch_hostname,
+         $port_hr,
+         $switchportdb{$swpt}->{'vlan'},
+         $computerdb->{$src_ip}{'network'},
+         $vlan_id,
          $date,
          $src_date,
          $computerdb->{$src_ip}{'mac_address'},
          $computerdb->{$src_ip}{'hostname_fq'};
+         );
+
+      #printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
+      #   $swpt, $switchportdb{$swpt}->{'vlan'}, $computerdb->{$src_ip}{'network'}, $vlan_id,
+      #   $date,
+      #   $src_date,
+      #   $computerdb->{$src_ip}{'mac_address'},
+      #   $computerdb->{$src_ip}{'hostname_fq'};
       }
+   print $tb_bad->body();
    }
 
 #---------------------------------------------------------------
