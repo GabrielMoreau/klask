@@ -79,13 +79,15 @@ function refresh() {
 - Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
-<p>
-Ce portail pr&eacute;sente&nbsp;:
-toutes les <b>IP d&eacute;tect&eacute;es</b>,
-les <a href="ip-free.html">IP non d&eacute;tect&eacute;es</a> depuis plus de deux ann&eacute;es,
-les <a href="bad-vlan-id.html">machines configur&eacute;es dans un mauvais VLAN</a>.
-</p>
+<div id="navbar">
+ <ul>
+  <li id="selected"><a href="index.html">IP detected</a></li>
+  <li><a href="ip-free.html">IP free</a></li>
+  <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+ </ul>
+</div>
 
+<div id="content">
 <p>
 Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
 <a href="hostname-db.txt">Machines</a>,
@@ -116,13 +118,15 @@ $CAT <<END > ${TMP}/ip-free.html
 - Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
-<p>
-Ce portail pr&eacute;sente&nbsp;:
-toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a>,
-les <b>IP non d&eacute;tect&eacute;es</b> depuis plus de deux ann&eacute;es,
-les <a href="bad-vlan-id.html">machines configur&eacute;es dans un mauvais VLAN</a>.
-</p>
+<div id="navbar">
+ <ul>
+  <li><a href="index.html">IP detected</a></li>
+  <li id="selected"><a href="ip-free.html">IP free</a></li>
+  <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+ </ul>
+</div>
 
+<div id="content">
 <p>
 Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
 <a href="hostname-db.txt">Machines</a>,
@@ -135,6 +139,7 @@ END
 $KLASK ip-free --format html >> ${TMP}/ip-free.html
 
 $CAT <<END >> ${TMP}/ip-free.html
+</div>
 </body>
 </html>
 END
@@ -153,13 +158,15 @@ $CAT <<END > ${TMP}/bad-vlan-id.html
 - Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
-<p>
-Ce portail pr&eacute;sente&nbsp;:
-toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a>,
-les <a href="ip-free.html">IP non d&eacute;tect&eacute;es</a> depuis plus de deux ann&eacute;es,
-les <b>machines configur&eacute;es dans un mauvais VLAN</b>.
-</p>
+<div id="navbar">
+ <ul>
+  <li><a href="index.html">IP detected</a></li>
+  <li><a href="ip-free.html">IP free</a></li>
+  <li id="selected"><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+ </ul>
+</div>
 
+<div id="content">
 <p>
 Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
 <a href="hostname-db.txt">Machines</a>,
