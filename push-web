@@ -104,7 +104,7 @@ $KLASK exportdb --format html >> ${TMP}/index.html
 
 $CAT <<END >> ${TMP}/index.html
 </div>
-<p style="text-align:right;">
+<p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
 </p>
 </body>
@@ -149,7 +149,7 @@ $KLASK ip-free --format html >> ${TMP}/ip-free.html
 
 $CAT <<END >> ${TMP}/ip-free.html
 </div>
-<p style="text-align:right;">
+<p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
 </p>
 </body>
@@ -194,7 +194,7 @@ $KLASK bad-vlan-id --format html >> ${TMP}/bad-vlan-id.html
 
 $CAT <<END >> ${TMP}/bad-vlan-id.html
 </div>
-<p style="text-align:right;">
+<p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
 </p>
 </body>

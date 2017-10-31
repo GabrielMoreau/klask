@@ -88,6 +88,11 @@ a:hover.circle {
    background      : #AAA;
    }
 
+p.copyright {
+   text-align      : right;
+   margin-right    : 10ex;
+   }
+
 #navbar ul {
    list-style: none;
    padding: 0;
