@@ -22,19 +22,19 @@ table.sortable th {
   }
 
 th.klask-header-left {
-  -moz-border-radius-topleft : 1em;
+  -moz-border-radius-topleft : 1ex;
   }
 
 th.klask-header-right {
-  -moz-border-radius-topright : 1em;
+  -moz-border-radius-topright : 1ex;
   }
 
 th.klask-footer-left {
-  -moz-border-radius-bottomleft : 1em;
+  -moz-border-radius-bottomleft : 1ex;
   }
 
 th.klask-footer-right {
-  -moz-border-radius-bottomright : 1em;
+  -moz-border-radius-bottomright : 1ex;
   }
 
 table.sortable td {
@@ -49,16 +49,16 @@ tr.odd td {
   background      : #DBF9CF;
   border-collapse : collapse;
   font-family     : Courier;
-  padding-left    : 0.5em;
-  padding-right   : 0.5em;
+  padding-left    : 0.5ex;
+  padding-right   : 0.5ex;
   }
 
 tr.even td {
   background      : #FFF;
   border-collapse : collapse;
   font-family     : Courier;
-  padding-left    : 0.5em;
-  padding-right   : 0.5em;
+  padding-left    : 0.5ex;
+  padding-right   : 0.5ex;
   }
 
 td.bklask-port {
@@ -67,6 +67,6 @@ td.bklask-port {
 
 td.bklask-arrow {
   text-align      : left;
-  text-indent     : -6em;
-  padding-left    : 7em !important;
+  text-indent     : -5.5ex;
+  padding-left    : 6.5em !important;
   }

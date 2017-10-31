@@ -495,8 +495,18 @@ sub format_aggregator4html {
 sub format_aggregator4dot {
    my $port_hr = shift;
    $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ - /; # First occurence
-   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g; # Other occurence
+   $port_hr =~ s/($SEP_AGGREGATOR_PORT)/ /g;  # Other occurence
    return $port_hr;
+   }
+
+#---------------------------------------------------------------
+# fqdn_html_breakable change it's parameter, use it like chomp perl function
+
+sub fqdn_html_breakable {
+   my $ref_fqdn = \($_[0]);
+   
+   # Add HTML <wbr> before every . to permit line break
+   $$ref_fqdn =~ s{\.}{<wbr />.}g;
    }
 
 #---------------------------------------------------------------
@@ -1778,19 +1788,21 @@ END_HTML
 
       my $parent_port_hr = format_aggregator4html($computerdb->{$ip}{'switch_port_hr'});
 
+      fqdn_html_breakable($switch_hostname);
+      fqdn_html_breakable(my $hostname_fq_html = $computerdb->{$ip}{'hostname_fq'});
+
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow</td>
-   <td sorttable_customkey="$host_short">$computerdb->{$ip}{'hostname_fq'}</td>
+   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
    <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{'mac_address'}</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
 END_HTML
-#   <td colspan="2">$arrow</td>
       }
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -1839,12 +1851,15 @@ END_HTML
          my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
          my $child_port_hr  = format_aggregator4html($db_switch_parent{$sw}->{'port_hr'});
 
+         fqdn_html_breakable($sw);
+         fqdn_html_breakable(my $sw_child_html = $db_switch_parent{$sw}->{'switch'});
+
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow $child_port_hr</td>
-   <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
+   <td sorttable_customkey="$host_short">$sw_child_html</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
    <td>$vlan</td>
@@ -1877,6 +1892,8 @@ END_HTML
          my $arrow ='&#10235;';
             $arrow ='&#10237;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
+         fqdn_html_breakable($sw);
+
          print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="router">router</td>
@@ -1889,23 +1906,7 @@ END_HTML
    <td>$date</td>
   </tr>
 END_HTML
-         #<td>$arrow</td><td>$parent_port_hr</td>
-
          next LOOP_ON_OUTPUT_SWITCH;
-
-         # Old print
-         print <<"END_HTML";
-  <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$sw</td>
-   <td class="bklask-port">$parent_port_hr</td>
-   <td class="bklask-arrow">$arrow</td><td></td>
-   <td sorttable_customkey="router">router</td>
-   <td sorttable_customkey="999999999999"></td>
-   <td sorttable_customkey="99999"></td>
-   <td></td>
-   <td></td>
-  </tr>
-END_HTML
          }
       }
 
@@ -1946,6 +1947,9 @@ END_HTML
             my $parent_port_hr = format_aggregator4html($port_connect);
             my $child_port_hr  = format_aggregator4html($db_switch_output_port{$sw});
 
+            fqdn_html_breakable($sw);
+            fqdn_html_breakable($sw_connect);
+
             print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
@@ -1961,6 +1965,9 @@ END_HTML
             }
          else {
             my $parent_port_hr = format_aggregator4html($port_connect);
+
+            fqdn_html_breakable($sw);
+            fqdn_html_breakable($sw_connect);
 
             print <<"END_HTML";
   <tr class="$typerow">
