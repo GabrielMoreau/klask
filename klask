@@ -2081,11 +2081,11 @@ sub cmd_bad_vlan_id {
       {is_sep => 1,              title => ' ',       body => ' !'},
       {align  => 'left',   align_title => 'left',   title => 'VLAN_Bad'},
       {is_sep => 1,              title => ' ',       body => ' +-> '},
-      {align  => 'left',   align_title => 'left',   title => 'VLAN_Name'},
-      {is_sep => 1,              title => ' ',       body => ' ('},
-      {align  => 'left',   align_title => 'left',   title => 'VLAN_Number'},
-      {is_sep => 1,              title => ' ',       body => ') '},
-      {align  => 'left',   align_title => 'left',   title => 'Date_Float'},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN_Good'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN_ID'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'Date_Last'},
       {is_sep => 1,              title => ' ',       body => ' '},
       {align  => 'left',   align_title => 'left',   title => 'Date_Good'},
       {is_sep => 1,              title => ' ',       body => ' '},
@@ -2132,20 +2132,22 @@ sub cmd_bad_vlan_id {
          $port_hr,
          $switchportdb{$swpt}->{'vlan'},
          $computerdb->{$src_ip}{'network'},
-         $vlan_id,
+         '(' . $vlan_id . ')',
          $date,
          $src_date,
          $computerdb->{$src_ip}{'mac_address'},
-         $computerdb->{$src_ip}{'hostname_fq'};
+         $computerdb->{$src_ip}{'hostname_fq'},
          );
 
-      #printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
+      # printf "%s / %-10s +-> %-10s(%i)  %s %s %s %s\n",
       #   $swpt, $switchportdb{$swpt}->{'vlan'}, $computerdb->{$src_ip}{'network'}, $vlan_id,
       #   $date,
       #   $src_date,
       #   $computerdb->{$src_ip}{'mac_address'},
       #   $computerdb->{$src_ip}{'hostname_fq'};
       }
+   print $tb_bad->title();
+   print $tb_bad->rule('-');
    print $tb_bad->body();
    }
 
