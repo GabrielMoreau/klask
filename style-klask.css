@@ -1,14 +1,14 @@
 
 h1{
-   text-align  : center;
-   font-family : Verdana;
-   font-size   : 120%;
-   margin      : 2.5ex;
+   text-align      : center;
+   font-family     : Verdana;
+   font-size       : 120%;
+   margin          : 2.5ex;
    }
 
 table.sortable {
-   border-collapse    : collapse;
-   font-family        : Verdana;
+   border-collapse : collapse;
+   font-family     : Verdana;
    }
 
 table.sortable caption {
@@ -18,8 +18,8 @@ table.sortable caption {
    }
 
 table.sortable th {
-   color           : #333;
-   background      : #000;
+   color           : #FFF;
+   background      : #333;
    }
 
 th.klask-header-left {
@@ -39,11 +39,11 @@ th.klask-footer-right {
    }
 
 table.sortable td {
-   border        : 1px solid #AAA;
-   border-top    : 1px solid #AAA;
-   border-bottom : 1px solid #AAA;
-   border-left   : 1px solid #AAA;
-   border-right  : 1px solid #AAA;
+   border          : 1px solid #AAA;
+   border-top      : 1px solid #AAA;
+   border-bottom   : 1px solid #AAA;
+   border-left     : 1px solid #AAA;
+   border-right    : 1px solid #AAA;
    }
 
 tr.odd td {
@@ -72,20 +72,20 @@ td.bklask-arrow {
    padding-left    : 6.5ex !important;
    }
 
-.circle {
-   padding        : 2ex;
-   border-radius  : 50%;
-   color          : #FFF;
-   text-align     : center;
-   background     : #333;
+a.circle {
+   padding         : 2ex;
+   border-radius   : 50%;
+   color           : #FFF;
+   text-align      : center;
+   background      : #333;
    }
 
-.circle a {
-   text-decoration: none;
+a.circle {
+   text-decoration : none;
    }
 
-.circle a:hover {
-   background: #AAA;
+a:hover.circle {
+   background      : #AAA;
    }
 
 #navbar ul {
