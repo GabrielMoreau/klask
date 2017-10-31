@@ -2182,7 +2182,7 @@ sub cmd_bad_vlan_id_html {
    <th scope="col" class="sorttable_alpha">Date-Last &#8645</th>
    <th scope="col" class="sorttable_alpha">Date-Good &#8645</th>
    <th scope="col" class="sorttable_alpha">MAC-Address &#8645</th>
-   <th scope="col" class="klask-footer-left">Hostname-FQ &#8645</th>
+   <th scope="col" class="klask-header-right">Hostname-FQ &#8645</th>
   </tr>
  </thead>
  <tfoot>
