@@ -1782,7 +1782,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td>$arrow</td>
+   <td class="bklask-arrow">$arrow</td>
    <td sorttable_customkey="$host_short">$computerdb->{$ip}{'hostname_fq'}</td>
    <td sorttable_customkey="$ip_sort">$ip</td>
    <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{'mac_address'}</td>
@@ -1843,7 +1843,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $child_port_hr</td>
+   <td class="bklask-arrow">$arrow $child_port_hr</td>
    <td sorttable_customkey="$host_short">$db_switch_parent{$sw}->{'switch'}</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1881,7 +1881,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="router">router</td>
    <td class="bklask-port"></td>
-   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $parent_port_hr</td>
+   <td class="bklask-arrow">$arrow $parent_port_hr</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1898,7 +1898,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td>$arrow</td><td></td>
+   <td class="bklask-arrow">$arrow</td><td></td>
    <td sorttable_customkey="router">router</td>
    <td sorttable_customkey="999999999999"></td>
    <td sorttable_customkey="99999"></td>
@@ -1950,7 +1950,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td style="text-indent:-6ex;padding-left:7ex;">$arrow $child_port_hr</td>
+   <td class="bklask-arrow">$arrow $child_port_hr</td>
    <td sorttable_customkey="$host_short">$sw</td>
    <td sorttable_customkey="$ip_sort">$ipv4_address</td>
    <td sorttable_customkey="$mac_sort">$mac_address</td>
@@ -1966,7 +1966,7 @@ END_HTML
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$parent_port_hr</td>
-   <td>$arrow</td>
+   <td class="bklask-arrow">$arrow</td>
    <td sorttable_customkey="$sw">$sw</td>
    <td sorttable_customkey="">$ipv4_address</td>
    <td sorttable_customkey="">$mac_address</td>
