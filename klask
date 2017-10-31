@@ -506,7 +506,7 @@ sub fqdn_html_breakable {
    my $ref_fqdn = \($_[0]);
    
    # Add HTML <wbr> before every . to permit line break
-   $$ref_fqdn =~ s{\.}{<wbr />.}g;
+   $$ref_fqdn =~ s{\.}{.<wbr />}g;
    }
 
 #---------------------------------------------------------------
