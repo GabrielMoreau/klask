@@ -22,19 +22,19 @@ table.sortable th {
    }
 
 th.klask-header-left {
-   -moz-border-radius-topleft : 1ex;
+   border-top-left-radius : 1ex;
    }
 
 th.klask-header-right {
-   -moz-border-radius-topright : 1ex;
+   border-top-right-radius : 1ex;
    }
 
 th.klask-footer-left {
-   -moz-border-radius-bottomleft : 1ex;
+   border-bottom-left-radius : 1ex;
    }
 
 th.klask-footer-right {
-   -moz-border-radius-bottomright : 1ex;
+   border-bottom-right-radius : 1ex;
    }
 
 table.sortable td {
@@ -82,6 +82,8 @@ td.bklask-arrow {
    border: 1px solid #bbb;
    border-bottom-width: 0;
    margin: 0;
+   border-top-left-radius : 1.5ex;
+   border-top-right-radius : 1.5ex;
    }
 
 #navbar a {
@@ -92,6 +94,8 @@ td.bklask-arrow {
    color: #00c;
    width: 20ex;
    text-align: center;
+   border-top-left-radius : 1.5ex;
+   border-top-right-radius : 1.5ex;
    }
 
 #navbar a:hover {
