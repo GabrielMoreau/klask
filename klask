@@ -1668,8 +1668,18 @@ sub cmd_exportdb_txt {
 
    my $computerdb = computerdb_load();
 
-   printf "%-28s %8s              %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
-   print "--------------------------------------------------------------------------------------------------------------------------------------------\n";
+   #printf "%-28s %8s              %-40s %-15s %-18s %-16s %s\n", qw(Switch Port Hostname-FQ IPv4-Address MAC-Address Date VLAN);
+   #print "--------------------------------------------------------------------------------------------------------------------------------------------\n";
+   my $tb_computer = Text::Table->new(
+      {align => 'left',   align_title => 'left',   title => 'Switch'},
+      {align => 'right',  align_title => 'right',  title => 'Port'},
+      {align => 'center', align_title => 'center', title => 'Link'},
+      {align => 'left',   align_title => 'left',   title => 'Hostname-FQ'},
+      {align => 'left',   align_title => 'left',   title => 'IPv4-Address'},
+      {align => 'left',   align_title => 'left',   title => 'MAC-Address'},
+      {align => 'left',   align_title => 'left',   title => 'Date'},
+      {align => 'left',   align_title => 'left',   title => 'VLAN'},
+      );
 
    LOOP_ON_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(keys %{$computerdb})) {
@@ -1685,10 +1695,10 @@ sub cmd_exportdb_txt {
       my $vlan = '';
       $vlan = $computerdb->{$ip}{'network'}.'('.get_current_vlan_id($computerdb->{$ip}{'network'}).')' if $computerdb->{$ip}{'network'};
 
-      my $arrow ='<-----------';
-         $arrow ='<===========' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      my $arrow ='<---';
+         $arrow ='<===' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
 
-      printf "%-28s %8s %12s %-40s %-15s %-18s %-16s %s\n",
+      $tb_computer->add(
          $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'},
          $computerdb->{$ip}{'switch_port_hr'},
          $arrow,
@@ -1696,8 +1706,23 @@ sub cmd_exportdb_txt {
          $ip,
          $computerdb->{$ip}{'mac_address'},
          $date,
-         $vlan;
+         $vlan,
+         );
+#      printf "%-28s %8s %12s %-40s %-15s %-18s %-16s %s\n",
+#         $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'},
+#         $computerdb->{$ip}{'switch_port_hr'},
+#         $arrow,
+#         $computerdb->{$ip}{'hostname_fq'},
+#         $ip,
+#         $computerdb->{$ip}{'mac_address'},
+#         $date,
+ #        $vlan;
       }
+
+   print $tb_computer->title();
+   print $tb_computer->rule('-');
+   print $tb_computer->body();
+
    return;
    }
 
