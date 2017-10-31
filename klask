@@ -2617,7 +2617,7 @@ sub cmd_ip_free_txt {
          $result_ip{$ip}->{'hostname_fq'},
          $vlan_nameid,
          $result_ip{$ip}->{'date_last_detection'},
-         ;
+         );
       }
    print $tb_computer->title();
    print $tb_computer->rule('-');
