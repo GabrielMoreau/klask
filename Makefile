@@ -15,9 +15,6 @@ all:
 	pod2html klask > klask.html
 
 install: update
-	@install -d -m 0755 -o root -g root $(DESTDIR)/$(SHAREDIR)
-	install    -m 0644 -o root -g root style-klask.css $(DESTDIR)/$(SHAREDIR)
-
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(CRONDIR)
 	install    -m 0644 -o root -g root klask.cron $(DESTDIR)/$(CRONDIR)/klask
 
@@ -34,6 +31,7 @@ update:
 
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(SHAREDIR)
 	install    -m 0644 -o root -g root sorttable-klask.js $(DESTDIR)/$(SHAREDIR)
+	install    -m 0644 -o root -g root style-klask.css $(DESTDIR)/$(SHAREDIR)
 
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(ETCDIR)
 	install    -m 0644 -o root -g root klask-sample.conf $(DESTDIR)/$(ETCDIR)
