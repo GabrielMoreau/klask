@@ -2207,7 +2207,7 @@ END_HTML
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       my $switch_hostname_sort = sprintf '%s %3s' ,$item->{'switch'}, $item->{'port_hr'};
-      my ( $host_short ) = split m/ \. /xms, $result_ip{$ip}->{'hostname_fq'};
+      my ( $host_short ) = split m/ \. /xms, $item->{'hostname_fq'};
 
       my $vlan_nameid = $item->{'vlan_good'} . ' (' . $item->{'vlan_id'} . ')';
 
