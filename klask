@@ -2125,7 +2125,7 @@ sub cmd_bad_vlan_id {
 
 #---------------------------------------------------------------
 sub cmd_bad_vlan_id_txt {
-   @result = @_;
+   my @result = @_;
 
    my $tb_bad = Text::Table->new(
       {align  => 'left',   align_title => 'left',   title => 'Switch'},
@@ -2168,7 +2168,7 @@ sub cmd_bad_vlan_id_txt {
 
 #---------------------------------------------------------------
 sub cmd_bad_vlan_id_html {
-   @result = @_;
+   my @result = @_;
 
    print <<'END_HTML';
 <table class="sortable" summary="Klask Bad VLAN ID Database">
