@@ -80,8 +80,10 @@ function refresh() {
 </h1>
 
 <p>
-Ce portail pr&eacute;sente la liste de toutes les IP d&eacute;tect&eacute;es par Klask.
-La liste des <a href="ip-free.html">IP non d&eacute;tect&eacute;es</a> par Klask depuis plus de deux ann&eacute;es est aussi disponible.
+Ce portail pr&eacute;sente&nbsp;:
+toutes les <b>IP d&eacute;tect&eacute;es</b>,
+les <a href="ip-free.html">IP non d&eacute;tect&eacute;es</a> depuis plus de deux ann&eacute;es,
+les <a href="bad-vlan-id.html">machines configur&eacute;es dans un mauvais VLAN</a>.
 </p>
 
 <p>
@@ -115,8 +117,10 @@ $CAT <<END > ${TMP}/ip-free.html
 </h1>
 
 <p>
-Cette page pr&eacute;sente la liste des IP non d&eacute;tect&eacute;es par Klask depuis plus de deux ann&eacute;es.
-Le portail contient la liste de toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a> par Klask.
+Ce portail pr&eacute;sente&nbsp;:
+toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a>,
+les <b>IP non d&eacute;tect&eacute;es</b> depuis plus de deux ann&eacute;es,
+les <a href="bad-vlan-id.html">machines configur&eacute;es dans un mauvais VLAN</a>.
 </p>
 
 <p>
@@ -150,8 +154,10 @@ $CAT <<END > ${TMP}/bad-vlan-id.html
 </h1>
 
 <p>
-Cette page pr&eacute;sente la liste des machines qui ne sont pas configur&eacute;es sur le bon VLAN.
-Le portail contient la liste de toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a> par Klask.
+Ce portail pr&eacute;sente&nbsp;:
+toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a>,
+les <a href="ip-free.html">IP non d&eacute;tect&eacute;es</a> depuis plus de deux ann&eacute;es,
+les <b>machines configur&eacute;es dans un mauvais VLAN</b>.
 </p>
 
 <p>

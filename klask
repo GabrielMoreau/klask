@@ -1158,7 +1158,7 @@ klask - port and search manager for switches, map management
 
  klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
- klask bad-vlan-id [--day|-d days_before_alert]
+ klask bad-vlan-id [--day|-d days_before_alert] [--format|-f txt|html]
 
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
@@ -2216,7 +2216,7 @@ END_HTML
       print <<"END_HTML";
   <tr class="$typerow">
    <td sorttable_customkey="$switch_hostname_sort">$item->{'switch'}</td>
-   <td>$item->{'port_hr'}</td>
+   <td class="bklask-port">$item->{'port_hr'}</td>
    <td>!$item->{'vlan_bad'}</td>
    <td>$vlan_nameid</td>
    <td>$item->{'date_last'}</td>
@@ -3281,7 +3281,7 @@ klask - port and search manager for switches, map management
 
  klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
- klask bad-vlan-id [--day|-d days_before_alert]
+ klask bad-vlan-id [--day|-d days_before_alert] [--format|-f txt|html]
 
  klask enable  [--verbose|-v] switch port
  klask disable [--verbose|-v] switch port
@@ -3484,7 +3484,7 @@ Computer that does not have the good IP but takes a float one (see L</cleandb>) 
 
 =head2 bad-vlan-id
 
- klask bad-vlan-id [--day|-d days_before_alert]
+ klask bad-vlan-id [--day|-d days_before_alert] [--format|-f txt|html]
 
 This command return a list of switch port that are not configure with the good VLAN.
 Computer which are in bad VLAN are detected with the float regex parameter (see L</cleandb>)
