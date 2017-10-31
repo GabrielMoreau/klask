@@ -135,6 +135,42 @@ $CAT <<END >> ${TMP}/ip-free.html
 </html>
 END
 
+
+$CAT <<END > ${TMP}/bad-vlan-id.html
+<html>
+<head>
+ <link rel="stylesheet" type="text/css" href="style-klask.css" />
+ <meta http-equiv="refresh" content="1800">
+ <script src="sorttable-klask.js"></script>
+</head>
+<body>
+<h1>
+<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
+- Un outil pour <a href="switch-map.png">cartographier</a> (<a href="switch-map.svg">svg</a>) le r&eacute;seau [${LOCALTIME}] - site ${SITE_NAME}
+</h1>
+
+<p>
+Cette page pr&eacute;sente la liste des machines qui ne sont pas configur&eacute;es sur le bon VLAN.
+Le portail contient la liste de toutes les <a href="index.html">IP d&eacute;tect&eacute;es</a> par Klask.
+</p>
+
+<p>
+Les r&eacute;sultats brut de Klask sont accessibles directement via wget ou curl, par exemple, pour un traitement sp&eacute;cifique :
+<a href="hostname-db.txt">Machines</a>,
+<a href="switch-db.txt">Commutateurs</a>,
+<a href="ipfree-db.txt">IP disponibles</a>,
+<a href="switch-map.txt">Carte</a>.
+</p>
+END
+
+$KLASK bad-vlan-id --format html >> ${TMP}/bad-vlan-id.html
+
+$CAT <<END >> ${TMP}/bad-vlan-id.html
+</body>
+</html>
+END
+
+
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
    $RSYNC \
@@ -142,6 +178,7 @@ then
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
       ${TMP}/ip-free.html \
+      ${TMP}/bad-vlan-id.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
       ${REMOTE_FOLDER}/
@@ -154,6 +191,7 @@ else
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
       ${TMP}/ip-free.html \
+      ${TMP}/bad-vlan-id.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
