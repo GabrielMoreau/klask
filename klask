@@ -2011,11 +2011,20 @@ sub cmd_bad_vlan_id {
    @ARGV = @_;
 
    my $days_before_alert = $DEFAULT{'days-before-alert'} || 15;
+   my $format = 'txt';
    my $verbose;
 
    GetOptions(
-      'day|d=i'   => \$days_before_alert,
+      'day|d=i'      => \$days_before_alert,
+      'format|f=s'   => \$format,
       );
+
+   my %possible_format = (
+      txt  => \&cmd_bad_vlan_id_txt,
+      html => \&cmd_bad_vlan_id_html,
+      none => sub {},
+      );
+   $format = 'txt' if not defined $possible_format{$format};
 
    test_maindb_environnement();
 
@@ -2062,26 +2071,7 @@ sub cmd_bad_vlan_id {
          }
       }
 
-   # swL2-legi-1.hmg.priv          Gi1/0/3 / legi-calcul +-> legi-683  (337)  2017-10-31/10:30 2017-09-08/11:02 78:24:AF:88:69:64 meige8pcsv149.legi.grenoble-inp.fr
-   my $tb_bad = Text::Table->new(
-      {align  => 'left',   align_title => 'left',   title => 'Switch'},
-      {is_sep => 1,              title => ' ',       body => ' '},
-      {align  => 'right',  align_title => 'right',  title => 'Port'},
-      {is_sep => 1,              title => ' ',       body => ' !'},
-      {align  => 'left',   align_title => 'left',   title => 'VLAN-Bad'},
-      {is_sep => 1,              title => ' ',       body => ' +-> '},
-      {align  => 'left',   align_title => 'left',   title => 'VLAN-Good'},
-      {is_sep => 1,              title => ' ',       body => ' '},
-      {align  => 'left',   align_title => 'left',   title => 'VLAN-ID'},
-      {is_sep => 1,              title => ' ',       body => ' '},
-      {align  => 'left',   align_title => 'left',   title => 'Date-Last'},
-      {is_sep => 1,              title => ' ',       body => '  '},
-      {align  => 'left',   align_title => 'left',   title => 'Date-Good'},
-      {is_sep => 1,              title => ' ',       body => '  '},
-      {align  => 'left',   align_title => 'left',   title => 'MAC-Address'},
-      {is_sep => 1,              title => ' ',       body => ' '},
-      {align  => 'left',   align_title => 'left',   title => 'Hostname-FQ'},
-      );
+   my @result = ();
 
    LOOP_ON_RECENT_COMPUTER:
    for my $swpt (keys %switchportdb) {
@@ -2116,21 +2106,130 @@ sub cmd_bad_vlan_id {
 
       my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{'network'});
       my ($switch_hostname, $port_hr) = split /\s+/, $swpt, 2;
+      
+      push @result, {
+         switch      => $switch_hostname,
+         port_hr     => $port_hr,
+         vlan_bad    => $switchportdb{$swpt}->{'vlan'},
+         vlan_good   =>$computerdb->{$src_ip}{'network'},
+         vlan_id     => $vlan_id,
+         date_last   => $date,
+         date_good   => $src_date,
+         mac_address => $computerdb->{$src_ip}{'mac_address'},
+         hostname_fq => $computerdb->{$src_ip}{'hostname_fq'},
+         };
+      }
+
+   $possible_format{$format}->(@result);
+   }
+
+#---------------------------------------------------------------
+sub cmd_bad_vlan_id_txt {
+   @result = @_;
+
+   my $tb_bad = Text::Table->new(
+      {align  => 'left',   align_title => 'left',   title => 'Switch'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'right',  align_title => 'right',  title => 'Port'},
+      {is_sep => 1,              title => ' ',       body => ' !'},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN-Bad'},
+      {is_sep => 1,              title => ' ',       body => ' +-> '},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN-Good'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'VLAN-ID'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'Date-Last'},
+      {is_sep => 1,              title => ' ',       body => '  '},
+      {align  => 'left',   align_title => 'left',   title => 'Date-Good'},
+      {is_sep => 1,              title => ' ',       body => '  '},
+      {align  => 'left',   align_title => 'left',   title => 'MAC-Address'},
+      {is_sep => 1,              title => ' ',       body => ' '},
+      {align  => 'left',   align_title => 'left',   title => 'Hostname-FQ'},
+      );
+
+   for my $item (@result) {
       $tb_bad->add(
-         $switch_hostname,
-         $port_hr,
-         $switchportdb{$swpt}->{'vlan'},
-         $computerdb->{$src_ip}{'network'},
-         '(' . $vlan_id . ')',
-         $date,
-         $src_date,
-         $computerdb->{$src_ip}{'mac_address'},
-         $computerdb->{$src_ip}{'hostname_fq'},
+         $item->{'switch'},
+         $item->{'port_hr'},
+         $item->{'vlan_bad'},
+         $item->{'vlan_good'},
+         '(' . $item->{'vlan_id'} . ')',
+         $item->{'date_last'},
+         $item->{'date_good'},
+         $item->{'mac_address'},
+         $item->{'hostname_fq'},
          );
       }
+
    print $tb_bad->title();
    print $tb_bad->rule('-');
    print $tb_bad->body();
+   }
+
+#---------------------------------------------------------------
+sub cmd_bad_vlan_id_html {
+   @result = @_;
+
+   print <<'END_HTML';
+<table class="sortable" summary="Klask Bad VLAN ID Database">
+ <caption>Klask Bad VLAN ID Database</caption>
+ <thead>
+  <tr>
+   <th scope="col" class="klask-header-left">Switch &#8645</th>
+   <th scope="col" class="sorttable_nosort">Port</th>
+   <th scope="col" class="sorttable_alpha">VLAN-Bad &#8645</th>
+   <th scope="col" class="sorttable_alpha">VLAN-Good &#8645</th>
+   <th scope="col" class="sorttable_alpha">Date-Last &#8645</th>
+   <th scope="col" class="sorttable_alpha">Date-Good &#8645</th>
+   <th scope="col" class="sorttable_alpha">MAC-Address &#8645</th>
+   <th scope="col" class="sorttable_alpha">Hostname-FQ &#8645</th>
+  </tr>
+ </thead>
+ <tfoot>
+  <tr>
+   <th scope="col" class="klask-footer-left">Switch</th>
+   <th scope="col" class="fklask-nosort">Port</th>
+   <th scope="col" class="fklask-alpha">VLAN-Bad</th>
+   <th scope="col" class="fklask-alpha">VLAN-Good</th>
+   <th scope="col" class="fklask-alpha">Date-Last</th>
+   <th scope="col" class="fklask-alpha">Date-Good</th>
+   <th scope="col" class="fklask-alpha">MAC-Address</th>
+   <th scope="col" class="fklask-alpha">Hostname-FQ</th>
+  </tr>
+ </tfoot>
+ <tbody>
+END_HTML
+
+   my $typerow = 'even';
+
+   for my $item (@result) {
+
+      $typerow = $typerow eq 'even' ? 'odd' : 'even';
+
+      my $switch_hostname_sort = sprintf '%s %3s' ,$item->{'switch'}, $item->{'port_hr'};
+      my ( $host_short ) = split m/ \. /xms, $result_ip{$ip}->{'hostname_fq'};
+
+      my $vlan_nameid = $item->{'vlan_good'} . ' (' . $item->{'vlan_id'} . ')';
+
+      fqdn_html_breakable(my $hostname_fq_html = $item->{'hostname_fq'});
+
+      print <<"END_HTML";
+  <tr class="$typerow">
+   <td sorttable_customkey="$switch_hostname_sort">$item->{'switch'}</td>
+   <td>$item->{'port_hr'}</td>
+   <td>!$item->{'vlan_bad'}</td>
+   <td>$vlan_nameid</td>
+   <td>$item->{'date_last'}</td>
+   <td>$item->{'date_good'}</td>
+   <td>$item->{'mac_address'}</td>
+   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
+  </tr>
+END_HTML
+      }
+   print <<'END_HTML';
+ </tbody>
+</table>
+END_HTML
    }
 
 #---------------------------------------------------------------
