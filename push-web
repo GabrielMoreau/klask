@@ -76,8 +76,8 @@ function refresh() {
 </head>
 <body onload="delayedRefresh">
 <h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+<div class="circle"><b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b></div>
+Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
 the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
@@ -117,8 +117,8 @@ $CAT <<END > ${TMP}/ip-free.html
 </head>
 <body>
 <h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
+Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
 the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 
@@ -159,8 +159,8 @@ $CAT <<END > ${TMP}/bad-vlan-id.html
 </head>
 <body>
 <h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask">Klask</a></b>
-- A tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
+<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
+Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
 the local network [${LOCALTIME}] - site ${SITE_NAME}
 </h1>
 

@@ -71,6 +71,14 @@ td.bklask-arrow {
    padding-left    : 6.5ex !important;
    }
 
+.circle {
+   padding        : 2ex;
+   border-radius  : 50%;
+   color          : #fff;
+   text-align     : center;
+   background     : #000
+   }
+
 #navbar ul {
    list-style: none;
    padding: 0;
