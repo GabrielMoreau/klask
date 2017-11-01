@@ -50,7 +50,7 @@ klask bad-vlan-id > ${TMP}/badvlan-db.txt
 
 cat <<END > ${TMP}/index.html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <meta http-equiv="refresh" content="1800">
@@ -107,7 +107,8 @@ END
 
 
 cat <<END > ${TMP}/ip-free.html
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <meta http-equiv="refresh" content="1800">
@@ -152,7 +153,8 @@ END
 
 
 cat <<END > ${TMP}/bad-vlan-id.html
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <meta http-equiv="refresh" content="1800">
