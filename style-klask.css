@@ -1,5 +1,5 @@
 body {
-   background      : #EFE;
+   background      : #DBF9CF;
    }
 
 h1{
@@ -109,12 +109,18 @@ p.copyright {
    border-bottom-width     : 0;
    border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
+   background      : #333;
+   }
+
+#navbar li:hover {
+   background      : #AAA;
    }
 
 #navbar a {
    text-decoration : none;
+   font-family     : Verdana;
+   font-size       : 110%;
    display         : block;
-   background      : #333;
    padding         : 0.8ex 2.5ex;
    color           : #FFF;
    width           : 20ex;
@@ -123,12 +129,9 @@ p.copyright {
    border-top-right-radius : 1.5ex;
    }
 
-#navbar a:hover {
-   background      : #AAA;
-   }
-
 #navbar #selected {
    border-color    : black;
+   background      : white;
    }
 
 #navbar #selected a {
