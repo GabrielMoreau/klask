@@ -500,6 +500,33 @@ sub format_aggregator4dot {
    }
 
 #---------------------------------------------------------------
+# port can be switch index or human readable
+sub format_switchport4sort {
+   my ($switch_name, $port) = @_;
+
+   # numeric port
+   return sprintf '%s %09i', $switch_name, $port if $port =~ m{^\d+$};
+
+   # Gi3/0/14 type port
+   if ($port =~ m{^(\w+?)(\d+)/(\d+)/(\d+)$}) {
+      return sprintf '%s %03i%03i%03i', $switch_name, $2, $3, $4;
+      }
+
+   # Gi3/14 type port
+   if ($port =~ m{^(\w+?)(\d+)/(\d+)$}) {
+      return sprintf '%s %06i%03i', $switch_name, $2, $3;
+      }
+
+   # Po14 or A3 type port
+   if ($port =~ m{^(\w+?)(\d+)(.*)$}) {
+      return sprintf '%s %s%04i%s', $switch_name, $1, $2, $3;
+      }
+
+   # otherwise
+   return sprintf '%s %s', $switch_name, $port;
+   }
+
+#---------------------------------------------------------------
 # fqdn_html_breakable change it's parameter, use it like chomp perl function
 
 sub fqdn_html_breakable {
@@ -1790,7 +1817,7 @@ END_HTML
 
       my $switch_hostname = $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'} || 'unkown';
       chomp $switch_hostname;
-      my $switch_hostname_sort = sprintf '%s %06i' ,$switch_hostname, $computerdb->{$ip}{'switch_port_id'}; # Take switch index
+      my $switch_hostname_sort = format_switchport4sort($switch_hostname, $computerdb->{$ip}{'switch_port_hr'});
 
       my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
 
@@ -1832,7 +1859,7 @@ END_HTML
    LOOP_ON_OUTPUT_SWITCH:
    for my $sw (sort keys %db_switch_output_port) {
 
-      my $switch_hostname_sort = sprintf '%s %3s' ,$sw, $db_switch_output_port{$sw};
+      my $switch_hostname_sort = format_switchport4sort($sw, $db_switch_output_port{$sw});
 
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
@@ -1859,7 +1886,7 @@ END_HTML
 
          my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
-         my ( $host_short ) = sprintf '%s %3s' , split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{'port_hr'};
+         my $host_short = format_switchport4sort(split(m/ \. /xms, $db_switch_parent{$sw}->{'switch'}, 1), $db_switch_parent{$sw}->{'port_hr'});
 
          my $vlan = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'};
          $vlan .= ' ('.get_current_vlan_id($db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'}).')' if $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'network'};
@@ -1887,7 +1914,7 @@ END_HTML
          # Router
          my $parent_port_hr = format_aggregator4html($db_switch_output_port{$sw});
 
-         my $host_short = sprintf '%s %3s' ,$sw, $db_switch_output_port{$sw};
+         my $host_short = format_switchport4sort($sw, $db_switch_output_port{$sw});
 
          my $mac_address = $db_switch{$sw}->{'mac_address'};
          my $ipv4_address = $db_switch{$sw}->{'ipv4_address'};
@@ -1931,7 +1958,7 @@ END_HTML
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
 
-         my $switch_hostname_sort = sprintf '%s %3s' ,$sw_connect, $port_connect;
+         my $switch_hostname_sort = format_switchport4sort($sw_connect, $port_connect);
 
          my $mac_address = $db_switch{$sw}->{'mac_address'};
          my $ipv4_address = $db_switch{$sw}->{'ipv4_address'};
@@ -1958,7 +1985,7 @@ END_HTML
 
          if (exists $db_switch_output_port{$sw}) {
 
-            my ( $host_short ) = sprintf '%s %3s' , split( m/\./xms, $sw, 1), $db_switch_output_port{$sw};
+            my $host_short = format_switchport4sort(split( m/\./xms, $sw, 1), $db_switch_output_port{$sw});
 
             my $parent_port_hr = format_aggregator4html($port_connect);
             my $child_port_hr  = format_aggregator4html($db_switch_output_port{$sw});
@@ -2208,7 +2235,7 @@ END_HTML
 
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
-      my $switch_hostname_sort = sprintf '%s %3s' ,$item->{'switch'}, $item->{'port_hr'};
+      my $switch_hostname_sort = format_switchport4sort($item->{'switch'}, $item->{'port_hr'});
       my ( $host_short ) = split m/ \. /xms, $item->{'hostname_fq'};
 
       my $vlan_nameid = $item->{'vlan_good'} . ' (' . $item->{'vlan_id'} . ')';
