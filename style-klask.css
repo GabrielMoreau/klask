@@ -1,3 +1,6 @@
+body {
+   background      : #EFE;
+   }
 
 h1{
    text-align      : center;
@@ -23,15 +26,15 @@ table.sortable th {
    }
 
 th.klask-header-left {
-   border-top-left-radius : 1ex;
+   border-top-left-radius     : 1ex;
    }
 
 th.klask-header-right {
-   border-top-right-radius : 1ex;
+   border-top-right-radius    : 1ex;
    }
 
 th.klask-footer-left {
-   border-bottom-left-radius : 1ex;
+   border-bottom-left-radius  : 1ex;
    }
 
 th.klask-footer-right {
@@ -94,53 +97,54 @@ p.copyright {
    }
 
 #navbar ul {
-   list-style: none;
-   padding: 0;
-   margin: 0;
+   list-style      : none;
+   padding         : 0;
+   margin          : 0;
    }
 
 #navbar li {
-   float: left;
-   border: 1px solid #BBB;
-   border-bottom-width: 0;
-   margin: 0;
+   float           : left;
+   margin          : 0;
+   border          : 1px solid #BBB;
+   border-bottom-width     : 0;
    border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
    }
 
 #navbar a {
-   text-decoration: none;
-   display: block;
-   background: #333;
-   padding: 0.8ex 2.5ex;
-   color: #FFF;
-   width: 20ex;
-   text-align: center;
+   text-decoration : none;
+   display         : block;
+   background      : #333;
+   padding         : 0.8ex 2.5ex;
+   color           : #FFF;
+   width           : 20ex;
+   text-align      : center;
    border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
    }
 
 #navbar a:hover {
-   background: #AAA;
+   background      : #AAA;
    }
 
 #navbar #selected {
-   border-color: black;
+   border-color    : black;
    }
 
 #navbar #selected a {
-   position: relative;
-   top: 1px;
-   background: white;
-   color: black;
-   font-weight: bold;
+   position        : relative;
+   top             : 1px;
+   background      : white;
+   color           : black;
+   font-weight     : bold;
    }
 
 #content {
-   border: 1px solid black;
-   clear: both;
-   padding-left: 0.5ex;
-   padding-right: 0.5ex;
-   padding-top: 0ex;
-   padding-bottom: 1.5ex;
+   border          : 1px solid black;
+   clear           : both;
+   padding-left    : 0.5ex;
+   padding-right   : 0.5ex;
+   padding-top     : 0ex;
+   padding-bottom  : 1.5ex;
+   background      : white;
    }
