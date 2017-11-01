@@ -37,6 +37,10 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
    content         : "\00A0\21C5" 
    }
 
+table.sortable th.sorttable_sorted,th.sorttable_sorted_reverse {
+   background      : #666;
+   }
+
 th.klask-header-left {
    border-top-left-radius     : 1ex;
    }
