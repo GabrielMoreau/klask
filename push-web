@@ -4,6 +4,9 @@
 # 2010/11/03 gabriel
 # 2011/03/30 gabriel - make it generic
 
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export LANG=C
+
 SITE_NAME=''
 REMOTE_SERVER=localhost
 REMOTE_USER=''
@@ -20,22 +23,11 @@ fi
 TMP='/tmp/klask-push-web'
 
 
-# local command
-MKDIR=/bin/mkdir
-DATE=/bin/date
-CAT=/bin/cat
-TAIL=/usr/bin/tail
-HEAD=/usr/bin/head
-SSH=/usr/bin/ssh
-SCP=/usr/bin/scp
-KLASK=/usr/sbin/klask
-RSYNC=/usr/bin/rsync
-
 # remote command
 DOT=/usr/bin/dot
 
 
-$MKDIR -p ${TMP}
+mkdir -p ${TMP}
 if [ ! -d ${TMP} ]
 then
    echo "Error: Folder ${TMP} do not exist !"
@@ -44,19 +36,19 @@ fi
 cd ${TMP}
 
 
-LOCALTIME=$($DATE "+%Y-%m-%d %H:%M")
+LOCALTIME=$(date "+%Y-%m-%d %H:%M")
 
 
-$KLASK exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt
+klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt
 
 
-$KLASK exportdb    > ${TMP}/hostname-db.txt
-$KLASK exportsw    > ${TMP}/switch-db.txt
-$KLASK ip-free     > ${TMP}/ipfree-db.txt
-$KLASK bad-vlan-id > ${TMP}/badvlan-db.txt
+klask exportdb    > ${TMP}/hostname-db.txt
+klask exportsw    > ${TMP}/switch-db.txt
+klask ip-free     > ${TMP}/ipfree-db.txt
+klask bad-vlan-id > ${TMP}/badvlan-db.txt
 
 
-$CAT <<END > ${TMP}/index.html
+cat <<END > ${TMP}/index.html
 <html>
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
@@ -85,24 +77,24 @@ the local network [${LOCALTIME}] - site ${SITE_NAME}
  <ul>
   <li id="selected"><a href="index.html">IP detected</a></li>
   <li><a href="ip-free.html">IP available</a></li>
-  <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+  <li><a href="bad-vlan-id.html">VLAN mismatch</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
 The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers</a>,
-<a href="switch-db.txt">Switches</a>,
+<a href="hostname-db.txt">Computers DB</a>,
+<a href="switch-db.txt">Switches DB</a>,
 <a href="ipfree-db.txt">IP available</a>,
-<a href="badvlan-db.txt">Bad VLAN ID</a>,
-<a href="switch-map.txt">Map</a>.
+<a href="badvlan-db.txt">VLAN mismatch</a>,
+<a href="switch-map.txt">Map dot source</a>.
 </p>
 END
 
-$KLASK exportdb --format html >> ${TMP}/index.html
+klask exportdb --format html >> ${TMP}/index.html
 
-$CAT <<END >> ${TMP}/index.html
+cat <<END >> ${TMP}/index.html
 </div>
 <p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
@@ -112,7 +104,7 @@ Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask ver
 END
 
 
-$CAT <<END > ${TMP}/ip-free.html
+cat <<END > ${TMP}/ip-free.html
 <html>
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
@@ -130,24 +122,24 @@ the local network [${LOCALTIME}] - site ${SITE_NAME}
  <ul>
   <li><a href="index.html">IP detected</a></li>
   <li id="selected"><a href="ip-free.html">IP available</a></li>
-  <li><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+  <li><a href="bad-vlan-id.html">VLAN mismatch</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
 The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers</a>,
-<a href="switch-db.txt">Switches</a>,
+<a href="hostname-db.txt">Computers DB</a>,
+<a href="switch-db.txt">Switches DB</a>,
 <a href="ipfree-db.txt">IP available</a>,
-<a href="bad-vlan-id-db.txt">Bad VLAN ID</a>,
-<a href="switch-map.txt">Map</a>.
+<a href="bad-vlan-id-db.txt">VLAN mismatch</a>,
+<a href="switch-map.txt">Map dot source</a>.
 </p>
 END
 
-$KLASK ip-free --format html >> ${TMP}/ip-free.html
+klask ip-free --format html >> ${TMP}/ip-free.html
 
-$CAT <<END >> ${TMP}/ip-free.html
+cat <<END >> ${TMP}/ip-free.html
 </div>
 <p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
@@ -157,7 +149,7 @@ Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask ver
 END
 
 
-$CAT <<END > ${TMP}/bad-vlan-id.html
+cat <<END > ${TMP}/bad-vlan-id.html
 <html>
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
@@ -175,24 +167,24 @@ the local network [${LOCALTIME}] - site ${SITE_NAME}
  <ul>
   <li><a href="index.html">IP detected</a></li>
   <li><a href="ip-free.html">IP available</a></li>
-  <li id="selected"><a href="bad-vlan-id.html">Bad VLAN ID</a></li>
+  <li id="selected"><a href="bad-vlan-id.html">VLAN mismatch</a></li>
  </ul>
 </div>
 
 <div id="content">
 <p>
 The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers</a>,
-<a href="switch-db.txt">Switches</a>,
+<a href="hostname-db.txt">Computers DB</a>,
+<a href="switch-db.txt">Switches DB</a>,
 <a href="ipfree-db.txt">IP available</a>,
-<a href="bad-vlan-id-db.txt">Bad VLAN ID</a>,
-<a href="switch-map.txt">Map</a>.
+<a href="bad-vlan-id-db.txt">VLAN mismatch</a>,
+<a href="switch-map.txt">Map dot source</a>.
 </p>
 END
 
-$KLASK bad-vlan-id --format html >> ${TMP}/bad-vlan-id.html
+klask bad-vlan-id --format html >> ${TMP}/bad-vlan-id.html
 
-$CAT <<END >> ${TMP}/bad-vlan-id.html
+cat <<END >> ${TMP}/bad-vlan-id.html
 </div>
 <p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
@@ -204,7 +196,7 @@ END
 
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
-   $RSYNC \
+   rsync \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
@@ -217,7 +209,7 @@ then
    [ -x ${DOT} ] && (cd ${REMOTE_FOLDER}; ${DOT} -T svg switch-map.txt > switch-map.svg; ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
-   $RSYNC \
+   rsync \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
@@ -228,5 +220,5 @@ else
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
 
 
-   $SSH ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER}; ${DOT} -T svg switch-map.txt > switch-map.svg; ${DOT} -T png switch-map.txt > switch-map.png)"
+   ssh ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER}; ${DOT} -T svg switch-map.txt > switch-map.svg; ${DOT} -T png switch-map.txt > switch-map.png)"
 fi
