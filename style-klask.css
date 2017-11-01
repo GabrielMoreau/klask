@@ -25,6 +25,14 @@ table.sortable th {
    background      : #333;
    }
 
+table.sortable thead th:hover {
+   background      : #AAA;
+   }
+
+table.sortable thead th.sorttable_nosort:hover {
+   background      : #333;
+   }
+
 th.klask-header-left {
    border-top-left-radius     : 1ex;
    }
@@ -130,7 +138,7 @@ p.copyright {
    }
 
 #navbar #selected {
-   border-color    : black;
+   border-color    : #333;
    background      : white;
    }
 
@@ -143,7 +151,7 @@ p.copyright {
    }
 
 #content {
-   border          : 1px solid black;
+   border          : 1px solid #333;
    clear           : both;
    padding-left    : 0.5ex;
    padding-right   : 0.5ex;
