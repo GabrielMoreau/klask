@@ -112,6 +112,7 @@ cat <<END > ${TMP}/ip-free.html
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <meta http-equiv="refresh" content="1800">
+ <title>Klask mapping net-tools</title>
  <script src="sorttable-klask.js"></script>
 </head>
 <body>
@@ -158,6 +159,7 @@ cat <<END > ${TMP}/bad-vlan-id.html
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <meta http-equiv="refresh" content="1800">
+ <title>Klask mapping net-tools</title>
  <script src="sorttable-klask.js"></script>
 </head>
 <body>
