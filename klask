@@ -1754,7 +1754,7 @@ sub cmd_exportdb_html {
 #<script src="sorttable-klask.js"></script>
 
    print <<'END_HTML';
-<table class="sortable" summary="Klask Host Database">
+<table class="sortable">
  <caption>Klask Host Database</caption>
  <thead>
   <tr>
@@ -1768,18 +1768,6 @@ sub cmd_exportdb_html {
    <th scope="col" class="klask-header-right">Date&nbsp;&#8645;</th>
   </tr>
  </thead>
- <tfoot>
-  <tr>
-   <th scope="col" class="klask-footer-left">Switch</th>
-   <th scope="col" class="fklask-port">Port</th>
-   <th scope="col" class="fklask-link">Link</th>
-   <th scope="col" class="fklask-hostname">Hostname-FQ</th>
-   <th scope="col" class="fklask-ipv4">IPv4-Address</th>
-   <th scope="col" class="fklask-mac">MAC-Address</th>
-   <th scope="col" class="fklask-vlan">VLAN</th>
-   <th scope="col" class="klask-footer-right">Date</th>
-  </tr>
- </tfoot>
  <tbody>
 END_HTML
 
@@ -2030,6 +2018,18 @@ END_HTML
 
    print <<'END_HTML';
  </tbody>
+ <tfoot>
+  <tr>
+   <th scope="col" class="klask-footer-left">Switch</th>
+   <th scope="col" class="fklask-port">Port</th>
+   <th scope="col" class="fklask-link">Link</th>
+   <th scope="col" class="fklask-hostname">Hostname-FQ</th>
+   <th scope="col" class="fklask-ipv4">IPv4-Address</th>
+   <th scope="col" class="fklask-mac">MAC-Address</th>
+   <th scope="col" class="fklask-vlan">VLAN</th>
+   <th scope="col" class="klask-footer-right">Date</th>
+  </tr>
+ </tfoot>
 </table>
 END_HTML
    return;
@@ -2200,8 +2200,8 @@ sub cmd_bad_vlan_id_html {
    my @result = @_;
 
    print <<'END_HTML';
-<table class="sortable" summary="Klask Bad VLAN ID Database">
- <caption>Klask Bad VLAN ID Database</caption>
+<table class="sortable">
+ <caption>Klask VLAN ID Mismatch Database</caption>
  <thead>
   <tr>
    <th scope="col" class="klask-header-left">Switch&nbsp;&#8645;</th>
@@ -2214,18 +2214,6 @@ sub cmd_bad_vlan_id_html {
    <th scope="col" class="klask-header-right">Hostname-FQ&nbsp;&#8645;</th>
   </tr>
  </thead>
- <tfoot>
-  <tr>
-   <th scope="col" class="klask-footer-left">Switch</th>
-   <th scope="col" class="fklask-nosort">Port</th>
-   <th scope="col" class="fklask-alpha">VLAN-Bad</th>
-   <th scope="col" class="fklask-alpha">VLAN-Good</th>
-   <th scope="col" class="fklask-alpha">Date-Last</th>
-   <th scope="col" class="fklask-alpha">Date-Good</th>
-   <th scope="col" class="fklask-alpha">MAC-Address</th>
-   <th scope="col" class="klask-footer-right">Hostname-FQ</th>
-  </tr>
- </tfoot>
  <tbody>
 END_HTML
 
@@ -2257,6 +2245,18 @@ END_HTML
       }
    print <<'END_HTML';
  </tbody>
+ <tfoot>
+  <tr>
+   <th scope="col" class="klask-footer-left">Switch</th>
+   <th scope="col" class="fklask-nosort">Port</th>
+   <th scope="col" class="fklask-alpha">VLAN-Bad</th>
+   <th scope="col" class="fklask-alpha">VLAN-Good</th>
+   <th scope="col" class="fklask-alpha">Date-Last</th>
+   <th scope="col" class="fklask-alpha">Date-Good</th>
+   <th scope="col" class="fklask-alpha">MAC-Address</th>
+   <th scope="col" class="klask-footer-right">Hostname-FQ</th>
+  </tr>
+ </tfoot>
 </table>
 END_HTML
    }
@@ -2757,7 +2757,7 @@ sub cmd_ip_free_html {
    my %result_ip = @_;
 
    print <<'END_HTML';
-<table class="sortable" summary="Klask Free IP Database">
+<table class="sortable">
  <caption>Klask Free IP Database</caption>
  <thead>
   <tr>
@@ -2767,14 +2767,6 @@ sub cmd_ip_free_html {
    <th scope="col" class="klask-header-right">Date&nbsp;&#8645;</th>
   </tr>
  </thead>
- <tfoot>
-  <tr>
-   <th scope="col" class="klask-footer-left">IPv4-Address</th>
-   <th scope="col" class="fklask-hostname">Hostname-FQ</th>
-   <th scope="col" class="fklask-vlan">VLAN</th>
-   <th scope="col" class="klask-footer-right">Date</th>
-  </tr>
- </tfoot>
  <tbody>
 END_HTML
 
@@ -2803,6 +2795,14 @@ END_HTML
       }
    print <<'END_HTML';
  </tbody>
+ <tfoot>
+  <tr>
+   <th scope="col" class="klask-footer-left">IPv4-Address</th>
+   <th scope="col" class="fklask-hostname">Hostname-FQ</th>
+   <th scope="col" class="fklask-vlan">VLAN</th>
+   <th scope="col" class="klask-footer-right">Date</th>
+  </tr>
+ </tfoot>
 </table>
 END_HTML
    }
