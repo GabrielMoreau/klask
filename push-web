@@ -40,7 +40,7 @@ cd ${TMP}
 LOCALTIME=$(date "+%Y-%m-%d %H:%M")
 
 
-klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt
+klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt.new
 
 
 klask exportdb    > ${TMP}/hostname-db.txt
@@ -169,6 +169,7 @@ Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask ver
 </html>
 END
 
+cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt
 
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
@@ -180,7 +181,9 @@ then
       ${TMP}/switch-map.txt \
       ${REMOTE_FOLDER}/
 
-   [ -x ${DOT} ] && (cd ${REMOTE_FOLDER}; ${DOT} -T svg switch-map.txt > switch-map.svg; ${DOT} -T png switch-map.txt > switch-map.png)
+   [ -x ${DOT} ] && (cd ${REMOTE_FOLDER};
+      [ switch-map.txt -nt switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
+      [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
    rsync \
@@ -192,5 +195,7 @@ else
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
 
 
-   ssh ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER}; ${DOT} -T svg switch-map.txt > switch-map.svg; ${DOT} -T png switch-map.txt > switch-map.png)"
+   ssh ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER};
+      [ switch-map.txt -nt switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
+      [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)"
 fi
