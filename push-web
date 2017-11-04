@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-# 2007/10/23 gabriel
-# 2010/11/03 gabriel
-# 2011/03/30 gabriel - make it generic
+# 2007/10/23 Gabriel Moreau
+# 2010/11/03 Gabriel Moreau
+# 2011/03/30 Gabriel Moreau - make it generic
+# 2017/11/04 Gabriel Moreau - all reworks - use tab
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export LANG=C
@@ -66,6 +67,20 @@ function delayedRefresh() {
 function refresh() {
  history.go(0);
  }
+ 
+function selectTab(event, tabName) {
+ var i;
+ var x = document.getElementsByClassName("selectableTabContent");
+ var tablinks = document.getElementsByClassName("selectableTabButton");
+ for (i = 0; i < x.length; i++) {
+  x[i].style.display = "none";
+  }
+ for (i = 0; i < x.length; i++) {
+  tablinks[i].id = "";
+  }
+ document.getElementById(tabName).style.display = "block";
+ event.currentTarget.id = "selected";
+ }
  </script>
 </head>
 <body onload="delayedRefresh">
@@ -77,121 +92,72 @@ the local network [${LOCALTIME}] - site ${SITE_NAME}
 
 <div id="navbar">
  <ul>
-  <li id="selected"><a href="index.html">IP detected</a></li>
-  <li><a href="ip-free.html">IP available</a></li>
-  <li><a href="bad-vlan-id.html">VLAN mismatch</a></li>
+  <li class="selectableTabButton" onclick="selectTab(event, 'IP_detected')" id="selected">IP detected</li>
+  <li class="selectableTabButton" onclick="selectTab(event, 'IP_available')">IP available</li>
+  <li class="selectableTabButton" onclick="selectTab(event, 'VLAN_mismatch')">VLAN mismatch</li>
+  <li class="selectableTabButton" onclick="selectTab(event, 'MAP')">MAP (png)</li>
+  <li class="selectableTabButton" onclick="selectTab(event, 'RAW_data')">RAW data</li>
  </ul>
 </div>
 
 <div id="content">
-<p>
-The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers DB</a>,
-<a href="switch-db.txt">Switches DB</a>,
-<a href="ipfree-db.txt">IP available</a>,
-<a href="badvlan-db.txt">VLAN mismatch</a>,
-<a href="switch-map.txt">Map dot source</a>.
-</p>
+
+ <div id="IP_detected" class="selectableTabContent">
+  <p>
+  List all IP that have been detected on the local network.
+  </p>
 END
 
 klask exportdb --format html >> ${TMP}/index.html
 
 cat <<END >> ${TMP}/index.html
-</div>
-<p class="copyright">
-Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
-</p>
-</body>
-</html>
+ </div>
+
+ <div id="IP_available" class="selectableTabContent" style="display:none">
+  <p>
+  List all IP free (never use or not used since two years).
+  Theses IP are available for affecting them to the new computer.
+  </p>
 END
 
+klask ip-free --format html >> ${TMP}/index.html
 
-cat <<END > ${TMP}/ip-free.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
- <link rel="stylesheet" type="text/css" href="style-klask.css" />
- <meta http-equiv="refresh" content="1800">
- <title>Klask mapping net-tools</title>
- <script src="sorttable-klask.js"></script>
-</head>
-<body>
-<h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
-Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
-the local network [${LOCALTIME}] - site ${SITE_NAME}
-</h1>
+cat <<END >> ${TMP}/index.html
+ </div>
 
-<div id="navbar">
- <ul>
-  <li><a href="index.html">IP detected</a></li>
-  <li id="selected"><a href="ip-free.html">IP available</a></li>
-  <li><a href="bad-vlan-id.html">VLAN mismatch</a></li>
- </ul>
-</div>
-
-<div id="content">
-<p>
-The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers DB</a>,
-<a href="switch-db.txt">Switches DB</a>,
-<a href="ipfree-db.txt">IP available</a>,
-<a href="bad-vlan-id-db.txt">VLAN mismatch</a>,
-<a href="switch-map.txt">Map dot source</a>.
-</p>
+ <div id="VLAN_mismatch" class="selectableTabContent" style="display:none">
+  <p>
+  List all computers connected on switches where the VLAN is misconfigured.
+  Return the port and the VLAN to be configured on switches.
+  </p>
 END
 
-klask ip-free --format html >> ${TMP}/ip-free.html
+klask bad-vlan-id --format html >> ${TMP}/index.html
 
-cat <<END >> ${TMP}/ip-free.html
-</div>
-<p class="copyright">
-Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
-</p>
-</body>
-</html>
-END
+cat <<END >> ${TMP}/index.html
+ </div>
 
+ <div id="MAP" class="selectableTabContent" style="display:none">
+   <p>
+   Direct link to map format <a href="switch-map.png">png</a> or <a href="switch-map.svg">svg</a>.
+   </p>
+   <img class="map" src="switch-map.png">
+ </div>
 
-cat <<END > ${TMP}/bad-vlan-id.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
- <link rel="stylesheet" type="text/css" href="style-klask.css" />
- <meta http-equiv="refresh" content="1800">
- <title>Klask mapping net-tools</title>
- <script src="sorttable-klask.js"></script>
-</head>
-<body>
-<h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
-Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
-the local network [${LOCALTIME}] - site ${SITE_NAME}
-</h1>
-
-<div id="navbar">
- <ul>
-  <li><a href="index.html">IP detected</a></li>
-  <li><a href="ip-free.html">IP available</a></li>
-  <li id="selected"><a href="bad-vlan-id.html">VLAN mismatch</a></li>
- </ul>
+ <div id="RAW_data" class="selectableTabContent" style="display:none">
+  <p>
+   The main raw results of Klask are accessible directly, via <tt>wget</tt> or <tt>curl</tt> for example, for a specific treatment:
+   <ul>
+    <li><a href="hostname-db.txt">Computers DB</a> (command <tt>klask exportdb --format txt</tt>),</li>
+    <li><a href="switch-db.txt">Switches DB</a> (command <tt>klask exportsw --format txt</tt>),</li>
+    <li><a href="ipfree-db.txt">IP available</a> (command <tt>klask ip-free --format txt</tt>),</li>
+    <li><a href="badvlan-db.txt">VLAN mismatch</a> (command <tt>klask bad-vlan-id --format txt</tt>),</li>
+    <li>Map format: <a href="switch-map.txt">dot source</a>, <a href="switch-map.png">png</a>, <a href="switch-map.svg">svg</a>.</li>
+   </ul>
+  </p>
+ </div>
 </div>
 
-<div id="content">
-<p>
-The main raw results of Klask are accessible directly, via wget or curl for example, for a specific treatment:
-<a href="hostname-db.txt">Computers DB</a>,
-<a href="switch-db.txt">Switches DB</a>,
-<a href="ipfree-db.txt">IP available</a>,
-<a href="bad-vlan-id-db.txt">VLAN mismatch</a>,
-<a href="switch-map.txt">Map dot source</a>.
-</p>
-END
-
-klask bad-vlan-id --format html >> ${TMP}/bad-vlan-id.html
-
-cat <<END >> ${TMP}/bad-vlan-id.html
-</div>
 <p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
 </p>
@@ -206,8 +172,6 @@ then
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
-      ${TMP}/ip-free.html \
-      ${TMP}/bad-vlan-id.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
       ${REMOTE_FOLDER}/
@@ -219,8 +183,6 @@ else
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
-      ${TMP}/ip-free.html \
-      ${TMP}/bad-vlan-id.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/

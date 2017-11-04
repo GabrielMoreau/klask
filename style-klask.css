@@ -112,6 +112,14 @@ p.copyright {
    margin-right    : 10ex;
    }
 
+img.map {
+   height          : 100%;
+   width           : 100%;
+   object-fit      : contain;
+   padding-top     : 3ex;
+   padding-bottom  : 2ex;
+   }
+
 #navbar ul {
    list-style      : none;
    padding         : 0;
@@ -119,38 +127,29 @@ p.copyright {
    }
 
 #navbar li {
-   float           : left;
-   margin          : 0;
+   background      : #333;
    border          : 1px solid #BBB;
    border-bottom-width     : 0;
    border-top-left-radius  : 1.5ex;
    border-top-right-radius : 1.5ex;
-   background      : #333;
+   color           : #FFF;
+   display         : block;
+   float           : left;
+   font-family     : Verdana;
+   font-size       : 110%;
+   margin          : 0;
+   padding         : 0.8ex 2.5ex;
+   text-align      : center;
+   text-decoration : none;
+   width           : 20ex;
    }
 
 #navbar li:hover {
    background      : #AAA;
    }
 
-#navbar a {
-   text-decoration : none;
-   font-family     : Verdana;
-   font-size       : 110%;
-   display         : block;
-   padding         : 0.8ex 2.5ex;
-   color           : #FFF;
-   width           : 20ex;
-   text-align      : center;
-   border-top-left-radius  : 1.5ex;
-   border-top-right-radius : 1.5ex;
-   }
-
 #navbar #selected {
    border-color    : #333;
-   background      : white;
-   }
-
-#navbar #selected a {
    position        : relative;
    top             : 1px;
    background      : white;
