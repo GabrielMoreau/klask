@@ -173,7 +173,7 @@ cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || mv -f ${TMP}/swi
 
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
-   rsync \
+   rsync --times \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
@@ -186,7 +186,7 @@ then
       [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
-   rsync \
+   rsync --times \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
