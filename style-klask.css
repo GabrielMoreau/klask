@@ -112,6 +112,20 @@ p.copyright {
    margin-right    : 10ex;
    }
 
+
+a.refresh {
+   background      : #333;
+   border-radius   : 1.8ex;
+   color           : white;
+   margin-left     : 2ex;
+   padding         : 0.7ex 1.8ex;
+   text-decoration : none;
+   }
+
+a:hover.refresh {
+   background      : #AAA;
+   }
+
 img.map {
    width           : 100%;
    object-fit      : contain;

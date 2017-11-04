@@ -54,7 +54,7 @@ cat <<END > ${TMP}/index.html
 <html lang="en">
 <head>
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
- <meta http-equiv="refresh" content="1800">
+ <!-- <meta http-equiv="refresh" content="1800"> -->
  <title>Klask mapping net-tools</title>
  <noscript>
  </noscript>
@@ -83,11 +83,11 @@ function selectTab(event, tabName) {
  }
  </script>
 </head>
-<body onload="delayedRefresh">
+<body> <!-- onload="delayedRefresh" -->
 <h1>
 <b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
-Tool for <a href="switch-map.png">mapping</a> (<a href="switch-map.png">png</a>|<a href="switch-map.svg">svg</a>)
-the local network [${LOCALTIME}] - site ${SITE_NAME}
+Tool for <a href="switch-map.png">mapping</a> the local network - site ${SITE_NAME}
+<a class="refresh" href="./">${LOCALTIME}</a>
 </h1>
 
 <div id="navbar">
