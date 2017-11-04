@@ -113,10 +113,8 @@ p.copyright {
    }
 
 img.map {
-   height          : 100%;
    width           : 100%;
    object-fit      : contain;
-   padding-top     : 3ex;
    padding-bottom  : 2ex;
    }
 

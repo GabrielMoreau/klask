@@ -104,7 +104,9 @@ the local network [${LOCALTIME}] - site ${SITE_NAME}
 
  <div id="IP_detected" class="selectableTabContent">
   <p>
-  List all IP that have been detected on the local network.
+  List of all IP addresses detected on the local network (on all VLANs)
+  since the origin of the database
+  (except those that have been deleted manually and voluntarily).
   </p>
 END
 
@@ -115,8 +117,8 @@ cat <<END >> ${TMP}/index.html
 
  <div id="IP_available" class="selectableTabContent" style="display:none">
   <p>
-  List all IP free (never use or not used since two years).
-  Theses IP are available for affecting them to the new computer.
+  List all free IP addresses (which have never been used or not used for two years).
+  These IP addresses are available to assign to all new computers.
   </p>
 END
 
@@ -127,8 +129,8 @@ cat <<END >> ${TMP}/index.html
 
  <div id="VLAN_mismatch" class="selectableTabContent" style="display:none">
   <p>
-  List all computers connected on switches where the VLAN is misconfigured.
-  Return the port and the VLAN to be configured on switches.
+  List all computers connected to switches where the VLAN is misconfigured.
+  Returns the port and VLAN to configure on these switches.
   </p>
 END
 
@@ -139,20 +141,22 @@ cat <<END >> ${TMP}/index.html
 
  <div id="MAP" class="selectableTabContent" style="display:none">
    <p>
-   Direct link to map format <a href="switch-map.png">png</a> or <a href="switch-map.svg">svg</a>.
+   Direct link to local network map in the formats <a href="switch-map.png">png</a> and <a href="switch-map.svg">svg</a>.
    </p>
    <img class="map" src="switch-map.png">
  </div>
 
  <div id="RAW_data" class="selectableTabContent" style="display:none">
   <p>
-   The main raw results of Klask are accessible directly, via <tt>wget</tt> or <tt>curl</tt> for example, for a specific treatment:
+   The main raw results of Klask are accessible directly,
+   via <tt>wget</tt> or <tt>curl</tt> tools for example,
+   for any specific treatment:
    <ul>
     <li><a href="hostname-db.txt">Computers DB</a> (command <tt>klask exportdb --format txt</tt>),</li>
     <li><a href="switch-db.txt">Switches DB</a> (command <tt>klask exportsw --format txt</tt>),</li>
     <li><a href="ipfree-db.txt">IP available</a> (command <tt>klask ip-free --format txt</tt>),</li>
     <li><a href="badvlan-db.txt">VLAN mismatch</a> (command <tt>klask bad-vlan-id --format txt</tt>),</li>
-    <li>Map format: <a href="switch-map.txt">dot source</a>, <a href="switch-map.png">png</a>, <a href="switch-map.svg">svg</a>.</li>
+    <li>Map format: <a href="switch-map.txt">dot source</a> (graphviz), <a href="switch-map.png">png</a>, <a href="switch-map.svg">svg</a>.</li>
    </ul>
   </p>
  </div>
