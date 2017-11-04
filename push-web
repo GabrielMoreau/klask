@@ -142,6 +142,9 @@ cat <<END >> ${TMP}/index.html
  <div id="MAP" class="selectableTabContent" style="display:none">
    <p>
    Direct link to local network map in the formats <a href="switch-map.png">png</a> and <a href="switch-map.svg">svg</a>.
+   Because the map could be big,
+   you will have a better web experience with
+   <a href="https://addons.mozilla.org/en-US/firefox/addon/image-zoom/">Image Zoom<a> plugin (or equivalent) installed.
    </p>
    <img class="map" src="switch-map.png">
  </div>
@@ -165,6 +168,8 @@ cat <<END >> ${TMP}/index.html
 <p class="copyright">
 Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask version | grep ^Copyright | cut -f 1 -d '<')
 </p>
+<!-- Try to prefect switch map image -->
+<link rel="prefetch" href="switch-map.png">
 </body>
 </html>
 END
