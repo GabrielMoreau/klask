@@ -135,6 +135,8 @@ Readonly my %SWITCH_KIND => (
    JD374A           => { type => 2, model => 'HP5500-24F',     match => 'HP Comware.+?A5500-24G-SFP EI ',      revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
    # BayStack
    BS350T           => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                     },
+   # Microsens
+   'MS440209PM-48G6'=> { type => 2, model => 'MS440209PM-48G6+',  match => 'MICROSENS G6 Switch'               },
    # Nexans
    N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  },
    N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  }, # GigaSwitch V3 TP(PSE+) SFP-I 48/54V ES3 (HW3/ENHANCED/SECURITY/V4.10C)
