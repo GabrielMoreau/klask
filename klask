@@ -3740,6 +3740,16 @@ $Id$
 
 Written by Gabriel Moreau, Grenoble - France
 
+=head1 SPECIAL THANKS
+
+The list of people below did not directly contribute to Klask's source code
+but provided me with some data, returned bugs
+or helped me in another small task like having new ideas ...
+Maybe I forgot your contribution in recent years,
+please forgive me in advance and send me an e-mail to correct this.
+
+Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno.
+
 
 =head1 LICENSE AND COPYRIGHT
 
