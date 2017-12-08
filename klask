@@ -3,6 +3,8 @@
 # Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 #
 # $Id$
+#
+# perltidy -i=3 -ci=3 -pt=2 -icb -cti=3 -sbt=2 -bt=2 -bbt=2 -nsfs -bar -otr -olc -nolq -l=132 -vmll -msc=1 -iscl -nbbc -nola -st klask > klask.tmp
 
 use strict;
 use warnings;
@@ -46,7 +48,7 @@ my %SWITCH_LEVEL = ();
 my %SWITCH_DB    = ();
 LEVEL_OF_EACH_SWITCH:
 for my $sw (@SWITCH_LIST) {
-   $SWITCH_LEVEL{$sw->{'hostname'}} = $sw->{'level'} || $DEFAULT{'switch_level'}  || 2;
+   $SWITCH_LEVEL{$sw->{'hostname'}} = $sw->{'level'} || $DEFAULT{'switch_level'} || 2;
    $SWITCH_DB{$sw->{'hostname'}} = $sw;
 
    # SNMP parameter initialisation
@@ -61,7 +63,7 @@ for my $sw (@SWITCH_LIST) {
       }
    $sw->{'snmp_param_session'} = \%session;
    }
-@SWITCH_LIST = reverse sort { $SWITCH_LEVEL{$a->{'hostname'}} <=> $SWITCH_LEVEL{$b->{'hostname'}} } @{$KLASK_CFG->{'switch'}};
+@SWITCH_LIST = reverse sort {$SWITCH_LEVEL{$a->{'hostname'}} <=> $SWITCH_LEVEL{$b->{'hostname'}}} @{$KLASK_CFG->{'switch'}};
 
 #my %SWITCH_PORT_COUNT = ();
 
@@ -176,18 +178,18 @@ Readonly my %OID_NUMBER => (
    sysName         => '1.3.6.1.2.1.1.5.0',
    sysContact      => '1.3.6.1.2.1.1.4.0',
    sysLocation     => '1.3.6.1.2.1.1.6.0',
-   searchPort1     => '1.3.6.1.2.1.17.4.3.1.2',          # BRIDGE-MIB (802.1D).
-   searchPort2     => '1.3.6.1.2.1.17.7.1.2.2.1.2',      # Q-BRIDGE-MIB (802.1Q) add 0 if unknown vlan id
-   vlanPortDefault => '1.3.6.1.2.1.17.7.1.4.5.1.1',      # dot1qPvid
-   vlanStatus      => '1.3.6.1.2.1.17.7.1.4.3.1.5',      # integer 4 Create, 6 Destroy
-   vlanName        => '1.3.6.1.2.1.17.7.1.4.3.1.1',      # string
-   HPicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1',    # HP reboot switch
-   ifIndex         => '1.3.6.1.2.1.17.1.4.1.2',          # dot1dBasePortIfIndex - Interface index redirection
-   ifName          => '1.3.6.1.2.1.31.1.1.1.1',          # Interface name (give port number)
-   portUpDown      => '1.3.6.1.2.1.2.2.1.7',             # 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)  = 2 (down)
-   poeState        => '1.3.6.1.2.1.105.1.1.1.3.1',       # 1.3.6.1.2.1.105.1.1.1.3.1.NoPort = 1 (poe up)  = 2 (poe down) - Cisco and Zyxel
-   NApoeState      => '1.3.6.1.4.1.266.20.3.1.1.21',     # .NoPort = 2 (poe off)  = 8 (poe atHighPower) - Nexans
-   ifAggregator    => '1.2.840.10006.300.43.1.2.1.1.12', # dot3adAggPortSelectedAggID - 0 not part of an  Aggregator - Ciso Dell HP Comware -  See https://stackoverflow.com/questions/14960157/how-to-map-portchannel-to-interfaces-via-snmp https://gist.github.com/bldewolf/6314435
+   searchPort1     => '1.3.6.1.2.1.17.4.3.1.2',       # BRIDGE-MIB (802.1D).
+   searchPort2     => '1.3.6.1.2.1.17.7.1.2.2.1.2',   # Q-BRIDGE-MIB (802.1Q) add 0 if unknown vlan id
+   vlanPortDefault => '1.3.6.1.2.1.17.7.1.4.5.1.1',   # dot1qPvid
+   vlanStatus      => '1.3.6.1.2.1.17.7.1.4.3.1.5',   # integer 4 Create, 6 Destroy
+   vlanName        => '1.3.6.1.2.1.17.7.1.4.3.1.1',   # string
+   HPicfReset      => '1.3.6.1.4.1.11.2.14.11.1.4.1', # HP reboot switch
+   ifIndex         => '1.3.6.1.2.1.17.1.4.1.2',       # dot1dBasePortIfIndex - Interface index redirection
+   ifName          => '1.3.6.1.2.1.31.1.1.1.1',       # Interface name (give port number)
+   portUpDown      => '1.3.6.1.2.1.2.2.1.7',          # 1.3.6.1.2.1.2.2.1.7.NoPort = 1 (up)  = 2 (down)
+   poeState        => '1.3.6.1.2.1.105.1.1.1.3.1',    # 1.3.6.1.2.1.105.1.1.1.3.1.NoPort = 1 (poe up)  = 2 (poe down) - Cisco and Zyxel
+   NApoeState      => '1.3.6.1.4.1.266.20.3.1.1.21',  # .NoPort = 2 (poe off)  = 8 (poe atHighPower) - Nexans
+   ifAggregator => '1.2.840.10006.300.43.1.2.1.1.12', # dot3adAggPortSelectedAggID - 0 not part of an  Aggregator - Ciso Dell HP Comware -  See https://stackoverflow.com/questions/14960157/how-to-map-portchannel-to-interfaces-via-snmp https://gist.github.com/bldewolf/6314435
    );
 
 Readonly my %PORT_UPDOWN => (
@@ -200,7 +202,7 @@ Readonly my $RE_IPv4_ADDRESS => qr{ [0-9]{1,3} \. [0-9]{1,3} \. [0-9]{1,3} \. [0
 
 Readonly my $RE_FLOAT_HOSTNAME => $DEFAULT{'float-regex'} || qr{ ^float }xms;
 
-Readonly my $SEP_AGGREGATOR_PORT => ',';  # : is already use to join switch and port
+Readonly my $SEP_AGGREGATOR_PORT => ','; # : is already use to join switch and port
 Readonly my $SEP_SWITCH_PORT     => ':';
 
 
@@ -268,9 +270,9 @@ sub shell_command {
 # donne l'@ ip, dns, arp en fonction du dns OU de l'ip
 sub resolve_ip_arp_host {
    my $param_ip_or_host = shift;
-   my $interface = shift || q{*};
-   my $type      = shift || q{fast};
-   my $already   = shift || q{yes};
+   my $interface        = shift || q{*};
+   my $type             = shift || q{fast};
+   my $already          = shift || q{yes};
 
    my %ret = (
       hostname_fq  => 'unknow',
@@ -306,7 +308,7 @@ sub resolve_ip_arp_host {
 
    my $nowtimestamp = time;
 
-   if ( $type eq 'fast' and ( not defined $timestamp or $timestamp < ( $nowtimestamp - 45 * 60 ) ) ) { # 45 min
+   if ($type eq 'fast' and (not defined $timestamp or $timestamp < ($nowtimestamp - 45 * 60))) { # 45 min
       $ret{'mac_address'} = 'unknow';
       return %ret;
       }
@@ -327,14 +329,14 @@ sub resolve_ip_arp_host {
    if ($ret{'mac_address'} eq 'unknow') {
       # Last chance to have the mac_address
       if ($ret{'interface'} eq '*') {
-         my $cmd_arp  = shell_command "ip neigh show to $ret{'ipv4_address'}";
-         if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s dev \s ([\w\d\.\:]+) \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
+         my $cmd_arp = shell_command "ip neigh show to $ret{'ipv4_address'}";
+         if ($cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s dev \s ([\w\d\.\:]+) \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms) {
             ($ret{'interface'}, $ret{'mac_address'}) = ($1, $2);
             }
          }
       else {
-         my $cmd_arp  = shell_command "ip neigh show to $ret{'ipv4_address'} dev $ret{'interface'}";
-         if ( $cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms ) {
+         my $cmd_arp = shell_command "ip neigh show to $ret{'ipv4_address'} dev $ret{'interface'}";
+         if ($cmd_arp =~ m{ ^$RE_IPv4_ADDRESS \s lladdr \s ( $RE_MAC_ADDRESS ) \s }xms) {
             $ret{'mac_address'} = $1;
             }
          }
@@ -343,7 +345,7 @@ sub resolve_ip_arp_host {
    # Normalize MAC Address
    if ($ret{'mac_address'} ne 'unknow') {
       my @paquets = ();
-      for ( split m/ : /xms, $ret{'mac_address'} ) {
+      for (split m/ : /xms, $ret{'mac_address'}) {
          my @chars = split m//xms, uc "00$_";
          push @paquets, "$chars[-2]$chars[-1]";
          }
@@ -390,12 +392,12 @@ sub get_switch_revision {
 sub init_switch_names {
    my ($verbose, $verb_description, $check_hostname, $check_location) = @_;
 
-   printf "%-26s                %-25s %s\n",'Switch','Description','Type(Revision)' if $verbose;
+   printf "%-26s                %-25s %s\n", 'Switch', 'Description', 'Type(Revision)' if $verbose;
    print "----------------------------------------------------------------------------------\n" if $verbose;
 
    INIT_EACH_SWITCH:
    for my $sw (my @CLONE = @SWITCH_LIST) { # Make a local clone because some element can be deleted
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -410,7 +412,7 @@ sub init_switch_names {
          printf {*STDERR} "ERROR: %s.\n", $session->error();
          $session->close();
          # Remove bad switch
-         @SWITCH_LIST = grep { $_->{'hostname'} ne $sw->{'hostname'} } @SWITCH_LIST;
+         @SWITCH_LIST = grep {$_->{'hostname'} ne $sw->{'hostname'}} @SWITCH_LIST;
          delete $SWITCH_LEVEL{$sw->{'hostname'}} if exists $SWITCH_LEVEL{$sw->{'hostname'}};
          delete $SWITCH_DB{$sw->{'hostname'}}    if exists $SWITCH_DB{$sw->{'hostname'}};
          next INIT_EACH_SWITCH;
@@ -1720,7 +1722,7 @@ sub cmd_exportdb_txt {
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'hostname_fq'} eq ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}); # switch on himself !
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{'timestamp'};
+      my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $computerdb->{$ip}{'timestamp'};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -1728,8 +1730,8 @@ sub cmd_exportdb_txt {
       my $vlan = '';
       $vlan = $computerdb->{$ip}{'network'}.'('.get_current_vlan_id($computerdb->{$ip}{'network'}).')' if $computerdb->{$ip}{'network'};
 
-      my $arrow ='<---';
-         $arrow ='<===' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      my $arrow = '<---';
+      $arrow = '<===' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
 
       $tb_computer->add(
          $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'},
@@ -1756,8 +1758,8 @@ sub cmd_exportdb_html {
 
    my $computerdb = computerdb_load();
 
-#<link rel="stylesheet" type="text/css" href="style-klask.css" />
-#<script src="sorttable-klask.js"></script>
+   #<link rel="stylesheet" type="text/css" href="style-klask.css" />
+   #<script src="sorttable-klask.js"></script>
 
    print <<'END_HTML';
 <table class="sortable">
@@ -1795,19 +1797,19 @@ END_HTML
       # to be improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'hostname_fq'} eq ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}); # switch on himself !
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{'timestamp'};
+      my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $computerdb->{$ip}{'timestamp'};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
-#      $odd_or_even++;
-#      my $typerow = $odd_or_even % 2 ? 'odd' : 'even';
+      #      $odd_or_even++;
+      #      my $typerow = $odd_or_even % 2 ? 'odd' : 'even';
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       #my $arrow ='&#8592;';
       #   $arrow ='&#8656;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
-      my $arrow ='&#10229;';
-         $arrow ='&#10232;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
+      my $arrow = '&#10229;';
+      $arrow = '&#10232;' if $computerdb->{$ip}{'switch_port_hr'} =~ m/^(Trk|Br|Po)/;
 
       my $switch_hostname = $computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'} || 'unkown';
       chomp $switch_hostname;
@@ -1818,7 +1820,7 @@ END_HTML
       my $mac_sort = sprintf '%04i-%s', 9999 - $mac_count{$computerdb->{$ip}{'mac_address'}}, $computerdb->{$ip}{'mac_address'};
 
       $computerdb->{$ip}{'hostname_fq'} = 'unknow' if $computerdb->{$ip}{'hostname_fq'} =~ m/^ \d+ \. \d+ \. \d+ \. \d+ $/xms;
-      my ( $host_short ) = split m/ \. /xms, $computerdb->{$ip}{'hostname_fq'};
+      my ($host_short) = split m/ \. /xms, $computerdb->{$ip}{'hostname_fq'};
 
       my $vlan = '';
       $vlan = $computerdb->{$ip}{'network'}.' ('.get_current_vlan_id($computerdb->{$ip}{'network'}).')' if $computerdb->{$ip}{'network'};
@@ -1859,8 +1861,8 @@ END_HTML
 
       #my $arrow ='&#8702;';
       #   $arrow ='&#8680;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
-      my $arrow ='&#10236;';
-         $arrow ='&#10238;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+      my $arrow = '&#10236;';
+      $arrow = '&#10238;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
       if (exists $db_switch_parent{$sw}) {
          # Link to uplink switch
@@ -1871,7 +1873,7 @@ END_HTML
          my $ipv4_address = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'ipv4_address'};
          my $timestamp    = $db_switch{$db_switch_parent{$sw}->{'switch'}}->{'timestamp'};
 
-         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+         my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $timestamp;
          $year += 1900;
          $mon++;
          my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -1910,11 +1912,11 @@ END_HTML
 
          my $host_short = format_switchport4sort($sw, $db_switch_output_port{$sw});
 
-         my $mac_address = $db_switch{$sw}->{'mac_address'};
+         my $mac_address  = $db_switch{$sw}->{'mac_address'};
          my $ipv4_address = $db_switch{$sw}->{'ipv4_address'};
-         my $timestamp = $db_switch{$sw}->{'timestamp'};
+         my $timestamp    = $db_switch{$sw}->{'timestamp'};
 
-         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+         my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $timestamp;
          $year += 1900;
          $mon++;
          my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
@@ -1924,10 +1926,10 @@ END_HTML
          my $mac_sort = sprintf '%04i-%s', 9999, $mac_address;
 
          my $vlan = $db_switch{$sw}->{'network'};
-         $vlan .= ' ('.get_current_vlan_id($db_switch{$sw}->{'network'}).')' if $db_switch{$sw}->{'network'};
+         $vlan .= ' (' . get_current_vlan_id($db_switch{$sw}->{'network'}) . ')' if $db_switch{$sw}->{'network'};
 
-         my $arrow ='&#10235;';
-            $arrow ='&#10237;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+         my $arrow = '&#10235;';
+         $arrow = '&#10237;' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
 
          fqdn_html_breakable($sw);
 
@@ -1954,14 +1956,14 @@ END_HTML
 
          my $switch_hostname_sort = format_switchport4sort($sw_connect, $port_connect);
 
-         my $mac_address = $db_switch{$sw}->{'mac_address'};
+         my $mac_address  = $db_switch{$sw}->{'mac_address'};
          my $ipv4_address = $db_switch{$sw}->{'ipv4_address'};
-         my $timestamp = $db_switch{$sw}->{'timestamp'};
+         my $timestamp    = $db_switch{$sw}->{'timestamp'};
 
-         my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+         my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $timestamp;
          $year += 1900;
          $mon++;
-         my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year,$mon,$mday,$hour,$min;
+         my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
          my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ [\.\*] /xms, $ipv4_address; # \* for fake-ip
 
@@ -1971,15 +1973,15 @@ END_HTML
 
          #my $arrow ='&#8701;';
          #   $arrow ='&#8678;' if $port_connect =~ m/^(Trk|Br|Po)/;
-         my $arrow ='&#10235;';
-            $arrow ='&#10237;' if $port_connect =~ m/^(Trk|Br|Po)/;
+         my $arrow = '&#10235;';
+         $arrow = '&#10237;' if $port_connect =~ m/^(Trk|Br|Po)/;
 
          my $vlan = $db_switch{$sw}->{'network'};
-         $vlan .= ' ('.get_current_vlan_id($db_switch{$sw}->{'network'}).')' if $db_switch{$sw}->{'network'};
+         $vlan .= ' (' . get_current_vlan_id($db_switch{$sw}->{'network'}) . ')' if $db_switch{$sw}->{'network'};
 
          if (exists $db_switch_output_port{$sw}) {
 
-            my $host_short = format_switchport4sort(split( m/\./xms, $sw, 1), $db_switch_output_port{$sw});
+            my $host_short = format_switchport4sort(split(m/\./xms, $sw, 1), $db_switch_output_port{$sw});
 
             my $parent_port_hr = format_aggregator4html($port_connect);
             my $child_port_hr  = format_aggregator4html($db_switch_output_port{$sw});
@@ -2050,14 +2052,14 @@ sub cmd_bad_vlan_id {
    my $verbose;
 
    GetOptions(
-      'day|d=i'      => \$days_before_alert,
-      'format|f=s'   => \$format,
+      'day|d=i'    => \$days_before_alert,
+      'format|f=s' => \$format,
       );
 
    my %possible_format = (
       txt  => \&cmd_bad_vlan_id_txt,
       html => \&cmd_bad_vlan_id_html,
-      none => sub {},
+      none => sub { },
       );
    $format = 'txt' if not defined $possible_format{$format};
 
@@ -2113,15 +2115,15 @@ sub cmd_bad_vlan_id {
       next LOOP_ON_RECENT_COMPUTER if $swpt =~ m/^\s*0$/;
       next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{'hostname_fq'} !~ m/$RE_FLOAT_HOSTNAME/;
 
-      my $src_ip = $switchportdb{$swpt}->{'ip'};
+      my $src_ip        = $switchportdb{$swpt}->{'ip'};
       my $src_timestamp = 0;
       LOOP_ON_IP_ADDRESS:
       for my $ip (keys %{$computerdb}) {
-         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'mac_address'} ne  $switchportdb{$swpt}->{'mac_address'};
+         next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'mac_address'} ne $switchportdb{$swpt}->{'mac_address'};
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'hostname_fq'} =~ m/$RE_FLOAT_HOSTNAME/;
          next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'timestamp'} < $src_timestamp;
 
-         $src_ip = $ip;
+         $src_ip        = $ip;
          $src_timestamp = $computerdb->{$ip}{'timestamp'};
          }
 
@@ -2129,24 +2131,24 @@ sub cmd_bad_vlan_id {
       next LOOP_ON_RECENT_COMPUTER if $src_timestamp == 0;
       next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{'timestamp'} < $src_timestamp;
 
-      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $switchportdb{$swpt}->{'timestamp'};
+      my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $switchportdb{$swpt}->{'timestamp'};
       $year += 1900;
       $mon++;
       my $date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
-      ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$src_ip}{'timestamp'};
+      ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $computerdb->{$src_ip}{'timestamp'};
       $year += 1900;
       $mon++;
       my $src_date = sprintf '%04i-%02i-%02i/%02i:%02i', $year, $mon, $mday, $hour, $min;
 
       my $vlan_id = get_current_vlan_id($computerdb->{$src_ip}{'network'});
       my ($switch_hostname, $port_hr) = split /\s+/, $swpt, 2;
-      
+
       push @result, {
          switch      => $switch_hostname,
          port_hr     => $port_hr,
          vlan_bad    => $switchportdb{$swpt}->{'vlan'},
-         vlan_good   =>$computerdb->{$src_ip}{'network'},
+         vlan_good   => $computerdb->{$src_ip}{'network'},
          vlan_id     => $vlan_id,
          date_last   => $date,
          date_good   => $src_date,
@@ -2230,7 +2232,7 @@ END_HTML
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       my $switch_hostname_sort = format_switchport4sort($item->{'switch'}, $item->{'port_hr'});
-      my ( $host_short ) = split m/ \. /xms, $item->{'hostname_fq'};
+      my ($host_short) = split m/ \. /xms, $item->{'hostname_fq'};
 
       my $vlan_nameid = $item->{'vlan_good'} . ' (' . $item->{'vlan_id'} . ')';
 
@@ -2297,7 +2299,7 @@ sub cmd_poe_enable {
       my $result = $session->set_request(
          -varbindlist => [$oid_search, INTEGER, 8], # Only NEXANS
          );
-      print $session->error()."\n" if $session->error_status();
+      print $session->error() . "\n" if $session->error_status();
 
       $session->close;
       }
@@ -2335,7 +2337,7 @@ sub cmd_poe_disable {
       my $result = $session->set_request(
          -varbindlist => [$oid_search, INTEGER, 2], # Only NEXANS
          );
-      print $session->error()."\n" if $session->error_status();
+      print $session->error() . "\n" if $session->error_status();
 
       $session->close;
       }
@@ -2367,7 +2369,7 @@ sub cmd_poe_status {
       my $oid_search = $OID_NUMBER{'NApoeState'} . ".$switch_port"; # Only NEXANS switch and low port number
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2399,7 +2401,7 @@ sub cmd_host_setlocation {
       'force|f'   => \$force,
       );
 
-   my $switch_name = shift @ARGV || q{};
+   my $switch_name     = shift @ARGV || q{};
    my $switch_location = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $switch_location eq q{}) {
@@ -2437,7 +2439,7 @@ sub cmd_port_setvlan {
       die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
       }
 
-   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -2445,12 +2447,12 @@ sub cmd_port_setvlan {
          }
 
       my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. 0 . mac_address_hex2dec($mac_address);
+      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} . '.' . 0 . mac_address_hex2dec($mac_address);
       print "Klask search OID $oid_search_port1 on switch $sw_name\n";
       print "Klask search OID $oid_search_port2 on switch $sw_name\n";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2500,7 +2502,7 @@ sub cmd_port_getvlan {
       my $oid_search = $OID_NUMBER{'vlanPortDefault'} . ".$switch_port";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2567,7 +2569,7 @@ sub cmd_vlan_getname {
       die "Usage: klask vlan-getname SWITCH_NAME VLAN_ID\n";
       }
 
-   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -2577,7 +2579,7 @@ sub cmd_vlan_getname {
       my $oid_search_vlan_name = $OID_NUMBER{'vlanName'} . ".$vlan_id";
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -2605,7 +2607,7 @@ sub cmd_vlan_list {
       die "Usage: klask vlan-list SWITCH_NAME\n";
       }
 
-   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST ) if $switch_name eq q{*};
+   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST) if $switch_name eq q{*};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -2613,7 +2615,7 @@ sub cmd_vlan_list {
          }
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my %vlandb = snmp_get_vlan_list($session);
@@ -2661,15 +2663,15 @@ sub cmd_ip_free {
    my $verbose;
 
    GetOptions(
-      'day|d=i'      => \$days_to_death,
-      'format|f=s'   => \$format,
-      'verbose|v'    => \$verbose,
+      'day|d=i'    => \$days_to_death,
+      'format|f=s' => \$format,
+      'verbose|v'  => \$verbose,
       );
 
    my %possible_format = (
       txt  => \&cmd_ip_free_txt,
       html => \&cmd_ip_free_html,
-      none => sub {},
+      none => sub { },
       );
    $format = 'txt' if not defined $possible_format{$format};
 
@@ -2677,7 +2679,7 @@ sub cmd_ip_free {
    @vlan_name = get_list_network() if not @vlan_name;
 
    my $computerdb = {};
-      $computerdb = computerdb_load() if -e "$KLASK_DB_FILE";
+   $computerdb = computerdb_load() if -e "$KLASK_DB_FILE";
    my $timestamp = time;
 
    my $timestamp_barrier = $timestamp - (3600 * 24 * $days_to_death);
@@ -2705,13 +2707,13 @@ sub cmd_ip_free {
 
          my $ip_date_last_detection = '';
          if (exists $computerdb->{$ip}) {
-            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $computerdb->{$ip}{'timestamp'};
+            my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $computerdb->{$ip}{'timestamp'};
             $year += 1900;
             $mon++;
             $ip_date_last_detection = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
             }
 
-         my $packed_ip = scalar gethostbyname($ip);
+         my $packed_ip   = scalar gethostbyname($ip);
          my $hostname_fq = 'unknown';
             $hostname_fq = scalar gethostbyaddr($packed_ip, AF_INET) || 'unknown' if defined $packed_ip and get_current_scan_mode($vlan) eq 'active';
 
@@ -2719,8 +2721,8 @@ sub cmd_ip_free {
 
          $result_ip{$ip} ||= {};
          $result_ip{$ip}->{'date_last_detection'} = $ip_date_last_detection;
-         $result_ip{$ip}->{'hostname_fq'} = $hostname_fq;
-         $result_ip{$ip}->{'vlan'} = $vlan;
+         $result_ip{$ip}->{'hostname_fq'}         = $hostname_fq;
+         $result_ip{$ip}->{'vlan'}                = $vlan;
 
          printf "VERBOSE_1: %-15s %-12s %s\n", $ip, $vlan, $hostname_fq if $verbose;
          }
@@ -2744,7 +2746,7 @@ sub cmd_ip_free_txt {
    #print "-------------------------------------------------------------------------------\n";
    LOOP_ON_IP_ADDRESS:
    for my $ip (Net::Netmask::sort_by_ip_address(keys %result_ip)) {
-      my $vlan_nameid = $result_ip{$ip}->{'vlan'}.'('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
+      my $vlan_nameid = $result_ip{$ip}->{'vlan'} . '(' . get_current_vlan_id($result_ip{$ip}->{'vlan'}) . ')';
       #printf "%-15s %-40s %-16s %s\n", $ip, $result_ip{$ip}->{'hostname_fq'}, $result_ip{$ip}->{'date_last_detection'}, $vlan_nameid;
       $tb_computer->add(
          $ip,
@@ -2784,9 +2786,9 @@ END_HTML
       $typerow = $typerow eq 'even' ? 'odd' : 'even';
 
       my $ip_sort = sprintf '%03i%03i%03i%03i', split m/ \. /xms, $ip;
-      my ( $host_short ) = split m/ \. /xms, $result_ip{$ip}->{'hostname_fq'};
+      my ($host_short) = split m/ \. /xms, $result_ip{$ip}->{'hostname_fq'};
 
-      my $vlan_nameid = $result_ip{$ip}->{'vlan'}.' ('.get_current_vlan_id($result_ip{$ip}->{'vlan'}).')';
+      my $vlan_nameid = $result_ip{$ip}->{'vlan'} . ' (' . get_current_vlan_id($result_ip{$ip}->{'vlan'}) . ')';
 
       fqdn_html_breakable(my $hostname_fq_html = $result_ip{$ip}->{'hostname_fq'});
 
@@ -2842,7 +2844,7 @@ sub cmd_enable {
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} . '.' . $port_id;
    print "Info: switch $switch_name port $port_hr SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
@@ -2887,7 +2889,7 @@ sub cmd_disable {
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} . '.' . $port_id;
    print "Info: switch $switch_name port $port_hr SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->set_request(
@@ -2923,14 +2925,14 @@ sub cmd_status {
       }
 
    my $sw = $SWITCH_DB{$switch_name};
-   my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+   my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
    print "$error \n" if $error;
 
    # Retrieve numeric port value
    my $port_id = snmp_get_switchport_hr2id($session, normalize_port_human_readable($port_hr), $verbose ? 'yes' : '');
    die "Error : Port $port_hr does not exist on switch $switch_name\n" if not $port_id =~ m/^\d+$/;
 
-   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} .'.'. $port_id;
+   my $oid_search_portstatus = $OID_NUMBER{'portUpDown'} . '.' . $port_id;
    print "Info: switch $switch_name port $port_hr ($port_id) SNMP OID $oid_search_portstatus\n" if $verbose;
 
    my $result = $session->get_request(
@@ -2967,7 +2969,7 @@ sub cmd_search_mac_on_switch {
       }
 
    $mac_address = normalize_mac_address($mac_address);
-   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST ) if $switch_name eq q{*} or $switch_name eq q{all};
+   $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST) if $switch_name eq q{*} or $switch_name eq q{all};
 
    for my $sw_name (split /,/, $switch_name) {
       if (not defined $SWITCH_DB{$sw_name}) {
@@ -2975,12 +2977,12 @@ sub cmd_search_mac_on_switch {
          }
 
       my $oid_search_port1 = $OID_NUMBER{'searchPort1'} . mac_address_hex2dec($mac_address);
-      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} .'.'. $vlan_id . mac_address_hex2dec($mac_address);
+      my $oid_search_port2 = $OID_NUMBER{'searchPort2'} . '.' . $vlan_id . mac_address_hex2dec($mac_address);
       print "Klask search OID $oid_search_port1 on switch $sw_name\n" if $verbose;
       print "Klask search OID $oid_search_port2 on switch $sw_name\n" if $verbose;
 
       my $sw = $SWITCH_DB{$sw_name};
-      my ($session, $error) = Net::SNMP->session( %{$sw->{'snmp_param_session'}} );
+      my ($session, $error) = Net::SNMP->session(%{$sw->{'snmp_param_session'}});
       print "$error \n" if $error;
 
       my $result = $session->get_request(
@@ -3026,14 +3028,14 @@ sub cmd_exportsw {
 
    test_switchdb_environnement();
 
-   my $format = 'txt';
+   my $format       = 'txt';
    my $graph_modulo = 0;
    my $graph_shift  = 1;
 
    GetOptions(
-      'format|f=s'  => \$format,
-      'modulo|m=i'  => \$graph_modulo,
-      'shift|s=i'   => \$graph_shift,
+      'format|f=s' => \$format,
+      'modulo|m=i' => \$graph_modulo,
+      'shift|s=i'  => \$graph_shift,
       );
 
    my %possible_format = (
@@ -3069,8 +3071,8 @@ sub cmd_exportsw_txt {
       {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
       );
    for my $sw (sort keys %db_switch_output_port) {
-      my $arrow ='--->';
-         $arrow ='===>' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+      my $arrow = '--->';
+      $arrow = '===>' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
       if (exists $db_switch_parent{$sw}) {
          $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, $db_switch_parent{$sw}->{'port_hr'}, $db_switch_parent{$sw}->{'switch'});
 
@@ -3079,16 +3081,16 @@ sub cmd_exportsw_txt {
          $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, '', 'router');
          }
       }
-   my @colrange = map { scalar $tb_child->colrange($_) } (0 .. 4); # force scaler context
-   $tb_child->add(map { ' ' x $_ } reverse @colrange); # add empty line to force symetric table output
+   my @colrange = map {scalar $tb_child->colrange($_)} (0 .. 4); # force scaler context
+   $tb_child->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
    print $tb_child->title();
    print $tb_child->rule('-');
-   print $tb_child->body(0, $tb_child->body_height()-1); # remove last fake line
+   print $tb_child->body(0, $tb_child->body_height() - 1);       # remove last fake line
    $tb_child->clear;
 
    # Switch parent and children port inter-connection
    print "\n";
-   my $tb_parent = Text::Table->new( # http://www.perlmonks.org/?node_id=988320
+   my $tb_parent = Text::Table->new(                             # http://www.perlmonks.org/?node_id=988320
       {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
       {align => 'right',  align_title => 'right',  title => 'Input-Port'},
       {align => 'center', align_title => 'center', title => 'Link'},
@@ -3098,8 +3100,8 @@ sub cmd_exportsw_txt {
    for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
-         my $arrow ='<---';
-            $arrow ='<===' if $port_connect =~ m/^(Trk|Br|Po)/;
+         my $arrow = '<---';
+         $arrow = '<===' if $port_connect =~ m/^(Trk|Br|Po)/;
          if (exists $db_switch_output_port{$sw}) {
             $tb_parent->add($sw_connect, $port_connect, $arrow, $db_switch_output_port{$sw}, $sw);
             }
@@ -3108,11 +3110,11 @@ sub cmd_exportsw_txt {
             }
          }
       }
-   @colrange = map { scalar $tb_parent->colrange($_) } (0 .. 4); # force scaler context
-   $tb_parent->add(map { ' ' x $_ } reverse @colrange); # add empty line to force symetric table output
+   @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
+   $tb_parent->add(map {' ' x $_} reverse @colrange);          # add empty line to force symetric table output
    print $tb_parent->title();
    print $tb_parent->rule('-');
-   print $tb_parent->body(0, $tb_parent->body_height()-1); # remove last fake line
+   print $tb_parent->body(0, $tb_parent->body_height() - 1);   # remove last fake line
    $tb_parent->clear;
 
    return;
@@ -3134,13 +3136,13 @@ sub cmd_exportsw_dot {
 
    my $invisible_node = 0; # Count number of invisible node
 
-   my %db_building= ();
+   my %db_building    = ();
    my %db_switch_line = (); # Number of line drawed on a switch
    for my $sw (values %db_switch_global) {
       my ($building, $location) = split m/ \/ /xms, $sw->{'location'}, 2;
       $db_building{$building} ||= {};
       $db_building{$building}->{$location} ||= {};
-      $db_building{$building}->{$location}{ $sw->{'hostname'} } = 'y';
+      $db_building{$building}->{$location}{$sw->{'hostname'}} = 'y';
 
       $db_switch_line{$sw} = 0;
       }
@@ -3153,14 +3155,14 @@ sub cmd_exportsw_dot {
    print "site [label=\"site\", color=black, fillcolor=gold, shape=invhouse, style=filled];\n";
    print "internet [label=\"internet\", color=black, fillcolor=cyan, shape=house, style=filled];\n";
 
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime $timestamp;
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $timestamp;
    $year += 1900;
    $mon++;
    my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
    print "\"$date\" [label=\"MAP DATE\\n\\n$date\", color=white, fillcolor=black, shape=polygon, sides=14, style=filled, fontcolor=white];\n";
    print "site -> \"$date\" [style=invis];\n";
 
-   my $b=0;
+   my $b = 0;
    for my $building (keys %db_building) {
       $b++;
 
@@ -3178,10 +3180,10 @@ sub cmd_exportsw_dot {
          for my $sw (keys %{$db_building{$building}->{$loc}}) {
 
             my $peripheries = 1;
-            my $color = 'lightblue';
+            my $color       = 'lightblue';
             if ($db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/) {
                $peripheries = 2;
-               $color = "\"$color:$color\"";
+               $color       = "\"$color:$color\"";
                }
             print "\"$sw:$db_switch_output_port{$sw}\" [label=\"".format_aggregator4dot($db_switch_output_port{$sw})."\", color=black, fillcolor=lightblue, peripheries=$peripheries, style=filled];\n";
 
@@ -3197,10 +3199,10 @@ sub cmd_exportsw_dot {
                next if not $sw_connect eq $sw;
                next if $port_connect eq $db_switch_output_port{$sw};
                my $peripheries = 1;
-               my $color = 'plum';
+               my $color       = 'plum';
                if ($port_connect =~ m/^(Trk|Br|Po)/) {
                   $peripheries = 2;
-                  $color = "\"$color:$color\"";
+                  $color       = "\"$color:$color\"";
                   }
                print "\"$sw:$port_connect\" [label=\"".format_aggregator4dot($port_connect)."\", color=black, fillcolor=plum, peripheries=$peripheries, style=filled];\n";
                print "\"$sw:$port_connect\" -> \"$sw\" [len=2, style=bold, color=$color, arrowhead=normal, arrowtail=inv];\n";
@@ -3214,13 +3216,13 @@ sub cmd_exportsw_dot {
                #   print "\"$sw:$port_connect\" -> $invisible [style=invis]\n";
                #   print "$invisible            -> \"$sw\"    [style=invis]\n";
                #   }
-              }
+               }
             }
          }
       }
 
-#   print "Switch output port and parent port connection\n";
-#   print "---------------------------------------------\n";
+   #   print "Switch output port and parent port connection\n";
+   #   print "---------------------------------------------\n";
    for my $sw (sort keys %db_switch_output_port) {
       if (exists $db_switch_parent{$sw}) {
 #         printf "   \"%s:%s\" -> \"%s:%s\"\n", $sw, $db_switch_output_port{$sw}, $db_switch_parent{$sw}->{'switch'}, $db_switch_parent{$sw}->{'port_id'};
@@ -3240,8 +3242,8 @@ sub cmd_exportsw_dot {
    # shift graph between 1 or 2 when $graph_shift = 3
    my $graph_breaker = 1;
 
-#   print "Switch parent and children port inter-connection\n";
-#   print "------------------------------------------------\n";
+   #   print "Switch parent and children port inter-connection\n";
+   #   print "------------------------------------------------\n";
    for my $swport (sort keys %db_switch_connected_on_port) {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
@@ -3281,7 +3283,7 @@ sub cmd_exportsw_dot {
          }
       }
 
-print "}\n";
+   print "}\n";
    return;
    }
 
