@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# License GNU GPL version 2 or later
+#
 # 2007/10/23 Gabriel Moreau
 # 2010/11/03 Gabriel Moreau
 # 2011/03/30 Gabriel Moreau - make it generic

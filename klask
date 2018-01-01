@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# License GNU GPL version 2 or later and Perl equivalent
 #
 # $Id$
 #
@@ -929,7 +930,7 @@ sub computerdb_load {
 
 #---------------------------------------------------------------
 sub get_switchdb_checksum {
-   my %switch_db = @_; # same as global %SWITCH_DB
+   my %switch_db = @_; # same as global %SWITCH_DB
 
    my $checksum_data = '';
    for my $sw_name (sort keys %switch_db) { # sort to always have the same order
@@ -1214,8 +1215,8 @@ sub cmd_version {
 
    print <<'END';
 klask - port and search manager for switches, map management
-Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
-License GPL version 2 or later and Perl equivalent
+Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+License GNU GPL version 2 or later and Perl equivalent
 END
 
    print "Version $VERSION\n\n";
@@ -1369,7 +1370,7 @@ sub cmd_updatedb {
    my $switch_checksum = get_switchdb_checksum(%SWITCH_DB);
    # Remplis le champs portignore des ports d'inter-connection pour chaque switch
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
-   if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
+   if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
       if ($no_rebuildsw) {
          print "WARNING: switch database is outdate, please rebuild if with updatesw command\n";
          }
@@ -3228,7 +3229,7 @@ sub cmd_exportsw_dot {
          }
       else {
          my $style = 'solid';
-         my $color = 'black'; # navyblue
+         my $color = 'black'; # navyblue
          if ($db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/) {
             $style = 'bold';
             $color = "\"$color:invis:$color\"";
@@ -3247,7 +3248,7 @@ sub cmd_exportsw_dot {
       my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
       for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
          my $style = 'solid';
-         my $color = 'black'; # navyblue
+         my $color = 'black'; # navyblue
          if ($port_connect =~ m/^(Trk|Br|Po)/) {
             $style = 'bold';
             $color = "\"$color:invis:$color\"";
@@ -3753,6 +3754,6 @@ Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno.
 
 =head1 LICENSE AND COPYRIGHT
 
-GPL version 2 or later and Perl equivalent
+Licence GNU GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2017 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
+Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
