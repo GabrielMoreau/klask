@@ -3141,11 +3141,11 @@ sub cmd_exportsw_txt {
                }
             }
          }
-      @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
-      $tb_parent->add(map {' ' x $_} reverse @colrange);          # add empty line to force symetric table output
+      my @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
+      $tb_parent->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
       print $tb_parent->title();
       print $tb_parent->rule('-');
-      print $tb_parent->body(0, $tb_parent->body_height() - 1);   # remove last fake line
+      print $tb_parent->body(0, $tb_parent->body_height() - 1);      # remove last fake line
       $tb_parent->clear;
       }
    return;
