@@ -3031,11 +3031,13 @@ sub cmd_exportsw {
    my $format       = 'txt';
    my $graph_modulo = 0;
    my $graph_shift  = 1;
+   my $way          = 'all';
 
    GetOptions(
       'format|f=s' => \$format,
       'modulo|m=i' => \$graph_modulo,
       'shift|s=i'  => \$graph_shift,
+      'way|w=s'    => \$way,
       );
 
    my %possible_format = (
@@ -3045,7 +3047,7 @@ sub cmd_exportsw {
 
    $format = 'txt' if not defined $possible_format{$format};
 
-   $possible_format{$format}->(modulo => $graph_modulo, shift => $graph_shift, @ARGV);
+   $possible_format{$format}->(modulo => $graph_modulo, shift => $graph_shift, way => $way, @ARGV);
    return;
    }
 
