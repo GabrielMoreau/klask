@@ -3059,8 +3059,11 @@ sub cmd_exportsw_txt {
       @_);
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
+   my $interway = 0;
 
-   if ($args{'way'} eq 'all' or $args{'way'} eq 'desc') {
+   if ($args{'way'} =~ m/all|desc/) {
+      print "\n" if $interway++;
+      # Switch description
       my %db_switch_global = %{$switch_connection->{'switch_db'}};
       my $arrow            = '0--------->>>>';
 
@@ -3086,61 +3089,65 @@ sub cmd_exportsw_txt {
    my %db_switch_parent            = %{$switch_connection->{'parent'}};
    my %db_switch_connected_on_port = %{$switch_connection->{'connected_on_port'}};
 
-   # Switch output port and parent port connection
-   my $tb_child = Text::Table->new( # http://www.perlmonks.org/?node_id=988320
-      {align => 'left',   align_title => 'left',   title => 'Child-Switch'},
-      {align => 'right',  align_title => 'right',  title => 'Output-Port'},
-      {align => 'center', align_title => 'center', title => 'Link'},
-      {align => 'left',   align_title => 'left',   title => 'Input-Port'},
-      {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
-      );
-   for my $sw (sort keys %db_switch_output_port) {
-      my $arrow = '--->';
-      $arrow = '===>' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
-      if (exists $db_switch_parent{$sw}) {
-         $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, $db_switch_parent{$sw}->{'port_hr'}, $db_switch_parent{$sw}->{'switch'});
+   if ($args{'way'} =~ m/all|child/) {
+      print "\n" if $interway++;
+      # Switch output port and parent port connection
+      my $tb_child = Text::Table->new( # http://www.perlmonks.org/?node_id=988320
+         {align => 'left',   align_title => 'left',   title => 'Child-Switch'},
+         {align => 'right',  align_title => 'right',  title => 'Output-Port'},
+         {align => 'center', align_title => 'center', title => 'Link'},
+         {align => 'left',   align_title => 'left',   title => 'Input-Port'},
+         {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
+         );
+      for my $sw (sort keys %db_switch_output_port) {
+         my $arrow = '--->';
+         $arrow = '===>' if $db_switch_output_port{$sw} =~ m/^(Trk|Br|Po)/;
+         if (exists $db_switch_parent{$sw}) {
+            $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, $db_switch_parent{$sw}->{'port_hr'}, $db_switch_parent{$sw}->{'switch'});
 
-         }
-      else {
-         $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, '', 'router');
-         }
-      }
-   my @colrange = map {scalar $tb_child->colrange($_)} (0 .. 4); # force scaler context
-   $tb_child->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
-   print $tb_child->title();
-   print $tb_child->rule('-');
-   print $tb_child->body(0, $tb_child->body_height() - 1);       # remove last fake line
-   $tb_child->clear;
-
-   # Switch parent and children port inter-connection
-   print "\n";
-   my $tb_parent = Text::Table->new(                             # http://www.perlmonks.org/?node_id=988320
-      {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
-      {align => 'right',  align_title => 'right',  title => 'Input-Port'},
-      {align => 'center', align_title => 'center', title => 'Link'},
-      {align => 'left',   align_title => 'left',   title => 'Output-Port'},
-      {align => 'left',   align_title => 'left',   title => 'Child-Switch'},
-      );
-   for my $swport (sort keys %db_switch_connected_on_port) {
-      my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
-      for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
-         my $arrow = '<---';
-         $arrow = '<===' if $port_connect =~ m/^(Trk|Br|Po)/;
-         if (exists $db_switch_output_port{$sw}) {
-            $tb_parent->add($sw_connect, $port_connect, $arrow, $db_switch_output_port{$sw}, $sw);
             }
          else {
-            $tb_parent->add($sw_connect, $port_connect, $arrow, '', $sw);
+            $tb_child->add($sw, $db_switch_output_port{$sw}, $arrow, '', 'router');
             }
          }
+      my @colrange = map {scalar $tb_child->colrange($_)} (0 .. 4); # force scaler context
+      $tb_child->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
+      print $tb_child->title();
+      print $tb_child->rule('-');
+      print $tb_child->body(0, $tb_child->body_height() - 1);       # remove last fake line
+      $tb_child->clear;
       }
-   @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
-   $tb_parent->add(map {' ' x $_} reverse @colrange);          # add empty line to force symetric table output
-   print $tb_parent->title();
-   print $tb_parent->rule('-');
-   print $tb_parent->body(0, $tb_parent->body_height() - 1);   # remove last fake line
-   $tb_parent->clear;
 
+   if ($args{'way'} =~ m/all|parent/) {
+      print "\n" if $interway++;
+      # Switch parent and children port inter-connection
+      my $tb_parent = Text::Table->new(                             # http://www.perlmonks.org/?node_id=988320
+         {align => 'left',   align_title => 'left',   title => 'Parent-Switch'},
+         {align => 'right',  align_title => 'right',  title => 'Input-Port'},
+         {align => 'center', align_title => 'center', title => 'Link'},
+         {align => 'left',   align_title => 'left',   title => 'Output-Port'},
+         {align => 'left',   align_title => 'left',   title => 'Child-Switch'},
+         );
+      for my $swport (sort keys %db_switch_connected_on_port) {
+         my ($sw_connect, $port_connect) = split m/ $SEP_SWITCH_PORT /xms, $swport, 2;
+         for my $sw (keys %{$db_switch_connected_on_port{$swport}}) {
+            my $arrow = '<---';
+            $arrow = '<===' if $port_connect =~ m/^(Trk|Br|Po)/;
+            if (exists $db_switch_output_port{$sw}) {
+               $tb_parent->add($sw_connect, $port_connect, $arrow, $db_switch_output_port{$sw}, $sw);
+               }
+            else {
+               $tb_parent->add($sw_connect, $port_connect, $arrow, '', $sw);
+               }
+            }
+         }
+      @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
+      $tb_parent->add(map {' ' x $_} reverse @colrange);          # add empty line to force symetric table output
+      print $tb_parent->title();
+      print $tb_parent->rule('-');
+      print $tb_parent->body(0, $tb_parent->body_height() - 1);   # remove last fake line
+      $tb_parent->clear;
+      }
    return;
    }
 
