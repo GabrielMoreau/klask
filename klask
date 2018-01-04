@@ -1577,9 +1577,9 @@ sub cmd_addentrydb {
       );
 
    if (not $ip or not $mac or not $net) {
-      print {*STDERR} "Error: mandatory parameter --ip $ip\n"       if not $ip;
-      print {*STDERR} "Error: mandatory parameter --mac $mac\n"     if not $mac;
-      print {*STDERR} "Error: mandatory parameter --network $net\n" if not $net;
+      print {*STDERR} "Error: mandatory parameter --ip\n"      if not $ip;
+      print {*STDERR} "Error: mandatory parameter --mac\n"     if not $mac;
+      print {*STDERR} "Error: mandatory parameter --network\n" if not $net;
       print {*STDERR} "\n";
       $CMD_DB{'help'}->();
       exit 1;
@@ -1625,7 +1625,10 @@ sub cmd_addentrydb {
          }
       }
 
-   $timestamp--; # Just decrement one second to be oldier
+   # default:
+   #  days-before-alert: 15
+
+   $timestamp -= 15 * 24 * 3600 + 1; # Just decrement one second to be oldier
 
    $computerdb->{$ip} = {
       hostname_fq        => $resol_arp{'hostname_fq'},
