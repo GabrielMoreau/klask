@@ -3058,6 +3058,28 @@ sub cmd_exportsw_txt {
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
+   {
+      my %db_switch_global = %{$switch_connection->{'switch_db'}};
+      my $arrow            = '0--------->>>>';
+
+      my $tb_desc = Text::Table->new(
+         {align => 'left',   align_title => 'left',   title => 'Switch'},
+         {align => 'center', align_title => 'center', title => 'Is'},
+         {align => 'left',   align_title => 'left',   title => 'Description'},
+         {align => 'left',   align_title => 'left',   title => 'Model'},
+         {align => 'left',   align_title => 'left',   title => 'Revision'},
+         );
+
+      for my $sw (values %db_switch_global) {
+         $tb_desc->add($sw->{'hostname'}, $arrow, $sw->{'description'}, $sw->{'model'}, $sw->{'revision'});
+         }
+
+      print $tb_desc->title();
+      print $tb_desc->rule('-');
+      print $tb_desc->body();
+      $tb_desc->clear;
+      }
+
    my %db_switch_output_port       = %{$switch_connection->{'output_port'}};
    my %db_switch_parent            = %{$switch_connection->{'parent'}};
    my %db_switch_connected_on_port = %{$switch_connection->{'connected_on_port'}};
