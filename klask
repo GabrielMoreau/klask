@@ -1186,7 +1186,7 @@ klask - port and search manager for switches, map management
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [-way all|desc|child|parent] [--no-header|-H]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent] [--no-header|-H]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -3347,7 +3347,7 @@ klask - port and search manager for switches, map management
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
- klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [-way all|desc|child|parent] [--no-header|-H]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent] [--no-header|-H]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -3521,7 +3521,7 @@ It's use when rebuilding the database in case of change in switch configuration 
 
 =head2 exportsw
 
- klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [-way all|desc|child|parent] [--no-header|-H]
+ klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent] [--no-header|-H]
 
 This command print the content of the switch database. There is actually two format.
 One is just TXT for terminal and the other is the DOT format from the graphviz environnement.
