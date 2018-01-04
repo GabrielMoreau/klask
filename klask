@@ -1625,10 +1625,8 @@ sub cmd_addentrydb {
          }
       }
 
-   # default:
-   #  days-before-alert: 15
-
-   $timestamp -= 15 * 24 * 3600 + 1; # Just decrement one second to be oldier
+   my $days_before_alert = $DEFAULT{'days-before-alert'} || 15;
+   $timestamp -= $days_before_alert * 24 * 3600 + 1; # Just decrement one second to be oldier
 
    $computerdb->{$ip} = {
       hostname_fq        => $resol_arp{'hostname_fq'},
