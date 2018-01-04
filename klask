@@ -1568,17 +1568,26 @@ sub cmd_removedb {
 sub cmd_addentrydb {
    my @ARGV = @_;
 
-   my ($ip, $mac, $network);
+   my ($ip, $mac, $net);
 
    GetOptions(
       'ip|i=s'      => \$ip,
-      'mac|r=s'     => \$mac,
-      'network|r=s' => \$net,
+      'mac|m=s'     => \$mac,
+      'network|n=s' => \$net,
       );
+
+   if (not $ip or not $mac or not $net) {
+      print {*STDERR} "Error: mandatory parameter --ip $ip\n"       if not $ip;
+      print {*STDERR} "Error: mandatory parameter --mac $mac\n"     if not $mac;
+      print {*STDERR} "Error: mandatory parameter --network $net\n" if not $net;
+      print {*STDERR} "\n";
+      $CMD_DB{'help'}->();
+      exit 1;
+      }
 
    test_maindb_environnement();
 
-   my $mac = normalize_mac_address($mac);
+   $mac = normalize_mac_address($mac);
 
    if ($ip !~ m/^ $RE_IPv4_ADDRESS $/xms or $mac !~ m/^ $RE_MAC_ADDRESS $/xms or not exists $KLASK_CFG->{'network'}{$net}) {
       print {*STDERR} "Error: parameter not valid --ip $ip\n"       if $ip !~ m/^ $RE_IPv4_ADDRESS $/xms;
