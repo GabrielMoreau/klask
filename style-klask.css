@@ -33,7 +33,7 @@ table.sortable thead th.sorttable_nosort:hover {
    background      : #333;
    }
 
-table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
+table.sortable thead th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after { 
    content         : "\00A0\21C5" 
    }
 
