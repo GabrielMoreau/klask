@@ -75,6 +75,7 @@ my %CMD_DB = (
    'updatedb'             => \&cmd_updatedb,
    'searchdb'             => \&cmd_searchdb,
    'removedb'             => \&cmd_removedb,
+   'addentrydb'           => \&cmd_addentrydb,
    'cleandb'              => \&cmd_cleandb,
    'search'               => \&cmd_search,
    'enable'               => \&cmd_enable,
@@ -1555,6 +1556,78 @@ sub cmd_removedb {
 
       delete $computerdb->{$resol_arp{'ipv4_address'}} if exists $computerdb->{$resol_arp{'ipv4_address'}};
       }
+
+   my $dirdb = $KLASK_DB_FILE;
+      $dirdb =~ s{ / [^/]* $}{}xms;
+   mkdir "$dirdb", 0755 unless -d "$dirdb";
+   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+   return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_addentrydb {
+   my @ARGV = @_;
+
+   my ($ip, $mac, $network);
+
+   GetOptions(
+      'ip|i=s'      => \$ip,
+      'mac|r=s'     => \$mac,
+      'network|r=s' => \$net,
+      );
+
+   test_maindb_environnement();
+
+   my $mac = normalize_mac_address($mac);
+
+   if ($ip !~ m/^ $RE_IPv4_ADDRESS $/xms or $mac !~ m/^ $RE_MAC_ADDRESS $/xms or not exists $KLASK_CFG->{'network'}{$net}) {
+      print {*STDERR} "Error: parameter not valid --ip $ip\n"       if $ip !~ m/^ $RE_IPv4_ADDRESS $/xms;
+      print {*STDERR} "Error: parameter not valid --mac $mac\n"     if $mac !~ m/^ $RE_MAC_ADDRESS $/xms;
+      print {*STDERR} "Error: parameter not valid --network $net\n" if not exists $KLASK_CFG->{'network'}{$net};
+      print {*STDERR} "\n";
+      $CMD_DB{'help'}->();
+      exit 1;
+      }
+
+   my %resol_arp = resolve_ip_arp_host($ip); # Get hostname_fq ipv4_address
+
+   if ($resol_arp{'hostname_fq'} eq 'unknow') {
+      print {*STDERR} "Error: DNS name not defined for IP $ip (mandatory)\n";
+      exit 1;
+      }
+
+   if ($resol_arp{'ipv4_address'} ne $ip) {
+      print {*STDERR} "Error: IP DNS resolution strange between $ip and $resol_arp{'ipv4_address'}\n";
+      exit 1;
+      }
+
+   my $computerdb = computerdb_load();
+   my $timestamp  = time;
+
+   LOOP_ON_COMPUTER:
+   for my $current_ip (keys %{$computerdb}) {
+      if ($current_ip eq $ip) {
+         print {*STDERR} "Error: IP $ip already exists in the computer database\n";
+         exit 1;
+         }
+
+      if ($computerdb->{$current_ip}{'mac_address'} eq $mac) {
+         $timestamp = $computerdb->{$current_ip}{'timestamp'} if $computerdb->{$current_ip}{'timestamp'} < $timestamp;
+         }
+      }
+
+   $timestamp--; # Just decrement one second to be oldier
+
+   $computerdb->{$ip} = {
+      hostname_fq        => $resol_arp{'hostname_fq'},
+      mac_address        => $mac,
+      switch_hostname    => 'Unknow',
+      switch_description => 'Unknow',
+      switch_port_id     => 0,
+      switch_port_hr     => 0,
+      timestamp          => $timestamp,
+      network            => $net,
+      };
 
    my $dirdb = $KLASK_DB_FILE;
       $dirdb =~ s{ / [^/]* $}{}xms;
