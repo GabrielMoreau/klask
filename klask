@@ -3032,12 +3032,14 @@ sub cmd_exportsw {
    my $graph_modulo = 0;
    my $graph_shift  = 1;
    my $way          = 'all';
+   my $no_header;
 
    GetOptions(
-      'format|f=s' => \$format,
-      'modulo|m=i' => \$graph_modulo,
-      'shift|s=i'  => \$graph_shift,
-      'way|w=s'    => \$way,
+      'format|f=s'  => \$format,
+      'modulo|m=i'  => \$graph_modulo,
+      'shift|s=i'   => \$graph_shift,
+      'way|w=s'     => \$way,
+      'no-header|H' => \$no_header,
       );
 
    my %possible_format = (
@@ -3047,15 +3049,15 @@ sub cmd_exportsw {
 
    $format = 'txt' if not defined $possible_format{$format};
 
-   $possible_format{$format}->(modulo => $graph_modulo, shift => $graph_shift, way => $way, @ARGV);
+   $possible_format{$format}->(modulo => $graph_modulo, shift => $graph_shift, way => $way, 'no-header' => $no_header, @ARGV);
    return;
    }
 
 #---------------------------------------------------------------
 sub cmd_exportsw_txt {
    my %args = (
-      way   => 'all',
-      list  => 0,
+      'way'       => 'all',
+      'no-header' => undef,
       @_);
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
@@ -3079,8 +3081,8 @@ sub cmd_exportsw_txt {
          $tb_desc->add($sw->{'hostname'}, $arrow, $sw->{'description'}, $sw->{'model'}, $sw->{'revision'});
          }
 
-      print $tb_desc->title();
-      print $tb_desc->rule('-');
+      print $tb_desc->title()   unless $args{'no-header'};
+      print $tb_desc->rule('-') unless $args{'no-header'};
       print $tb_desc->body();
       $tb_desc->clear;
       }
@@ -3112,8 +3114,8 @@ sub cmd_exportsw_txt {
          }
       my @colrange = map {scalar $tb_child->colrange($_)} (0 .. 4); # force scaler context
       $tb_child->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
-      print $tb_child->title();
-      print $tb_child->rule('-');
+      print $tb_child->title()   unless $args{'no-header'};
+      print $tb_child->rule('-') unless $args{'no-header'};
       print $tb_child->body(0, $tb_child->body_height() - 1);       # remove last fake line
       $tb_child->clear;
       }
@@ -3143,8 +3145,8 @@ sub cmd_exportsw_txt {
          }
       my @colrange = map {scalar $tb_parent->colrange($_)} (0 .. 4); # force scaler context
       $tb_parent->add(map {' ' x $_} reverse @colrange);             # add empty line to force symetric table output
-      print $tb_parent->title();
-      print $tb_parent->rule('-');
+      print $tb_parent->title()   unless $args{'no-header'};
+      print $tb_parent->rule('-') unless $args{'no-header'};
       print $tb_parent->body(0, $tb_parent->body_height() - 1);      # remove last fake line
       $tb_parent->clear;
       }
