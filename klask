@@ -2153,10 +2153,10 @@ sub cmd_bad_vlan_id {
    my %switchportdb = ();
    LOOP_ON_IP_ADDRESS:
    for my $ip (keys %{$computerdb}) {
-      # to be improve in the future
+      # to be really improve in the future
       next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'hostname_fq'} eq ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}); # switch on himself !
-      next LOOP_ON_IP_ADDRESS if ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}) eq 'unknow';
-      next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'switch_port_id'} eq '0';
+      #next LOOP_ON_IP_ADDRESS if ($computerdb->{$ip}{'switch_hostname'} || $computerdb->{$ip}{'switch_description'}) eq 'unknow';
+      #next LOOP_ON_IP_ADDRESS if $computerdb->{$ip}{'switch_port_id'} eq '0';
 
       my $ip_timestamp   = $computerdb->{$ip}{'timestamp'};
       my $ip_mac         = $computerdb->{$ip}{'mac_address'};
