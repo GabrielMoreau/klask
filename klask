@@ -930,6 +930,19 @@ sub computerdb_load {
    }
 
 #---------------------------------------------------------------
+# Save computer database
+sub computerdb_save {
+   my ($computerdb) = @_;
+
+   my $dirdb = $KLASK_DB_FILE;
+      $dirdb =~ s{ / [^/]* $}{}xms;
+   mkdir "$dirdb", 0755 unless -d "$dirdb";
+   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+
+   return $computerdb;
+   }
+
+#---------------------------------------------------------------
 sub get_switchdb_checksum {
    my %switch_db = @_; # same as global %SWITCH_DB
 
@@ -1522,10 +1535,7 @@ sub cmd_updatedb {
    # final end of line at the end of the loop
    printf "\n";
 
-   my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s{ / [^/]* $}{}xms;
-   mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+   computerdb_save($computerdb);
 
    for my $one_computer (keys %computer_not_detected) {
       my $current_net       = $computer_not_detected{$one_computer};
@@ -1557,10 +1567,7 @@ sub cmd_removedb {
       delete $computerdb->{$resol_arp{'ipv4_address'}} if exists $computerdb->{$resol_arp{'ipv4_address'}};
       }
 
-   my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s{ / [^/]* $}{}xms;
-   mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+   computerdb_save($computerdb);
    return;
    }
 
@@ -1639,10 +1646,7 @@ sub cmd_addentrydb {
       network            => $net,
       };
 
-   my $dirdb = $KLASK_DB_FILE;
-      $dirdb =~ s{ / [^/]* $}{}xms;
-   mkdir "$dirdb", 0755 unless -d "$dirdb";
-   YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
+   computerdb_save($computerdb);
    return;
    }
 
@@ -1752,12 +1756,7 @@ sub cmd_cleandb {
          }
       }
 
-   if ($database_has_changed) {
-      my $dirdb = $KLASK_DB_FILE;
-         $dirdb =~ s{ / [^/]* $}{}xms;
-      mkdir "$dirdb", 0755 unless -d "$dirdb";
-      YAML::Syck::DumpFile("$KLASK_DB_FILE", $computerdb);
-      }
+   computerdb_save($computerdb) if $database_has_changed;
    return;
    }
 
