@@ -25,6 +25,10 @@ _klask() {
          COMPREPLY=($(compgen -W "1 2 3" -- "$cur"))
          return 0
          ;;
+      -w|--way)
+         COMPREPLY=($(compgen -W "all desc child parent" -- "$cur"))
+         return 0
+         ;;
    esac
 
    if [[ "$cur" == '-*' || $COMP_CWORD -gt 1 ]]
