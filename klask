@@ -3045,7 +3045,7 @@ sub cmd_exportsw {
 
    $format = 'txt' if not defined $possible_format{$format};
 
-   $possible_format{$format}->($graph_modulo, $graph_shift, @ARGV);
+   $possible_format{$format}->(modulo => $graph_modulo, shift => $graph_shift, @ARGV);
    return;
    }
 
@@ -3058,7 +3058,7 @@ sub cmd_exportsw_txt {
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
-   {
+   if ($args{'way'} eq 'all' or $args{'way'} eq 'desc') {
       my %db_switch_global = %{$switch_connection->{'switch_db'}};
       my $arrow            = '0--------->>>>';
 
@@ -3144,8 +3144,13 @@ sub cmd_exportsw_txt {
 
 #---------------------------------------------------------------
 sub cmd_exportsw_dot {
-   my $graph_modulo = shift;
-   my $graph_shift  = shift;
+   my %args = (
+      modulo   => 0,
+      shift    => 1,
+      @_);
+
+   my $graph_modulo = $args{'modulo'};
+   my $graph_shift  = $args{'shift'};
 
    my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
 
