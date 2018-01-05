@@ -951,6 +951,7 @@ sub get_switchdb_checksum {
       $checksum_data .= join ':',
          $switch_db{$sw_name}->{'description'},
          $switch_db{$sw_name}->{'model'},
+         $switch_db{$sw_name}->{'revision'},
          $switch_db{$sw_name}->{'hostname'},
          "\n";
       }
