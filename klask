@@ -3586,11 +3586,11 @@ Computer DNS names are also a valid entry because a DNS resolver is executed at 
 
 This command insert an entry in the database.
 The IPv4 must not exist previously in the database
-and the DNS resolution name muts be active.
+and the reverse DNS name resolution must be active for that IPv4.
 
-The date or timestamp of the entry will be C<number_of_day> in the past (see L<cleandb>)
+The date or timestamp of the entry will be C<number_of_day> in the past (by default 15, see L</cleandb>)
 from today or from the oldest entry with the same MAC-Address.
-This command can be use to add pseudo entry and help in the process to detect bad vlan configuration (see L<bad-vlan-id>).
+This command could be use to add pseudo entry and help in the process to detect bad vlan configuration (see L</bad-vlan-id>).
 
 =head2 cleandb
 
