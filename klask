@@ -9,7 +9,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.6');
+use version; our $VERSION = qv('0.7.7');
 
 use Readonly;
 use FileHandle;
@@ -75,7 +75,7 @@ my %CMD_DB = (
    'updatedb'             => \&cmd_updatedb,
    'searchdb'             => \&cmd_searchdb,
    'removedb'             => \&cmd_removedb,
-   'addentrydb'           => \&cmd_addentrydb,
+   'insertdb'             => \&cmd_insertdb,
    'cleandb'              => \&cmd_cleandb,
    'search'               => \&cmd_search,
    'enable'               => \&cmd_enable,
@@ -287,7 +287,7 @@ sub resolve_ip_arp_host {
    return %ret if not defined $packed_ip;
    $ret{'ipv4_address'} = inet_ntoa($packed_ip);
    #if ($ret{'ipv4_address'} !~ m/$RE_IPv4_ADDRESS/) {
-   #   print "Error: for computer $param_ip_or_host on interface $interface, IP $ret{'ipv4_address'} is not valide\n";
+   #   print "Error: for computer $param_ip_or_host on interface $interface, IPv4 $ret{'ipv4_address'} is not valide\n";
    #   return %ret;
    #   }
 
@@ -1196,7 +1196,8 @@ klask - port and search manager for switches, map management
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
- klask removedb IP* computer*
+ klask removedb ipv4_addr* computer*
+ klask insertdb --ip ipv4_addr --mac mac_addr --network vlan_name
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
@@ -1572,7 +1573,7 @@ sub cmd_removedb {
    }
 
 #---------------------------------------------------------------
-sub cmd_addentrydb {
+sub cmd_insertdb {
    my @ARGV = @_;
 
    my ($ip, $mac, $net);
@@ -1608,12 +1609,12 @@ sub cmd_addentrydb {
    my %resol_arp = resolve_ip_arp_host($ip); # Get hostname_fq ipv4_address
 
    if ($resol_arp{'hostname_fq'} eq 'unknow') {
-      print {*STDERR} "Error: DNS name not defined for IP $ip (mandatory)\n";
+      print {*STDERR} "Error: DNS name not defined for IPv4 $ip (mandatory)\n";
       exit 1;
       }
 
    if ($resol_arp{'ipv4_address'} ne $ip) {
-      print {*STDERR} "Error: IP DNS resolution strange between $ip and $resol_arp{'ipv4_address'}\n";
+      print {*STDERR} "Error: IPv4 DNS resolution strange between $ip and $resol_arp{'ipv4_address'}\n";
       exit 1;
       }
 
@@ -1623,7 +1624,7 @@ sub cmd_addentrydb {
    LOOP_ON_COMPUTER:
    for my $current_ip (keys %{$computerdb}) {
       if ($current_ip eq $ip) {
-         print {*STDERR} "Error: IP $ip already exists in the computer database\n";
+         print {*STDERR} "Error: IPv4 $ip already exists in the computer database\n";
          exit 1;
          }
 
@@ -2848,7 +2849,7 @@ sub cmd_ip_free_html {
 
    print <<'END_HTML';
 <table class="sortable">
- <caption>Klask Free IP Database</caption>
+ <caption>Klask Free IPv4 Database</caption>
  <thead>
   <tr>
    <th scope="col" class="klask-header-left">IPv4-Address</th>
@@ -3425,7 +3426,8 @@ klask - port and search manager for switches, map management
 
  klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
- klask removedb IP* computer*
+ klask removedb ipv4_addr* computer*
+ klask insertdb --ip ipv4_addr --mac mac_addr --network vlan_name
  klask cleandb  [--verbose|-v] --day number_of_day --repair-dns
 
  klask updatesw [--verbose|-v]
@@ -3468,7 +3470,7 @@ When you use a management port to administrate a switch,
 it's not possible to create the map with this switch because it does not have a MAC address,
 so other switch cannot find the real downlink port...
 One way to work around this problem is, if you have a computer directly connected on the switch,
-to put this IP as the fake ip for the switch.
+to put this IPv4 as the fake ip for the switch.
 The MAC address associated will be use just for the map detection.
 The C<fake-ip> parameter is defined in the config file.
 
@@ -3548,7 +3550,7 @@ Maybe some option will be transfered in a future C<checksw> command!
 
 The network parameter C<scan-mode> can have two values: C<active> or C<passive>.
 By default, a network is C<active>.
-This means that an C<fping> command is done at the beginning on all the IP of the network
+This means that an C<fping> command is done at the beginning on all the IPv4 of the network
 and the computers that was not detected in this pass, but where their Klask entry is less than one week,
 will have an C<arping>
 (some OS do not respond to C<ping> but a computer have to respond to C<arping> if it want to interact with other).
@@ -3570,13 +3572,25 @@ It's very easy to have more format, it's just need times...
 
 =head2 removedb
 
- klask removedb IP* computer*
+ klask removedb ipv4_addr* computer*
 
 This command remove an entry in the database.
-There is only one kind of parameter, the IP of the computers to be removed.
-You can put as many IP as you want...
+There is only one kind of parameter, the IPv4 of the computers to be removed.
+You can put as many IPv4 as you want...
 
 Computer DNS names are also a valid entry because a DNS resolver is executed at the beginning.
+
+=head2 insertdb
+
+ klask insertdb --ip ipv4_addr --mac mac_addr --network vlan_name
+
+This command insert an entry in the database.
+The IPv4 must not exist previously in the database
+and the DNS resolution name muts be active.
+
+The date or timestamp of the entry will be C<number_of_day> in the past (see L<cleandb>)
+from today or from the oldest entry with the same MAC-Address.
+This command can be use to add pseudo entry and help in the process to detect bad vlan configuration (see L<bad-vlan-id>).
 
 =head2 cleandb
 
@@ -3586,7 +3600,7 @@ Remove double entry (same MAC-Address) in the computer database when the older o
 Computer name beginning by 'float' (regex C<^float>) are not really taken into account but could be remove.
 This could be configure with the global regex parameter C<float-regex> in the configuration file F</etc/klask/klask.conf>.
 This functionality could be use when computer define in VLAN 1
-could have a float IP when they are connected on VLAN 2.
+could have a float IPv4 when they are connected on VLAN 2.
 In the Klask database, the float DNS entries are less important.
 
 When reverse DNS has not been done by the past, option C<--repair-dns> force a reverse DNS check on all unkown host.
@@ -3638,7 +3652,7 @@ that means the result graph is generated with theses virtuals but invisibles nod
 
  klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
 
-This command return IP address that was not use (detected by Klask) at this time.
+This command return IPv4 address that was not use (detected by Klask) at this time.
 The list returned could be limited to just one VLAN.
 IP returned could have been never used or no computer have been detected since the number of days specified
 (2 years by default).
@@ -3647,7 +3661,7 @@ This parameter could also be define in the configuration file F</etc/klask/klask
  default:
    days-to-death: 730
 
-Computer that does not have the good IP but takes a float one (see L</cleandb>) are taken into account.
+Computer that does not have the good IPv4 but takes a float one (see L</cleandb>) are taken into account.
 
 
 =head2 bad-vlan-id
@@ -3656,7 +3670,7 @@ Computer that does not have the good IP but takes a float one (see L</cleandb>) 
 
 This command return a list of switch port that are not configure with the good VLAN.
 Computer which are in bad VLAN are detected with the float regex parameter (see L</cleandb>)
-and another prior trace where they had the good IP (good DNS name).
+and another prior trace where they had the good IPv4 (good DNS name).
 The computer must stay connected on a bad VLAN more than XX days (15 days by default) before alert.
 This parameter could also define in the configuration file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
 
