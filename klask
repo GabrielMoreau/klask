@@ -144,6 +144,7 @@ Readonly my %SWITCH_KIND => (
    # Nexans
    N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  },
    N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  }, # GigaSwitch V3 TP(PSE+) SFP-I 48/54V ES3 (HW3/ENHANCED/SECURITY/V4.10C)
+   N5542G           => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC' revision => qr{GigaSwitch .*?-OFFICE-V(\d[\d\.]+\w?)\)},    },
    # DELL
    PC7024           => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
    N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,',              revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
@@ -3846,7 +3847,7 @@ J4121A(HP4000M), J9145A(HP2910-24G), J3298A(HP212M), J9625A(HP2620-24P).
 
 BayStack: BayStack 350T HW(BS350T)
 
-Nexans: GigaSwitch V3 TP SFP-I 48V ES3(NA3483-6G), GigaSwitch V3 TP.PSE.+ 48/54V ES3(NA3483-6P)
+Nexans: GigaSwitch V3 TP SFP-I 48V ES3(NA3483-6G), GigaSwitch V3 TP.PSE.+ 48/54V ES3(NA3483-6P), GigaSwitch V5 TP(PSE+) SFP-2VI 54VDC(NA5542-7G)
 
 DELL: PC7024(DPC7024), N2048(DN2048), N4032F(DN4032F), N4064F(DN4064F)
 
@@ -3896,7 +3897,7 @@ or helped me in another small task like having new ideas ...
 Maybe I forgot your contribution in recent years,
 please forgive me in advance and send me an e-mail to correct this.
 
-Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno.
+Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno, David Gras.
 
 
 =head1 LICENSE AND COPYRIGHT
