@@ -124,7 +124,7 @@ Readonly my %SWITCH_KIND => (
    J4813A           => { type => 1, model => 'HP2524',         match => 'HP J4813A ProCurve Switch 2524',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
    J9625A           => { type => 2, model => 'HP2620-24P',     match => 'HP J9625A E2620-24-PoEP Switch',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
    J4900A           => { type => 1, model => 'HP2626A',        match => 'HP J4900A ProCurve Switch 2626',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4900B           => { type => 1, model => 'HP2626B',        match => 'J4900B.+?Switch 2626',                revision => qr{, revision (\w[\d\.]+?), ROM},               }, # ProCurve J4900B Switch 2626 # HP J4900B ProCurve Switch 2626
+   J4900B           => { type => 1, model => 'HP2626B',        match => 'J4900B.+?Switch 2626',                revision => qr{, revision (\w[\d\.]+?), ROM},               },
    J4899B           => { type => 1, model => 'HP2650',         match => 'ProCurve J4899B Switch 2650',         revision => qr{, revision (\w[\d\.]+?), ROM},               },
    J9021A           => { type => 1, model => 'HP2810-24G',     match => 'ProCurve J9021A Switch 2810-24G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
    J9022A           => { type => 1, model => 'HP2810-48G',     match => 'ProCurve J9022A Switch 2810-48G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
@@ -143,9 +143,9 @@ Readonly my %SWITCH_KIND => (
    'MS440209PM-48G6'=> { type => 2, model => 'MS440209PM-48G6+',  match => 'MICROSENS G6 Switch'               },
    # Nexans
    N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  },
-   N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  }, # GigaSwitch V3 TP(PSE+) SFP-I 48/54V ES3 (HW3/ENHANCED/SECURITY/V4.10C)
-   N5541G           => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{GigaSwitch .*?-OFFICE-V(\d[\d\.]+\w?)\)},    },
-   N5542G           => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC',revision => qr{GigaSwitch .*?-OFFICE-V(\d[\d\.]+\w?)\)},    },
+   N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{GigaSwitch .*?/SECURITY/V(\d[\d\.]+\w?)\)},  },
+   N5541G           => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{GigaSwitch .*?-OFFICE-V(\d[\d\.]+\w+?)\)},   },
+   N5542G           => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC',revision => qr{GigaSwitch .*?-OFFICE-V(\d[\d\.]+\w+?)\)},   },
    # DELL
    PC7024           => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
    N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,',              revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
