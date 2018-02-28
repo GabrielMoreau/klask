@@ -1270,7 +1270,7 @@ sub cmd_search {
 
 #---------------------------------------------------------------
 sub cmd_searchdb {
-   my @ARGV = @_;
+   local @ARGV = @_;
 
    my $kind;
 
@@ -1577,7 +1577,7 @@ sub cmd_removedb {
 
 #---------------------------------------------------------------
 sub cmd_insertdb {
-   my @ARGV = @_;
+   local @ARGV = @_;
 
    my ($ip, $mac, $net);
 
@@ -1656,7 +1656,7 @@ sub cmd_insertdb {
 
 #---------------------------------------------------------------
 sub cmd_cleandb {
-   my @ARGV = @_;
+   local @ARGV = @_;
 
    my $days_to_clean = 15;
    my $repairdns;
@@ -1766,7 +1766,7 @@ sub cmd_cleandb {
 
 #---------------------------------------------------------------
 sub cmd_exportdb {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $format = 'txt';
 
@@ -2131,7 +2131,7 @@ END_HTML
 
 #---------------------------------------------------------------
 sub cmd_bad_vlan_id {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $days_before_alert = $DEFAULT{'days-before-alert'} || 15;
    my $format = 'txt';
@@ -2357,7 +2357,7 @@ END_HTML
 
 #---------------------------------------------------------------
 sub cmd_poe_enable {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    GetOptions(
@@ -2395,7 +2395,7 @@ sub cmd_poe_enable {
 
 #---------------------------------------------------------------
 sub cmd_poe_disable {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    GetOptions(
@@ -2433,7 +2433,7 @@ sub cmd_poe_disable {
 
 #---------------------------------------------------------------
 sub cmd_poe_status {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    GetOptions(
@@ -2479,7 +2479,7 @@ sub cmd_poe_status {
 
 #---------------------------------------------------------------
 sub cmd_host_setlocation {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my ($verbose, $force);
    GetOptions(
@@ -2566,7 +2566,7 @@ sub cmd_port_setvlan {
 
 #---------------------------------------------------------------
 sub cmd_port_getvlan {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    GetOptions(
@@ -2615,7 +2615,7 @@ sub cmd_vlan_setname {
 #---------------------------------------------------------------
 # snmpset -v 1 -c public sw1-batG0-legi.hmg.priv "$OID_NUMBER{'HPicfReset'}.0" i 2;
 sub cmd_rebootsw {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    GetOptions(
@@ -2742,7 +2742,7 @@ sub cmd_ip_location {
 
 #---------------------------------------------------------------
 sub cmd_ip_free {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $days_to_death = $DEFAULT{'days-to-death'} || 365 * 2;
    my $format = 'txt';
@@ -2903,7 +2903,7 @@ END_HTML
 
 #---------------------------------------------------------------
 sub cmd_enable {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
 
@@ -2948,7 +2948,7 @@ sub cmd_enable {
 
 #---------------------------------------------------------------
 sub cmd_disable {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
 
@@ -2991,7 +2991,7 @@ sub cmd_disable {
 
 #---------------------------------------------------------------
 sub cmd_status {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
 
@@ -3037,7 +3037,7 @@ sub cmd_status {
 
 #---------------------------------------------------------------
 sub cmd_search_mac_on_switch {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
    my $vlan_id = 0;
@@ -3097,7 +3097,7 @@ sub cmd_search_mac_on_switch {
 
 #---------------------------------------------------------------
 sub cmd_updatesw {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    my $verbose;
 
@@ -3110,7 +3110,7 @@ sub cmd_updatesw {
 
 #---------------------------------------------------------------
 sub cmd_exportsw {
-   @ARGV = @_;
+   local @ARGV = @_;
 
    test_switchdb_environnement();
 
