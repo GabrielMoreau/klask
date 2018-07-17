@@ -2216,6 +2216,7 @@ sub cmd_bad_vlan_id {
       # keep only if float computer is the most recent
       next LOOP_ON_RECENT_COMPUTER if $src_timestamp == 0;
       next LOOP_ON_RECENT_COMPUTER if $switchportdb{$swpt}->{'timestamp'} < $src_timestamp;
+      next LOOP_ON_RECENT_COMPUTER if $computerdb->{$src_ip}{'hostname_fq'} eq 'unknow';
 
       my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $switchportdb{$swpt}->{'timestamp'};
       $year += 1900;
