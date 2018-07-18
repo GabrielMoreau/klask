@@ -3889,7 +3889,7 @@ $Id$
 
 =head1 AUTHOR
 
-Written by Gabriel Moreau, Grenoble - France
+Written by Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>, Grenoble - France
 
 =head1 SPECIAL THANKS
 
@@ -3904,6 +3904,6 @@ Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno, David Gras.
 
 =head1 LICENSE AND COPYRIGHT
 
-Licence GNU GPL version 2 or later and Perl equivalent
+License GNU GPL version 2 or later and Perl equivalent
 
 Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
