@@ -1,5 +1,10 @@
 open https://servforge.legi.grenoble-inp.fr/pub/klask/
 
 mput *.html
+mput LICENSE.txt
+
+mkdir download
+cd download
+mput klask_*_all.deb
 
 quit

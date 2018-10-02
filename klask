@@ -9,7 +9,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = qv('0.7.7');
+use version; our $VERSION = version->declare('0.7.7');
 
 use Readonly;
 use FileHandle;
@@ -25,7 +25,7 @@ use List::Util 'shuffle';
 use Digest::SHA qw(sha512_base64);
 use Text::Table; # libtext-table-perl http://blogs.perl.org/users/steven_haryanto/2014/07/benchmarking-several-ascii-table-generator-modules.html
 
-# apt-get install snmp fping libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
+# apt-get install snmp libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
 # libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl libtext-table-perl
 # arping net-tools fping bind9-host arpwatch
 

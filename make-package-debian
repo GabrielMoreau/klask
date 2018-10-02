@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# 2018/10/02 Gabriel Moreau <Gabriel.Moreau@univ-grenoble-alpes.fr>
+
+trap '[ -n "${tmp_folder}" -a -d "${tmp_folder}" ] && rm -rf "${tmp_folder}"' QUIT
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
+export LANG=C
+
+tmp_folder=$(mktemp --directory /tmp/klask-XXXXXX)
+[ -n "${tmp_folder}" -a -d "${tmp_folder}" ] || exit 1
+
+# Set Name and Version
+PKG_NAME=klask
+CODE_VERSION=$(grep 'version->declare' klask | cut -f 2 -d "'") #'
+PKG_VERSION=1
+
+# Create future tree
+mkdir -p ${tmp_folder}/usr/bin
+mkdir -p ${tmp_folder}/usr/lib/klask
+mkdir -p ${tmp_folder}/usr/share/man/man1
+mkdir -p ${tmp_folder}/usr/share/klask
+mkdir -p ${tmp_folder}/etc/klask
+mkdir -p ${tmp_folder}/etc/bash_completion.d
+cp klask                   ${tmp_folder}/usr/bin/
+cp push-web                ${tmp_folder}/usr/lib/klask/
+cp klask-wrapper           ${tmp_folder}/usr/lib/klask/
+cp klask.1.gz              ${tmp_folder}/usr/share/man/man1/
+cp LICENSE.txt             ${tmp_folder}/usr/share/klask/
+cp sorttable-klask.js      ${tmp_folder}/usr/share/klask/
+cp style-klask.css         ${tmp_folder}/usr/share/klask/
+cp klask-sample.conf       ${tmp_folder}/etc/klask/
+cp push-web-sample.conf    ${tmp_folder}/etc/klask/
+cp klask.cron              ${tmp_folder}/etc/klask/
+cp klask.bash_completion   ${tmp_folder}/etc/bash_completion.d/
+chmod -R a+rx,go-w   ${tmp_folder}/usr/bin/klask
+chmod -R a+rx,go-w   ${tmp_folder}/usr/lib/klask/push-web
+chmod -R a+rx,go-w   ${tmp_folder}/usr/lib/klask/klask-wrapper
+chmod -R a+rX,go-w   ${tmp_folder}/usr
+chmod -R a+rX,go-w   ${tmp_folder}/etc
+
+# Data archive
+rm -f ${tmp_folder}/data.tar.gz
+(cd ${tmp_folder}; tar --owner root --group root -czf data.tar.gz ./usr ./etc)
+
+# Control file
+cat <<END > ${tmp_folder}/control
+Package: ${PKG_NAME}
+Version: ${CODE_VERSION}-${PKG_VERSION}
+Section: utils
+Tag: implemented-in::perl, interface::commandline, role::program
+Priority: optional
+Depends: perl, perl-base, perl-modules, libnet-cidr-lite-perl, libnet-netmask-perl, libnet-snmp-perl, libnetaddr-ip-perl, libyaml-perl, libcrypt-des-perl, libcrypt-hcesha-perl, libdigest-hmac-perl, libtext-table-perl, snmp, arping, net-tools, fping, bind9-host, arpwatch
+Suggests: libyaml-shell-perl | yamllint, perl-doc
+Architecture: all
+Installed-Size: $(du -ks ${tmp_folder}|cut -f 1)
+Maintainer: Gabriel Moreau <Gabriel.Moreau@univ-grenoble-alpes.fr>
+Description: Klask maps your local network
+ Klask means search in Breton and that's exactly what we wanted.
+ Klask is a tool whose two main functions are:
+ * Find the connections between switches and draw a map of the
+   active hardware on the local network;
+ * Make an accurate inventory of the port and switch to which
+   the local network machines are connected.
+ Klask is a small tool, in the spirit of UNIX tools, to worry about
+ connections on the local network.
+Homepage: http://servforge.legi.grenoble-inp.fr/projects/klask
+END
+
+# Control archive
+rm -f ${tmp_folder}/control.tar.gz
+(cd ${tmp_folder}; tar --owner root --group root -czf control.tar.gz control)
+
+# Format deb package
+echo 2.0 > ${tmp_folder}/debian-binary
+
+# Create package (control before data)
+ar -r ${PKG_NAME}_${CODE_VERSION}-${PKG_VERSION}_all.deb ${tmp_folder}/debian-binary ${tmp_folder}/control.tar.gz ${tmp_folder}/data.tar.gz
+      
+# Clean
+rm -rf ${tmp_folder}
+
+# Prepare reprepro upload
+echo "# Prepare reprepro upload"
+echo "( cd /srv/www/debian/ ; reprepro includedeb wheezy   ~/wheezy/${PKG_NAME}_${CODE_VERSION}-${PKG_VERSION}_all.deb )"
+echo "( cd /srv/www/debian/ ; reprepro includedeb jessie   ~/jessie/${PKG_NAME}_${CODE_VERSION}-${PKG_VERSION}_all.deb )"
+echo "( cd /srv/www/debian/ ; reprepro includedeb stretch ~/stretch/${PKG_NAME}_${CODE_VERSION}-${PKG_VERSION}_all.deb )"
+echo "( cd /srv/www/debian/ ; reprepro dumpreferences ) | grep -i klask"
