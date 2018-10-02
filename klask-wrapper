@@ -14,7 +14,7 @@ check_conf() {
       echo "No config file for klask-push-web /etc/klask/push-web.conf"
 	   exit 1
    fi
-   if [ ! -x /usr/sbin/klask ]
+   if [ ! -x /usr/bin/klask ]
    then
       echo "No main program klask"
 	   exit 1
@@ -29,13 +29,13 @@ check_conf() {
 case "$1" in
   update)
       check_conf
-      /usr/sbin/klask updatedb
+      /usr/bin/klask updatedb
       /usr/lib/klask/push-web
       ;;
 
   clean)
       check_conf
-      /usr/sbin/klask cleandb
+      /usr/bin/klask cleandb
       /usr/lib/klask/push-web
       ;;
 
