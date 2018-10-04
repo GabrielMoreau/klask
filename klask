@@ -6,6 +6,10 @@
 # $Id$
 #
 # perltidy -i=3 -ci=3 -pt=2 -icb -cti=3 -sbt=2 -bt=2 -bbt=2 -nsfs -bar -otr -olc -nolq -l=132 -vmll -msc=1 -iscl -nbbc -nola -st klask > klask.tmp
+#
+# apt-get install snmp libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
+#     libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl libtext-table-perl
+#     arping net-tools fping bind9-host arpwatch
 
 use strict;
 use warnings;
@@ -24,10 +28,6 @@ use Socket;
 use List::Util 'shuffle';
 use Digest::SHA qw(sha512_base64);
 use Text::Table; # libtext-table-perl http://blogs.perl.org/users/steven_haryanto/2014/07/benchmarking-several-ascii-table-generator-modules.html
-
-# apt-get install snmp libnet-cidr-lite-perl libnet-netmask-perl libnet-snmp-perl libnetaddr-ip-perl libyaml-perl
-# libcrypt-des-perl libcrypt-hcesha-perl libdigest-hmac-perl libtext-table-perl
-# arping net-tools fping bind9-host arpwatch
 
 ################################################################
 # general initialization
