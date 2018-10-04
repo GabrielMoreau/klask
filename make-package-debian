@@ -55,7 +55,7 @@ Suggests: libyaml-shell-perl | yamllint, perl-doc
 Architecture: all
 Installed-Size: $(du -ks ${tmp_folder}|cut -f 1)
 Maintainer: Gabriel Moreau <Gabriel.Moreau@univ-grenoble-alpes.fr>
-Description: Klask maps your local network
+Description: Klask maps your local network - Switches and Computers
  Klask means search in Breton and that's exactly what we wanted.
  Klask is a tool whose two main functions are:
  * Find the connections between switches and draw a map of the
