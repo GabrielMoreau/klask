@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2019 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later and Perl equivalent
 #
 # $Id$
@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.8');
+use version; our $VERSION = version->declare('0.7.9');
 
 use Readonly;
 use FileHandle;
@@ -137,6 +137,7 @@ Readonly my %SWITCH_KIND => (
    JE069A           => { type => 2, model => 'HP5120-48G',     match => 'HP Comware.+?A5120-48G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
    JD377A           => { type => 2, model => 'HP5500-24G',     match => 'HP Comware.+?A5500-24G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
    JD374A           => { type => 2, model => 'HP5500-24F',     match => 'HP Comware.+?A5500-24G-SFP EI ',      revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
+   JH149A           => { type => 2, model => 'HP5510-24F',     match => 'HPE Comware.+?HPE 5510 .+? JH149A',   revision => qr{Comware .*? Version (\d[\d\.]+?), Release},  },
    # BayStack
    BS350T           => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                     },
    # Microsens
@@ -1231,7 +1232,7 @@ sub cmd_version {
 
    print <<'END';
 klask - port and search manager for switches, map management
-Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+Copyright (C) 2005-2019 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 License GNU GPL version 2 or later and Perl equivalent
 END
 
@@ -3853,7 +3854,7 @@ This makes it possible to adjust the code names of the different manufacturers!
 HP: J3299A(HP224M), J4120A(HP1600M), J9029A(HP1800-8G), J9449A(HP1810-8G), J4093A(HP2424M), J9279A(HP2510G-24),
 J9280A(HP2510G-48), J4813A(HP2524), J4900A(HP2626A), J4900B(HP2626B), J4899B(HP2650), J9021A(HP2810-24G), J9022A(HP2810-48G),
 J8692A(HP3500-24G), J4903A(HP2824), J4110A(HP8000M), JE074A(HP5120-24G), JE069A(HP5120-48G), JD377A(HP5500-24G), JD374A(HP5500-24F),
-J4121A(HP4000M), J9145A(HP2910-24G), J3298A(HP212M), J9625A(HP2620-24P).
+J4121A(HP4000M), J9145A(HP2910-24G), J3298A(HP212M), J9625A(HP2620-24P), JH149A(HP5510-24F).
 
 BayStack: BayStack 350T HW(BS350T)
 
@@ -3914,4 +3915,4 @@ Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno, David Gras.
 
 License GNU GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
+Copyright (C) 2005-2019 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
