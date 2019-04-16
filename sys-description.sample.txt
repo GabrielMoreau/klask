@@ -74,6 +74,7 @@ HP:
  - HP Comware Platform Software, Software Version 5.20 Release 2208P01  HP A5120-48G EI Switch with 2 Interface Slots  Copyright (c) 2010-2011 Hewlett-Packard Development Company, L.P.  
  - HP Comware Platform Software, Software Version 5.20.99 Release 2220P02  HP A5500-24G EI Switch with 2 Interface Slots  Copyright (c) 2010-2013 Hewlett-Packard Development Company, L.P. 
  - HP Comware Platform Software, Software Version 5.20 Release 2208P01  HP A5500-24G-SFP EI Switch with 2 Interface Slots  Copyright (c) 2010-2011 Hewlett-Packard Development Company, L.P.
+ - HPE Comware Platform Software, Software Version 7.1.045, Release 1122P02  HPE 5510 24G SFP 4SFP+ HI 1-slot Switch JH149A  Copyright (c) 2010-2017 Hewlett Packard Enterprise Development LP
 
 JUNIPER:
  - Juniper Networks, Inc. ex2200-24t-4g internet router, kernel JUNOS 10.2R1.8 #0: 2010-05-27 20:13:49 UTC
@@ -101,5 +102,6 @@ NEXANS:
  - GigaSwitch V3 TP SFP-I 48V ES3 (HW3/ENHANCED/SECURITY/V4.10C)
  - GigaSwitch V3 TP SFP-I 48/54VDC ES3 (HW3/ENHANCED/SECURITY/V4.14W)
  - GigaSwitch V3 TP(PSE+) SFP-I 48/54V ES3 (HW3/ENHANCED/SECURITY/V4.14W)
+ - GigaSwitch V3 TP SFP-I 48/54VDC ES3 (HW3-F21-P06-OFFICE-V5.02R)
  - GigaSwitch V5 TP SFP-VI 54VDC (HW5-F40-P07-OFFICE-V5.01fw)
  - GigaSwitch V5 TP(PSE+) SFP-2VI 54VDC (HW5-F40-P07-OFFICE-V5.01fn)
