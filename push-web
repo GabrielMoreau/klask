@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2005-2018 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2020 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later
 #
 # 2007/10/23 Gabriel Moreau
@@ -41,7 +41,10 @@ cd ${TMP}
 
 
 LOCALTIME=$(date "+%Y-%m-%d %H:%M")
+TIMEFILE=$(date "+%Y-%m-%d.%H-%M")
 
+CACHE_TIMEOUT=50
+find ${TMP}/ -type f -a -mtime +${CACHE_TIMEOUT} -delete
 
 klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt.new
 
@@ -62,6 +65,7 @@ cat <<END > ${TMP}/index.html
  <noscript>
  </noscript>
  <script src="sorttable-klask.js"></script>
+ <script src="svg-pan-zoom-klask.js"></script>
  <script>
 function delayedRefresh() {
  setTimeout( "refresh()", 1800*1000 );
@@ -214,6 +218,14 @@ cat <<END >> ${TMP}/index.html
    you will have a better web experience with
    <a href="https://addons.mozilla.org/en-US/firefox/addon/image-zoom/">Image Zoom<a> plugin (or equivalent) installed.
    </p>
+   
+   <embed type="image/svg+xml" src="switch-map.svg" id="my-embed-switch-map"/>
+   <script>
+      document.getElementById('my-embed-switch-map').addEventListener('load', function(){
+         // Will get called after embed element was loaded
+         svgPanZoom(document.getElementById('my-embed-switch-map')); 
+         })
+   </script>
    <img class="map" src="switch-map.png">
  </div>
 
@@ -242,12 +254,16 @@ Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask ver
 </html>
 END
 
-cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt
+cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || {
+   mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.${TIMEFILE}.txt;
+   ln -sf ${TMP}/switch-map.${TIMEFILE}.txt ${TMP}/switch-map.txt
+   }
 
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
    rsync --times \
       /usr/share/klask/sorttable-klask.js \
+      /usr/share/klask/svg-pan-zoom-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
       ${TMP}/*-db.txt \
@@ -261,6 +277,7 @@ then
 else
    rsync --times \
       /usr/share/klask/sorttable-klask.js \
+      /usr/share/klask/svg-pan-zoom-klask.js \
       /usr/share/klask/style-klask.css \
       ${TMP}/index.html \
       ${TMP}/*-db.txt \
