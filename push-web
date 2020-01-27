@@ -47,13 +47,35 @@ CACHE_TIMEOUT=50
 find ${TMP}/ -type f -a -mtime +${CACHE_TIMEOUT} -delete
 
 klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt.new
-
+klask exportsw                                                              > ${TMP}/switch-db.txt.new
 
 klask exportdb    > ${TMP}/hostname-db.txt
-klask exportsw    > ${TMP}/switch-db.txt
 klask ip-free     > ${TMP}/ipfree-db.txt
 klask bad-vlan-id > ${TMP}/badvlan-db.txt
 
+cmp --silent ${TMP}/switch-db.txt.new ${TMP}/switch-db.txt || {
+   mv -f ${TMP}/switch-db.txt.new ${TMP}/switch-db.${TIMEFILE}.txt;
+   ln -sf ${TMP}/switch-db.${TIMEFILE}.txt ${TMP}/switch-db.txt
+   }
+
+cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || {
+   mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.${TIMEFILE}.txt;
+   ln -sf ${TMP}/switch-map.${TIMEFILE}.txt ${TMP}/switch-map.txt
+   }
+
+old_switch_db=$((echo 'command <tt>klask exportsw --format txt</tt>';
+      (cd ${TMP}/; ls -1 switch-db.20[[0-9]][[0-9]]-[[0-9]][[0-9]]-[[0-9]][[0-9]].[[0-9]][[0-9]]-[[0-9]][[0-9]].txt;) \
+      | sed -e 's/^switch-db\.//; s/\.txt$//;' \
+      | xargs -r -I {} printf "<a href=\"switch-db.%s.txt\">%s</a>\n" '{}' '{}' \
+      ) \
+   | paste -sd ',' -)
+
+old_switch_map=$((echo 'graphviz';\
+      (cd ${TMP}/; ls -1 switch-map.20[[0-9]][[0-9]]-[[0-9]][[0-9]]-[[0-9]][[0-9]].[[0-9]][[0-9]]-[[0-9]][[0-9]].txt;) \
+      | sed -e 's/^switch-map\.//; s/\.txt$//;' \
+      | xargs -r -I {} printf "<a href=\"switch-map.%s.txt\">%s</a>\n" '{}' '{}' \
+      )\
+   | paste -sd ',' -)
 
 cat <<END > ${TMP}/index.html
 <!DOCTYPE html>
@@ -236,10 +258,10 @@ cat <<END >> ${TMP}/index.html
    for any specific treatment:
    <ul>
     <li><a href="hostname-db.txt">Computers DB</a> (command <tt>klask exportdb --format txt</tt>),</li>
-    <li><a href="switch-db.txt">Switches DB</a> (command <tt>klask exportsw --format txt</tt>),</li>
+    <li><a href="switch-db.txt">Switches DB</a> (${old_switch_db}),</li>
     <li><a href="ipfree-db.txt">IP available</a> (command <tt>klask ip-free --format txt</tt>),</li>
     <li><a href="badvlan-db.txt">VLAN mismatch</a> (command <tt>klask bad-vlan-id --format txt</tt>),</li>
-    <li>Map format: <a href="switch-map.txt">dot source</a> (graphviz), <a href="switch-map.png">png</a>, <a href="switch-map.svg">svg</a>.</li>
+    <li>Map format: <a href="switch-map.txt">dot source</a> (${old_switch_map}), <a href="switch-map.png">png</a>, <a href="switch-map.svg">svg</a>.</li>
    </ul>
   </p>
  </div>
@@ -254,11 +276,6 @@ Klask (version $(klask version | grep ^Version | cut -f 2 -d ' ')) - $(klask ver
 </html>
 END
 
-cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || {
-   mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.${TIMEFILE}.txt;
-   ln -sf ${TMP}/switch-map.${TIMEFILE}.txt ${TMP}/switch-map.txt
-   }
-
 if [ "${REMOTE_SERVER}" = "localhost" ]
 then
    rsync --times \
@@ -268,6 +285,7 @@ then
       ${TMP}/index.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
+      ${TMP}/*.20[[0-9]][[0-9]]-[[0-9]][[0-9]]-[[0-9]][[0-9]].[[0-9]][[0-9]]-[[0-9]][[0-9]].txt \
       ${REMOTE_FOLDER}/
 
    [ -x ${DOT} ] && (cd ${REMOTE_FOLDER};
@@ -282,6 +300,7 @@ else
       ${TMP}/index.html \
       ${TMP}/*-db.txt \
       ${TMP}/switch-map.txt \
+      ${TMP}/*.20[[0-9]][[0-9]]-[[0-9]][[0-9]]-[[0-9]][[0-9]].[[0-9]][[0-9]]-[[0-9]][[0-9]].txt \
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
 
 
