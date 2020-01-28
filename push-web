@@ -19,65 +19,65 @@ REMOTE_FOLDER=/var/www/klask/
 GRAPH_MODULO=9
 GRAPH_SHIFT=1
 
+CACHE_TIMEOUT=50
+CACHE_FOLDER='/tmp/klask-push-web'
+
 if [ -f /etc/klask/push-web.conf ]
 then
    . /etc/klask/push-web.conf
 fi
 
-TMP='/tmp/klask-push-web'
-
 
 # remote command
 DOT=/usr/bin/dot
 
-
-mkdir -p ${TMP}
-if [ ! -d ${TMP} ]
+mkdir -p ${CACHE_FOLDER}
+if [ ! -d ${CACHE_FOLDER} ]
 then
-   echo "Error: Folder ${TMP} do not exist !"
+   echo "Error: Folder ${CACHE_FOLDER} do not exist !"
    exit 1
 fi
-cd ${TMP}
-
+cd ${CACHE_FOLDER}
 
 LOCALTIME=$(date "+%Y-%m-%d %H:%M")
 TIMEFILE=$(date "+%Y-%m-%d.%H-%M")
 
-CACHE_TIMEOUT=50
-find ${TMP}/ -type f -a -mtime +${CACHE_TIMEOUT} -delete
+find ${CACHE_FOLDER}/ -type f -a -mtime +${CACHE_TIMEOUT} -delete
 
-klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${TMP}/switch-map.txt.new
-klask exportsw                                                              > ${TMP}/switch-db.txt.new
+klask exportsw --format dot --modulo ${GRAPH_MODULO} --shift ${GRAPH_SHIFT} > ${CACHE_FOLDER}/switch-map.txt.new
+klask exportsw                                                              > ${CACHE_FOLDER}/switch-db.txt.new
 
-klask exportdb    > ${TMP}/hostname-db.txt
-klask ip-free     > ${TMP}/ipfree-db.txt
-klask bad-vlan-id > ${TMP}/badvlan-db.txt
+klask exportdb    > ${CACHE_FOLDER}/hostname-db.txt
+klask ip-free     > ${CACHE_FOLDER}/ipfree-db.txt
+klask bad-vlan-id > ${CACHE_FOLDER}/badvlan-db.txt
 
-cmp --silent ${TMP}/switch-db.txt.new ${TMP}/switch-db.txt || {
-   mv -f ${TMP}/switch-db.txt.new ${TMP}/switch-db.${TIMEFILE}.txt;
-   ln -sf ${TMP}/switch-db.${TIMEFILE}.txt ${TMP}/switch-db.txt
+cmp --silent ${CACHE_FOLDER}/switch-db.txt.new ${CACHE_FOLDER}/switch-db.txt || {
+   mv -f ${CACHE_FOLDER}/switch-db.txt.new ${CACHE_FOLDER}/switch-db.${TIMEFILE}.txt;
+   ln -sf ${CACHE_FOLDER}/switch-db.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-db.txt
    }
 
-cmp --silent ${TMP}/switch-map.txt.new ${TMP}/switch-map.txt || {
-   mv -f ${TMP}/switch-map.txt.new ${TMP}/switch-map.${TIMEFILE}.txt;
-   ln -sf ${TMP}/switch-map.${TIMEFILE}.txt ${TMP}/switch-map.txt
+cmp --silent ${CACHE_FOLDER}/switch-map.txt.new ${CACHE_FOLDER}/switch-map.txt || {
+   mv -f ${CACHE_FOLDER}/switch-map.txt.new ${CACHE_FOLDER}/switch-map.${TIMEFILE}.txt;
+   ln -sf ${CACHE_FOLDER}/switch-map.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-map.txt
    }
 
+# keep trace of old switch map
 old_switch_db=$((echo 'command <tt>klask exportsw --format txt</tt>';
-      (cd ${TMP}/; ls -1 switch-db.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt;) \
+      (cd ${CACHE_FOLDER}/; ls -1 switch-db.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt;) \
       | sed -e 's/^switch-db\.//; s/\.txt$//;' \
-      | xargs -r -I {} printf "<a href=\"switch-db.%s.txt\">%s</a>\n" '{}' '{}' \
+      | xargs -r -I {} printf " <a href=\"switch-db.%s.txt\">%s</a>\n" '{}' '{}' \
       ) \
    | paste -sd ',' -)
 
 old_switch_map=$((echo 'graphviz';\
-      (cd ${TMP}/; ls -1 switch-map.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt;) \
+      (cd ${CACHE_FOLDER}/; ls -1 switch-map.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt;) \
       | sed -e 's/^switch-map\.//; s/\.txt$//;' \
-      | xargs -r -I {} printf "<a href=\"switch-map.%s.txt\">%s</a>\n" '{}' '{}' \
+      | xargs -r -I {} printf " <a href=\"switch-map.%s.txt\">%s</a>\n" '{}' '{}' \
       )\
    | paste -sd ',' -)
 
-cat <<END > ${TMP}/index.html
+
+cat <<END > ${CACHE_FOLDER}/index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -204,9 +204,9 @@ Tool for <a href="switch-map.png">mapping</a> the local network - site ${SITE_NA
   </p>
 END
 
-klask exportdb --format html >> ${TMP}/index.html
+klask exportdb --format html >> ${CACHE_FOLDER}/index.html
 
-cat <<END >> ${TMP}/index.html
+cat <<END >> ${CACHE_FOLDER}/index.html
  </div>
 
  <div id="IP_available" class="selectableTabContent" style="display:none">
@@ -216,9 +216,9 @@ cat <<END >> ${TMP}/index.html
   </p>
 END
 
-klask ip-free --format html >> ${TMP}/index.html
+klask ip-free --format html >> ${CACHE_FOLDER}/index.html
 
-cat <<END >> ${TMP}/index.html
+cat <<END >> ${CACHE_FOLDER}/index.html
  </div>
 
  <div id="VLAN_mismatch" class="selectableTabContent" style="display:none">
@@ -228,9 +228,9 @@ cat <<END >> ${TMP}/index.html
   </p>
 END
 
-klask bad-vlan-id --format html >> ${TMP}/index.html
+klask bad-vlan-id --format html >> ${CACHE_FOLDER}/index.html
 
-cat <<END >> ${TMP}/index.html
+cat <<END >> ${CACHE_FOLDER}/index.html
  </div>
 
  <div id="MAP" class="selectableTabContent" style="display:none">
@@ -282,10 +282,10 @@ then
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/svg-pan-zoom-klask.js \
       /usr/share/klask/style-klask.css \
-      ${TMP}/index.html \
-      ${TMP}/*-db.txt \
-      ${TMP}/switch-map.txt \
-      ${TMP}/*.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt \
+      ${CACHE_FOLDER}/index.html \
+      ${CACHE_FOLDER}/*-db.txt \
+      ${CACHE_FOLDER}/switch-map.txt \
+      ${CACHE_FOLDER}/*.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt \
       ${REMOTE_FOLDER}/
 
    [ -x ${DOT} ] && (cd ${REMOTE_FOLDER};
@@ -297,10 +297,10 @@ else
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/svg-pan-zoom-klask.js \
       /usr/share/klask/style-klask.css \
-      ${TMP}/index.html \
-      ${TMP}/*-db.txt \
-      ${TMP}/switch-map.txt \
-      ${TMP}/*.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt \
+      ${CACHE_FOLDER}/index.html \
+      ${CACHE_FOLDER}/*-db.txt \
+      ${CACHE_FOLDER}/switch-map.txt \
+      ${CACHE_FOLDER}/*.20[0-9][0-9]-[0-9][0-9]-[0-9][0-9].[0-9][0-9]-[0-9][0-9].txt \
       ${REMOTE_USER}@${REMOTE_SERVER}:${REMOTE_FOLDER}/
 
 
