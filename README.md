@@ -21,9 +21,9 @@ Des outils comme traceroute ne sont d'aucune aide sur le réseau local car l'inf
  * dresser un inventaire précis du port et du commutateur sur lequel sont connectés les machines du réseau local.
 
 **Klask** est un petit outil, dans l'esprit des outils UNIX, de ne se préoccuper que des connections sur le réseau local.
-La page [MapSample](MapSample.md) a un résultat de la carte donnée par ```Klask```.
+La page [MapSample](./doc/MapSample.md) a un résultat de la carte donnée par ```Klask```.
 
-Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](MultiVlan.md).
+Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](./doc/MultiVlan.md).
 
 Il existe une documentation en ligne extraite du code source de [http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html klask].
 
