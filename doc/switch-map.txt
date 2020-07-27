@@ -1,0 +1,180 @@
+digraph G {
+site [label = "site", color = black, fillcolor = gold, shape = invhouse, style = filled];
+internet [label = "internet", color = black, fillcolor = cyan, shape = house, style = filled];
+"building1" [label = "batC ", color = black, fillcolor = gold, style = filled];
+site -> "building1" [len = 2, color = firebrick];
+"location1-1" [label = "batC / 1 etage \n C101", color = black, fillcolor = orange, style = filled];
+"building1" -> "location1-1" [len = 2, color = firebrick]
+"sw2batC1.exp.loc:23" [label = 23, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw2batC1.exp.loc" [label = "sw2batC1.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location1-1" -> "sw2batC1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw2batC1.exp.loc" -> "sw2batC1.exp.loc:23" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batC2.exp.loc:26" [label = 26, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batC2.exp.loc" [label = "sw1batC2.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location1-1" -> "sw1batC2.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batC2.exp.loc" -> "sw1batC2.exp.loc:26" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batC1.exp.loc:25" [label = 25, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batC1.exp.loc" [label = "sw1batC1.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location1-1" -> "sw1batC1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batC1.exp.loc" -> "sw1batC1.exp.loc:25" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batC1.exp.loc:23" [label = 23, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batC1.exp.loc:23" -> "sw1batC1.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw1batC1.exp.loc:24" [label = 24, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batC1.exp.loc:24" -> "sw1batC1.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"building2" [label = "batB ", color = black, fillcolor = gold, style = filled];
+site -> "building2" [len = 2, color = firebrick];
+"location2-1" [label = "batB / 1 etage \n B118", color = black, fillcolor = orange, style = filled];
+"building2" -> "location2-1" [len = 2, color = firebrick]
+"sw1batB1.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batB1.exp.loc" [label = "sw1batB1.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-1" -> "sw1batB1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batB1.exp.loc" -> "sw1batB1.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batB1.exp.loc:23" [label = 23, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batB1.exp.loc:23" -> "sw1batB1.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw9batB1.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw9batB1.exp.loc" [label = "sw9batB1.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-1" -> "sw9batB1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw9batB1.exp.loc" -> "sw9batB1.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"location2-2" [label = "batB / RdC \n B010", color = black, fillcolor = orange, style = filled];
+"building2" -> "location2-2" [len = 2, color = firebrick]
+"sw2batB0.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw2batB0.exp.loc" [label = "sw2batB0.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-2" -> "sw2batB0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw2batB0.exp.loc" -> "sw2batB0.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"location2-3" [label = "batB / 1 etage \n B123", color = black, fillcolor = orange, style = filled];
+"building2" -> "location2-3" [len = 2, color = firebrick]
+"sw7batB1.exp.loc:48" [label = 48, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw7batB1.exp.loc" [label = "sw7batB1.exp.loc\n-\nHP2810-48G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-3" -> "sw7batB1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw7batB1.exp.loc" -> "sw7batB1.exp.loc:48" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw6batB1.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw6batB1.exp.loc" [label = "sw6batB1.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-3" -> "sw6batB1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw6batB1.exp.loc" -> "sw6batB1.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw5batB1.exp.loc:25" [label = 25, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw5batB1.exp.loc" [label = "sw5batB1.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-3" -> "sw5batB1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw5batB1.exp.loc" -> "sw5batB1.exp.loc:25" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw5batB1.exp.loc:23" [label = 23, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw5batB1.exp.loc:23" -> "sw5batB1.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw5batB1.exp.loc:24" [label = 24, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw5batB1.exp.loc:24" -> "sw5batB1.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"location2-4" [label = "batB / RdC \n B015", color = black, fillcolor = orange, style = filled];
+"building2" -> "location2-4" [len = 2, color = firebrick]
+"sw1batB0.exp.loc:26" [label = 26, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batB0.exp.loc" [label = "sw1batB0.exp.loc\n-\nHP2626B", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location2-4" -> "sw1batB0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batB0.exp.loc" -> "sw1batB0.exp.loc:26" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batB0.exp.loc:25" [label = 25, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batB0.exp.loc:25" -> "sw1batB0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"building3" [label = "BatA ", color = black, fillcolor = gold, style = filled];
+site -> "building3" [len = 2, color = firebrick];
+"location3-1" [label = "BatA / 3 etage \n A309", color = black, fillcolor = orange, style = filled];
+"building3" -> "location3-1" [len = 2, color = firebrick]
+"sw1batA3.exp.loc:49" [label = 49, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batA3.exp.loc" [label = "sw1batA3.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-1" -> "sw1batA3.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batA3.exp.loc" -> "sw1batA3.exp.loc:49" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batA3.exp.loc:21" [label = 21, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batA3.exp.loc:21" -> "sw1batA3.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw1batA3.exp.loc:22" [label = 22, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw1batA3.exp.loc:22" -> "sw1batA3.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw2batA3.exp.loc:16" [label = 16, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw2batA3.exp.loc" [label = "sw2batA3.exp.loc\n-\nHP1600M", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-1" -> "sw2batA3.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw2batA3.exp.loc" -> "sw2batA3.exp.loc:16" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"location3-2" [label = "BatA / 2 etage \n A220", color = black, fillcolor = orange, style = filled];
+"building3" -> "location3-2" [len = 2, color = firebrick]
+"sw2batA2.exp.loc:47" [label = 47, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw2batA2.exp.loc" [label = "sw2batA2.exp.loc\n-\nHP2810-48G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-2" -> "sw2batA2.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw2batA2.exp.loc" -> "sw2batA2.exp.loc:47" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw1batA2.exp.loc:25" [label = 25, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw1batA2.exp.loc" [label = "sw1batA2.exp.loc\n-\nHP2524", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-2" -> "sw1batA2.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw1batA2.exp.loc" -> "sw1batA2.exp.loc:25" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"location3-3" [label = "BatA / RdC \n A007", color = black, fillcolor = orange, style = filled];
+"building3" -> "location3-3" [len = 2, color = firebrick]
+"sw8batA0.exp.loc:H1" [label = H1, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw8batA0.exp.loc" [label = "sw8batA0.exp.loc\n-\nHP8000M", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-3" -> "sw8batA0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw8batA0.exp.loc" -> "sw8batA0.exp.loc:H1" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw8batA0.exp.loc:A4" [label = A4, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw8batA0.exp.loc:A4" -> "sw8batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw8batA0.exp.loc:A1" [label = A1, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw8batA0.exp.loc:A1" -> "sw8batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw8batA0.exp.loc:D1" [label = D1, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw8batA0.exp.loc:D1" -> "sw8batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw8batA0.exp.loc:B3" [label = B3, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw8batA0.exp.loc:B3" -> "sw8batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw6batA0.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw6batA0.exp.loc" [label = "sw6batA0.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-3" -> "sw6batA0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw6batA0.exp.loc" -> "sw6batA0.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw4batA0.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw4batA0.exp.loc" [label = "sw4batA0.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-3" -> "sw4batA0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw4batA0.exp.loc" -> "sw4batA0.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw7batA0.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw7batA0.exp.loc" [label = "sw7batA0.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-3" -> "sw7batA0.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw7batA0.exp.loc" -> "sw7batA0.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw7batA0.exp.loc:16" [label = 16, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:16" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:21" [label = 21, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:21" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:20" [label = 20, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:20" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:22" [label = 22, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:22" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:23" [label = 23, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:23" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:18" [label = 18, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:18" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"sw7batA0.exp.loc:19" [label = 19, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw7batA0.exp.loc:19" -> "sw7batA0.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"location3-4" [label = "BatA / 3 etage \n A310", color = black, fillcolor = orange, style = filled];
+"building3" -> "location3-4" [len = 2, color = firebrick]
+"sw9batA3.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw9batA3.exp.loc" [label = "sw9batA3.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-4" -> "sw9batA3.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw9batA3.exp.loc" -> "sw9batA3.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"sw9batA3.exp.loc:49" [label = 49, color = black, fillcolor = plum,  peripheries = 1, style = filled];
+"sw9batA3.exp.loc:49" -> "sw9batA3.exp.loc" [len=2, style=bold, arrowhead= normal, arrowtail = inv]
+"location3-5" [label = "BatA / 1 etage \n A116", color = black, fillcolor = orange, style = filled];
+"building3" -> "location3-5" [len = 2, color = firebrick]
+"sw9batA1.exp.loc:48" [label = 48, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw9batA1.exp.loc" [label = "sw9batA1.exp.loc\n-\nHP2810-48G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location3-5" -> "sw9batA1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw9batA1.exp.loc" -> "sw9batA1.exp.loc:48" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+"building4" [label = "batD ", color = black, fillcolor = gold, style = filled];
+site -> "building4" [len = 2, color = firebrick];
+"location4-1" [label = "batD / 1 etage \n D115", color = black, fillcolor = orange, style = filled];
+"building4" -> "location4-1" [len = 2, color = firebrick]
+"sw9batD1.exp.loc:24" [label = 24, color = black, fillcolor = lightblue,  peripheries = 2, style = filled];
+"sw9batD1.exp.loc" [label = "sw9batD1.exp.loc\n-\nHP2810-24G", color = black, fillcolor = palegreen, shape = rect, style = filled];
+"location4-1" -> "sw9batD1.exp.loc" [len = 2, color = firebrick, arrowtail = dot]
+"sw9batD1.exp.loc" -> "sw9batD1.exp.loc:24" [len=2, style=bold, arrowhead = normal, arrowtail = invdot]
+   "sw7batA0.exp.loc:24" -> internet
+
+   "sw2batA3.exp.loc:16" -> "sw1batA3.exp.loc:21" [color = navyblue]
+   "sw2batA2.exp.loc:47" -> "sw1batA3.exp.loc:22" [color = navyblue]
+   "sw2batB0.exp.loc:24" -> "sw1batB0.exp.loc:25" [color = navyblue]
+   "sw9batB1.exp.loc:24" -> "sw1batB1.exp.loc:23" [color = navyblue]
+   "sw1batB0.exp.loc:26" -> "sw1batC1.exp.loc:24" [color = navyblue]
+   "sw2batC1.exp.loc:23" -> "sw1batC1.exp.loc:23" [color = navyblue]
+   "sw7batB1.exp.loc:48" -> "sw5batB1.exp.loc:23" [color = navyblue]
+   "sw6batB1.exp.loc:24" -> "sw5batB1.exp.loc:24" [color = navyblue]
+   "sw8batA0.exp.loc:H1" -> "sw7batA0.exp.loc:16" [color = navyblue]
+   "sw6batA0.exp.loc:24" -> "sw7batA0.exp.loc:23" [color = navyblue]
+   "sw9batA1.exp.loc:48" -> "sw7batA0.exp.loc:18" [color = navyblue]
+   "sw4batA0.exp.loc:24" -> "sw7batA0.exp.loc:19" [color = navyblue]
+   "sw1batB1.exp.loc:24" -> "sw7batA0.exp.loc:21" [color = navyblue]
+   "sw9batD1.exp.loc:24" -> "sw7batA0.exp.loc:22" [color = navyblue]
+   "sw9batA3.exp.loc:24" -> "sw7batA0.exp.loc:20" [color = navyblue]
+   "sw1batC1.exp.loc:25" -> "sw8batA0.exp.loc:B3" [color = navyblue]
+   "sw5batB1.exp.loc:25" -> "sw8batA0.exp.loc:D1" [color = navyblue]
+   "sw1batC2.exp.loc:26" -> "sw8batA0.exp.loc:A1" [color = navyblue]
+   "sw1batA2.exp.loc:25" -> "sw8batA0.exp.loc:A4" [color = navyblue]
+   "sw1batA3.exp.loc:49" -> "sw9batA3.exp.loc:49" [color = navyblue]
+}

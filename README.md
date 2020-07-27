@@ -21,9 +21,9 @@ Des outils comme traceroute ne sont d'aucune aide sur le réseau local car l'inf
  * dresser un inventaire précis du port et du commutateur sur lequel sont connectés les machines du réseau local.
 
 **Klask** est un petit outil, dans l'esprit des outils UNIX, de ne se préoccuper que des connections sur le réseau local.
-La page ExempleCarte a un résultat de la carte donnée par ```Klask```.
+La page [MapSample](MapSample.md) a un résultat de la carte donnée par ```Klask```.
 
-Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page MultiVlan.
+Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](MultiVlan.md).
 
 Il existe une documentation en ligne extraite du code source de [http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html klask].
 
@@ -111,9 +111,10 @@ dot -Tpng map.dot > map.png
 
 La figure 1 représente le résultat sur ce cas assez simple. La figure est coupée en deux, la partie haute dans les teintes rouge et jaune est une schématisation du site avec ses bâtiments. La partie inférieur représente les connexions entre commutateurs avec le point de sortie vers internet en bas du graphe. Chaque commutateur de couleur verte est dans un local technique, le port de sortie de celui-ci est de couleur bleu. Les ports d'un commutateur sur lequel sont branchés d'autres matériels actifs sont en violet.
 
-[[Image(map.png)]] 
+![Carte](./doc/map.png)
 
 Figure 1 - Carte des commutateurs
+
 
 ### Analyse du graphe
 
