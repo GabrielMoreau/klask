@@ -10,7 +10,7 @@ CRONDIR=/etc/cron.d
 ETCDIR=/etc/klask
 COMPDIR=/etc/bash_completion.d
 
-.PHONY: all install update sync upload stat help pkg
+.PHONY: all install update sync upload stat help pkg pages
 
 all:
 	pod2man klask | gzip > klask.1.gz
