@@ -1,0 +1,10 @@
+image: debian:latest
+
+pages:
+  script:
+    - make pages
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
