@@ -38,11 +38,11 @@ Il existe maintenant deux interfaces Web pour Klask.
    et se configure via le fichier ```/etc/klask/push-web.conf```.
    L'ojectif de ce script est de créer les pages web statiques
    puis de les pousser sur un site distant.
-   Le site distant doit avoir les commandes ```rsync``` et ```dot``` (paquetage ```{graphivz``` http://www.graphviz.org/) ;
+   Le site distant doit avoir les commandes ```rsync``` et ```dot``` (paquetage [graphivz](http://www.graphviz.org/) ;
 
  * une seconde interface a été écrite à Lyon en PHP.
    Cette interface est un projet à part entière,
-   elle a donc sa propre page WebKlask !
+   elle a donc sa propre page [WebKlask](https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask-webphp) !
 
 ## Téléchargement et Installation
 
