@@ -54,6 +54,10 @@ pages: all pkg
 	cp *.html           public/
 	cp LICENSE.txt      public/
 	cp klask_*_all.deb  public/download/
+	cd public; ln -sf klask.html index.html
+	echo '<html><body><ul>' > public/download/index.html
+	cd public/download; ls -1  *.deb | xargs  -n 1 -r -I {} printf '<li><a href="%s">%s</a></li>>\n' {} {} >> index.html
+	echo '</ul></body></html>' >> public/download/index.html
 
 stat:
 	svn log|egrep '^r[[:digit:]]'|egrep -v '^r1[[:space:]]'|awk '{print $$3}'|sort|uniq -c                 |gnuplot -p -e 'set style fill solid 1.00 border 0; set style histogram; set style data histogram; set xtics rotate by 0; set style line 7 linetype 0 linecolor rgb "#222222"; set grid ytics linestyle 7; set xlabel "User contributor" font "bold"; set ylabel "Number of commit" font "bold"; plot "/dev/stdin" using 1:xticlabels(2) title "commit" linecolor rgb "#666666"'
