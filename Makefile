@@ -55,8 +55,8 @@ pages: all pkg
 	cp LICENSE.txt      public/
 	cp klask_*_all.deb  public/download/
 	cd public; ln -sf klask.html index.html
-	echo '<html><body><ul>' > public/download/index.html
-	cd public/download; ls -1  *.deb | xargs  -n 1 -r -I {} printf '<li><a href="%s">%s</a></li>>\n' {} {} >> index.html
+	echo '<html><body><h1>Klask Debian Package</h1><ul>' > public/download/index.html
+	cd public/download; ls -1  *.deb | xargs  -n 1 -r -I {} printf '<li><a href="%s">%s</a></li>\n' {} {} >> index.html
 	echo '</ul></body></html>' >> public/download/index.html
 
 stat:
