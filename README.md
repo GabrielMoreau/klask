@@ -25,7 +25,7 @@ La page [MapSample](./doc/MapSample.md) a un résultat de la carte donnée par `
 
 Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](./doc/MultiVlan.md).
 
-Il existe une documentation en ligne extraite du code source de [https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/ klask].
+Il existe une documentation en ligne extraite du code source de [klask](https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/).
 
 ## Interfaces Web
 
