@@ -11,6 +11,8 @@ pages:
     - mkdir -p public/download
     - $(wget --no-check-certificate ${CI_PAGES_URL}/download.tar.gz -O download.tar.gz || exit 0)
     - '[ -s download.tar.gz ] && tar -xzf download.tar.gz public/download/'
+    - '[ -s public/download/klask_0.7.8-1_all.deb ] && (cd public/download; wget http://servforge.legi.grenoble-inp.fr/pub/klask/download/klask_0.7.8-1_all.deb || exit 0)'
+    - '[ -s public/download/klask_0.7.7-1_all.deb ] && (cd public/download; wget http://servforge.legi.grenoble-inp.fr/pub/klask/download/klask_0.7.7-1_all.deb || exit 0)'
     - make pages
     - tar -czf public/download.tar.gz public/download/
   artifacts:
