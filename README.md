@@ -42,7 +42,7 @@ Il existe maintenant deux interfaces Web pour Klask.
 
  * une seconde interface a été écrite à Lyon en PHP.
    Cette interface est un projet à part entière,
-   elle a donc sa propre page [WebKlask](https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask-webphp) !
+   elle a donc sa propre page [WebKlask](https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask-webphp)) !
 
 ## Téléchargement et Installation
 
