@@ -1,5 +1,9 @@
 image: debian:latest
 
+before_script:
+  - apt-get update -yqq
+  - apt-get install -yqq perl make binutils tar
+
 pages:
   script:
     - make pages
