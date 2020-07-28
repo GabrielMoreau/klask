@@ -25,7 +25,7 @@ La page [MapSample](./doc/MapSample.md) a un résultat de la carte donnée par `
 
 Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](./doc/MultiVlan.md).
 
-Il existe une documentation en ligne extraite du code source de [http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html klask].
+Il existe une documentation en ligne extraite du code source de [https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/ klask].
 
 ## Interfaces Web
 
@@ -46,7 +46,7 @@ Il existe maintenant deux interfaces Web pour Klask.
 
 ## Téléchargement et Installation
 
-On trouve les informations utiles sur la page DownLoad.
+On des paquetages pour Debian sur la page [download](https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/download/)
 
 ## Auteur et Licence
 

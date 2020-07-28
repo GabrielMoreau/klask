@@ -179,7 +179,7 @@ window.onbeforeunload = function() {
 </head>
 <body> <!-- onload="delayedRefresh" -->
 <h1>
-<b><a href="http://servforge.legi.grenoble-inp.fr/projects/klask" class="circle">Klask</a></b>
+<b><a href="https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask" class="circle">Klask</a></b>
 Tool for <a href="switch-map.png">mapping</a> the local network - site ${SITE_NAME}
 <a class="refresh" href="./">${LOCALTIME}</a>
 </h1>

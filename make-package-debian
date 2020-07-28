@@ -64,7 +64,7 @@ Description: Klask maps your local network - Switches and Computers
    the local network machines are connected.
  Klask is a small tool, in the spirit of UNIX tools, to worry about
  connections on the local network.
-Homepage: http://servforge.legi.grenoble-inp.fr/projects/klask
+Homepage: https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask
 END
 
 # Control archive

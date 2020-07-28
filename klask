@@ -3487,7 +3487,7 @@ to put this IPv4 as the fake ip for the switch.
 The MAC address associated will be use just for the map detection.
 The C<fake-ip> parameter is defined in the config file.
 
-Klask has now a web site dedicated for it: L<http://servforge.legi.grenoble-inp.fr/projects/klask>!
+Klask has now a web site dedicated for it: L<https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask>!
 
 
 =head1 COMMANDS
@@ -3884,9 +3884,11 @@ Net::SNMP, Net::Netmask, Net::CIDR::Lite, NetAddr::IP, YAML
 
 =over
 
-=item * L<Web site|http://servforge.legi.grenoble-inp.fr/projects/klask>
+=item * L<Web site|https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask>
 
-=item * L<Online Manual|http://servforge.legi.grenoble-inp.fr/pub/klask/klask.html>
+=item * L<Online Manual|https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/>
+
+=item * L<Debian Package|https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/download/>
 
 =back
 
