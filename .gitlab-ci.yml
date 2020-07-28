@@ -1,3 +1,4 @@
+---
 image: debian:latest
 
 before_script:
@@ -9,7 +10,7 @@ pages:
   script:
     - mkdir -p public/download
     - $(wget --no-check-certificate ${CI_PAGES_URL}/download.tar.gz -O download.tar.gz || exit 0)
-    - [ -f download.tar.gz ] && tar -xzf download.tar.gz public/download/
+    - '[ -f download.tar.gz ] && tar -xzf download.tar.gz public/download/'
     - make pages
     - tar -czf public/download.tar.gz public/download/
   artifacts:
