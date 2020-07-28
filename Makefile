@@ -53,8 +53,9 @@ pkg: all
 
 pages: all pkg
 	mkdir -p public/download
-	cp -p *.html      public/
-	cp -p LICENSE.txt public/
+	cp -p *.html       public/
+	cp -p podstyle.css public/
+	cp -p LICENSE.txt  public/
 	cp -p --no-clobber klask_*_all.deb  public/download/
 	cd public; ln -sf klask.html index.html
 	echo '<html><body><h1>Klask Debian Package</h1><ul>' > public/download/index.html
