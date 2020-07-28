@@ -13,7 +13,7 @@ tmp_folder=$(mktemp --directory /tmp/klask-XXXXXX)
 # Set Name and Version
 PKG_NAME=klask
 CODE_VERSION=$(grep 'version->declare' klask | cut -f 2 -d "'") #'
-PKG_VERSION=1
+PKG_VERSION=2
 
 # Create future tree
 mkdir -p ${tmp_folder}/usr/bin
