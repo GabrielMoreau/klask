@@ -14,7 +14,7 @@ COMPDIR=/etc/bash_completion.d
 
 all:
 	pod2man klask | gzip > klask.1.gz
-	pod2html klask > klask.html
+	pod2html --css podstyle.css --index --header klask > klask.html
 
 install: update
 	@install -d -m 0755 -o root -g root $(DESTDIR)/$(CRONDIR)
