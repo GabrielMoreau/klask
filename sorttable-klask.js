@@ -216,8 +216,8 @@ row_array[j][1].className = color;
     hasInputs = (typeof node.getElementsByTagName == 'function') &&
                  node.getElementsByTagName('input').length;
 
-    if (node.getAttribute("sorttable_customkey") != null) {
-      return node.getAttribute("sorttable_customkey");
+    if (node.getAttribute("data-sorttable-key") != null) {
+      return node.getAttribute("data-sorttable-key");
     }
     else if (typeof node.textContent != 'undefined' && !hasInputs) {
       return node.textContent.replace(/^\s+|\s+$/g, '');

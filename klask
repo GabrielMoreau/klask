@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.15');
+use version; our $VERSION = version->declare('0.7.16');
 
 use Readonly;
 use FileHandle;
@@ -1926,12 +1926,12 @@ END_HTML
 
       print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$switch_hostname</td>
+   <td data-sorttable-key="$switch_hostname_sort">$switch_hostname</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow</td>
-   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
-   <td sorttable_customkey="$ip_sort">$ip</td>
-   <td sorttable_customkey="$mac_sort">$computerdb->{$ip}{'mac_address'}</td>
+   <td data-sorttable-key="$host_short">$hostname_fq_html</td>
+   <td data-sorttable-key="$ip_sort">$ip</td>
+   <td data-sorttable-key="$mac_sort">$computerdb->{$ip}{'mac_address'}</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
@@ -1989,12 +1989,12 @@ END_HTML
 
          print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$sw</td>
+   <td data-sorttable-key="$switch_hostname_sort">$sw</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow $child_port_hr</td>
-   <td sorttable_customkey="$host_short">$sw_child_html</td>
-   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
-   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td data-sorttable-key="$host_short">$sw_child_html</td>
+   <td data-sorttable-key="$ip_sort">$ipv4_address</td>
+   <td data-sorttable-key="$mac_sort">$mac_address</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
@@ -2029,12 +2029,12 @@ END_HTML
 
          print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="router">router</td>
+   <td data-sorttable-key="router">router</td>
    <td class="bklask-port"></td>
    <td class="bklask-arrow">$arrow $parent_port_hr</td>
-   <td sorttable_customkey="$host_short">$sw</td>
-   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
-   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td data-sorttable-key="$host_short">$sw</td>
+   <td data-sorttable-key="$ip_sort">$ipv4_address</td>
+   <td data-sorttable-key="$mac_sort">$mac_address</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
@@ -2085,12 +2085,12 @@ END_HTML
 
             print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
+   <td data-sorttable-key="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow $child_port_hr</td>
-   <td sorttable_customkey="$host_short">$sw</td>
-   <td sorttable_customkey="$ip_sort">$ipv4_address</td>
-   <td sorttable_customkey="$mac_sort">$mac_address</td>
+   <td data-sorttable-key="$host_short">$sw</td>
+   <td data-sorttable-key="$ip_sort">$ipv4_address</td>
+   <td data-sorttable-key="$mac_sort">$mac_address</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
@@ -2104,12 +2104,12 @@ END_HTML
 
             print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$sw_connect</td>
+   <td data-sorttable-key="$switch_hostname_sort">$sw_connect</td>
    <td class="bklask-port">$parent_port_hr</td>
    <td class="bklask-arrow">$arrow</td>
-   <td sorttable_customkey="$sw">$sw</td>
-   <td sorttable_customkey="">$ipv4_address</td>
-   <td sorttable_customkey="">$mac_address</td>
+   <td data-sorttable-key="$sw">$sw</td>
+   <td data-sorttable-key="">$ipv4_address</td>
+   <td data-sorttable-key="">$mac_address</td>
    <td>$vlan</td>
    <td>$date</td>
   </tr>
@@ -2335,14 +2335,14 @@ END_HTML
 
       print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$switch_hostname_sort">$item->{'switch'}</td>
+   <td data-sorttable-key="$switch_hostname_sort">$item->{'switch'}</td>
    <td class="bklask-port">$item->{'port_hr'}</td>
    <td>!$item->{'vlan_bad'}</td>
    <td>$vlan_nameid</td>
    <td>$item->{'date_last'}</td>
    <td>$item->{'date_good'}</td>
    <td>$item->{'mac_address'}</td>
-   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
+   <td data-sorttable-key="$host_short">$hostname_fq_html</td>
   </tr>
 END_HTML
       }
@@ -2890,8 +2890,8 @@ END_HTML
 
       print <<"END_HTML";
   <tr class="$typerow">
-   <td sorttable_customkey="$ip_sort">$ip</td>
-   <td sorttable_customkey="$host_short">$hostname_fq_html</td>
+   <td data-sorttable-key="$ip_sort">$ip</td>
+   <td data-sorttable-key="$host_short">$hostname_fq_html</td>
    <td>$vlan_nameid</td>
    <td>$result_ip{$ip}->{'date_last_detection'}</td>
   </tr>
