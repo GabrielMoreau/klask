@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.16');
+use version; our $VERSION = version->declare('0.7.17');
 
 use Readonly;
 use FileHandle;
@@ -113,45 +113,45 @@ my %CMD_DB = (
 
 Readonly my %SWITCH_KIND => (
    # HP
-   J3298A           => { type => 2, model => 'HP212M',         match => 'HPJ3298A HP ProCurve Switch 212M',    revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J3299A           => { type => 1, model => 'HP224M',         match => 'HP J3299A ProCurve Switch 224M',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4120A           => { type => 1, model => 'HP1600M',        match => 'HP J4120A ProCurve Switch 1600M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9029A           => { type => 1, model => 'HP1800-8G',      match => 'PROCURVE J9029A',                     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9449A           => { type => 1, model => 'HP1810-8G',      match => 'HP ProCurve 1810G - 8 GE',            revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4093A           => { type => 1, model => 'HP2424M',        match => 'HP J4093A ProCurve Switch 2424M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9279A           => { type => 1, model => 'HP2510G-24',     match => 'ProCurve J9279A Switch 2510G-24',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9280A           => { type => 1, model => 'HP2510G-48',     match => 'ProCurve J9280A Switch 2510G-48',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4813A           => { type => 1, model => 'HP2524',         match => 'HP J4813A ProCurve Switch 2524',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9625A           => { type => 2, model => 'HP2620-24P',     match => 'HP J9625A E2620-24-PoEP Switch',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4900A           => { type => 1, model => 'HP2626A',        match => 'HP J4900A ProCurve Switch 2626',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4900B           => { type => 1, model => 'HP2626B',        match => 'J4900B.+?Switch 2626',                revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4899B           => { type => 1, model => 'HP2650',         match => 'ProCurve J4899B Switch 2650',         revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9021A           => { type => 1, model => 'HP2810-24G',     match => 'ProCurve J9021A Switch 2810-24G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9022A           => { type => 1, model => 'HP2810-48G',     match => 'ProCurve J9022A Switch 2810-48G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4903A           => { type => 1, model => 'HP2824',         match => 'J4903A.+?Switch 2824,',               revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J9145A           => { type => 2, model => 'HP2910-24G',     match => 'ProCurve J9145A 2910al-24G Switch',   revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J8692A           => { type => 1, model => 'HP3500-24G',     match => 'J8692A Switch E?3500yl-24G',          revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4121A           => { type => 2, model => 'HP4000M',        match => 'HP J4121A ProCurve Switch 4000M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   J4110A           => { type => 1, model => 'HP8000M',        match => 'HP J4110A ProCurve Switch 8000M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
-   JE074A           => { type => 2, model => 'HP5120-24G',     match => 'HP Comware.+?A5120-24G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
-   JE069A           => { type => 2, model => 'HP5120-48G',     match => 'HP Comware.+?A5120-48G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
-   JD377A           => { type => 2, model => 'HP5500-24G',     match => 'HP Comware.+?A5500-24G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
-   JD374A           => { type => 2, model => 'HP5500-24F',     match => 'HP Comware.+?A5500-24G-SFP EI ',      revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
-   JH149A           => { type => 2, model => 'HP5510-24F',     match => 'HPE Comware.+?HPE 5510 .+? JH149A',   revision => qr{Comware .*? Version (\d[\d\.]+?), Release},  },
+   'J3298A'         => { type => 2, model => 'HP212M',         match => 'HPJ3298A HP ProCurve Switch 212M',    revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J3299A'         => { type => 1, model => 'HP224M',         match => 'HP J3299A ProCurve Switch 224M',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4120A'         => { type => 1, model => 'HP1600M',        match => 'HP J4120A ProCurve Switch 1600M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9029A'         => { type => 1, model => 'HP1800-8G',      match => 'PROCURVE J9029A',                     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9449A'         => { type => 1, model => 'HP1810-8G',      match => 'HP ProCurve 1810G - 8 GE',            revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4093A'         => { type => 1, model => 'HP2424M',        match => 'HP J4093A ProCurve Switch 2424M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9279A'         => { type => 1, model => 'HP2510G-24',     match => 'ProCurve J9279A Switch 2510G-24',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9280A'         => { type => 1, model => 'HP2510G-48',     match => 'ProCurve J9280A Switch 2510G-48',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4813A'         => { type => 1, model => 'HP2524',         match => 'HP J4813A ProCurve Switch 2524',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9625A'         => { type => 2, model => 'HP2620-24P',     match => 'HP J9625A E2620-24-PoEP Switch',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4900A'         => { type => 1, model => 'HP2626A',        match => 'HP J4900A ProCurve Switch 2626',      revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4900B'         => { type => 1, model => 'HP2626B',        match => 'J4900B.+?Switch 2626',                revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4899B'         => { type => 1, model => 'HP2650',         match => 'ProCurve J4899B Switch 2650',         revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9021A'         => { type => 1, model => 'HP2810-24G',     match => 'ProCurve J9021A Switch 2810-24G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9022A'         => { type => 1, model => 'HP2810-48G',     match => 'ProCurve J9022A Switch 2810-48G',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4903A'         => { type => 1, model => 'HP2824',         match => 'J4903A.+?Switch 2824,',               revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J9145A'         => { type => 2, model => 'HP2910-24G',     match => 'ProCurve J9145A 2910al-24G Switch',   revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J8692A'         => { type => 1, model => 'HP3500-24G',     match => 'J8692A Switch E?3500yl-24G',          revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4121A'         => { type => 2, model => 'HP4000M',        match => 'HP J4121A ProCurve Switch 4000M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'J4110A'         => { type => 1, model => 'HP8000M',        match => 'HP J4110A ProCurve Switch 8000M',     revision => qr{, revision (\w[\d\.]+?), ROM},               },
+   'JE074A'         => { type => 2, model => 'HP5120-24G',     match => 'HP Comware.+?A5120-24G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
+   'JE069A'         => { type => 2, model => 'HP5120-48G',     match => 'HP Comware.+?A5120-48G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
+   'JD377A'         => { type => 2, model => 'HP5500-24G',     match => 'HP Comware.+?A5500-24G EI Switch',    revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
+   'JD374A'         => { type => 2, model => 'HP5500-24F',     match => 'HP Comware.+?A5500-24G-SFP EI ',      revision => qr{Comware .*? Version (\d[\d\.]+?) Release},   },
+   'JH149A'         => { type => 2, model => 'HP5510-24F',     match => 'HPE Comware.+?HPE 5510 .+? JH149A',   revision => qr{Comware .*? Version (\d[\d\.]+?), Release},  },
    # BayStack
-   BS350T           => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                     },
+   'BS350T'         => { type => 1, model => 'BS350T',         match => 'BayStack 350T HW'                     },
    # Microsens
    'MS440209PM-48G6'=> { type => 2, model => 'MS440209PM-48G6+',  match => 'MICROSENS G6 Switch'               },
    # Nexans
-   N3483G           => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
-   N3483P           => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
-   N5541G           => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
-   N5542G           => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC',revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
+   'N3483G'         => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
+   'N3483P'         => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
+   'N5541G'         => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
+   'N5542G'         => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC',revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
    # DELL
-   PC7024           => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
-   N2048            => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,',              revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
-   N4032F           => { type => 2, model => 'DN4032F',        match => 'Dell Networking N4032F,',             revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
-   N4064F           => { type => 2, model => 'DN4064F',        match => 'Dell Networking N4064F,',             revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
+   'PC7024'         => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
+   'N2048'          => { type => 2, model => 'DN2048',         match => 'Dell Networking N2048,',              revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
+   'N4032F'         => { type => 2, model => 'DN4032F',        match => 'Dell Networking N4032F,',             revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
+   'N4064F'         => { type => 2, model => 'DN4064F',        match => 'Dell Networking N4064F,',             revision => qr{Dell Networking .*?, (\d[\d\.]+?), Linux},   },
    # 3COM
    'H3C5500'        => { type => 1, model => 'H3C5500',        match => 'H3C S5500-SI Series'                  },
    '3C17203'        => { type => 1, model => '3C17203',        match => '3Com SuperStack 3 24-Port'            },
