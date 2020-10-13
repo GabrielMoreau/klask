@@ -241,7 +241,7 @@ cat <<END >> ${CACHE_FOLDER}/index.html
    <a href="https://addons.mozilla.org/en-US/firefox/addon/image-zoom/">Image Zoom<a> plugin (or equivalent) installed.
    </p>
    
-   <embed type="image/svg+xml" src="switch-map.svg" id="my-embed-switch-map"/>
+   <embed type="image/svg+xml" src="switch-map.svg" id="my-embed-switch-map">
    <script>
       document.getElementById('my-embed-switch-map').addEventListener('load', function(){
          // Will get called after embed element was loaded
