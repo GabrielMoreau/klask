@@ -53,12 +53,12 @@ klask bad-vlan-id > ${CACHE_FOLDER}/badvlan-db.txt
 
 cmp --silent ${CACHE_FOLDER}/switch-db.txt.new ${CACHE_FOLDER}/switch-db.txt || {
    mv -f ${CACHE_FOLDER}/switch-db.txt.new ${CACHE_FOLDER}/switch-db.${TIMEFILE}.txt;
-   ln -sf ${CACHE_FOLDER}/switch-db.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-db.txt
+   ln -sf switch-db.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-db.txt
    }
 
 cmp --silent ${CACHE_FOLDER}/switch-map.txt.new ${CACHE_FOLDER}/switch-map.txt || {
    mv -f ${CACHE_FOLDER}/switch-map.txt.new ${CACHE_FOLDER}/switch-map.${TIMEFILE}.txt;
-   ln -sf ${CACHE_FOLDER}/switch-map.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-map.txt
+   ln -sf switch-map.${TIMEFILE}.txt ${CACHE_FOLDER}/switch-map.txt
    }
 
 # keep trace of old switch map
@@ -293,7 +293,7 @@ then
       [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
-   rsync --times \
+   rsync --links --times \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/svg-pan-zoom-klask.js \
       /usr/share/klask/style-klask.css \
