@@ -38,6 +38,7 @@ CITRIX:
 
 DELL:
  - Dell EMC Networking N1548, 6.6.3.0, Linux 3.6.5, Not Available
+ - Dell Networking N1548, 6.3.3.14, Linux 3.6.5
  - Dell Networking N2048, 6.2.0.5, Linux 3.6.5-1289203e
  - Dell Networking N4032F, 6.1.1.7, Linux 2.6.32.9
  - Dell Networking N4064F, 6.3.1.13, Linux 3.7.10-20383c08
