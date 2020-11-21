@@ -289,8 +289,8 @@ then
       ${REMOTE_FOLDER}/
 
    [ -x ${DOT} ] && (cd ${REMOTE_FOLDER};
-      [ switch-map.txt -nt switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
-      [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)
+      [ switch-map.txt -nt switch-map.svg -o ! -s switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
+      [ switch-map.txt -nt switch-map.png -o ! -s switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)
 
 else
    rsync --links --times \
@@ -305,6 +305,6 @@ else
 
 
    ssh ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER};
-      [ switch-map.txt -nt switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
-      [ switch-map.txt -nt switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)"
+      [ switch-map.txt -nt switch-map.svg -o ! -s switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
+      [ switch-map.txt -nt switch-map.png -o ! -s switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)"
 fi
