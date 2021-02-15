@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.24');
+use version; our $VERSION = version->declare('0.7.25');
 
 use Readonly;
 use FileHandle;
@@ -475,7 +475,7 @@ sub digit_hex2dec {
 sub control_syntax_mac_address {
    my $mac_address = shift;
 
-   if (scalar(split /:/, $mac_address) == 6 and $mac_address =~ $RE::MAC_ADDRESS) {
+   if (scalar(split /:/, $mac_address) == 6 and $mac_address =~ $RE_MAC_ADDRESS) {
       return 1;
       }
 
