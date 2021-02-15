@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.28');
+use version; our $VERSION = version->declare('0.7.29');
 
 use Readonly;
 use FileHandle;
@@ -497,7 +497,10 @@ sub normalize_mac_address {
       return join q{:}, unpack('(A2)*', uc($mac_address));
       }
 
-   return join q{:}, map {substr(uc("00$_"), -2)} split m/ [:-] /xms, $mac_address;
+   my $mac_address_new = join q{:}, map {substr(uc("00$_"), -2)} split m/ [:-] /xms, $mac_address;
+
+   return $mac_address_new if control_syntax_mac_address($mac_address_new);
+   return $mac_address;
    }
 
 #---------------------------------------------------------------
