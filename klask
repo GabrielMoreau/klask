@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.27');
+use version; our $VERSION = version->declare('0.7.28');
 
 use Readonly;
 use FileHandle;
@@ -1248,6 +1248,8 @@ klask - port and search manager for switches, map management
 
  klask vlan-getname switch vlan-id
  klask vlan-list switch
+
+ klask resolve-arp ipv4_addr* computer*
 END
    return;
    }
@@ -3081,13 +3083,17 @@ sub cmd_resolve_arp {
       'verbose|v'    => \$verbose,
       'interface=s'  => \$interface,
       );
-   my %resol_arp = resolve_ip_arp_host($mac_address, $interface);
-   printf "%s %s %s %s %s\n",
-      $resol_arp{'ipv4_address'},
-      $resol_arp{'hostname_fq'},
-      $resol_arp{'mac_address'},
-      $resol_arp{'interface'},
-      $resol_arp{'timestamp'};
+
+   LOOP_ON_COMPUTER:
+   for my $one_computer (@ARGV) {
+      my %resol_arp = resolve_ip_arp_host($one_computer, $interface);
+      printf "%s %s %s %s %s\n",
+         $resol_arp{'ipv4_address'},
+         $resol_arp{'hostname_fq'},
+         $resol_arp{'mac_address'},
+         $resol_arp{'interface'},
+         $resol_arp{'timestamp'};
+      }
    }
 
 #---------------------------------------------------------------
@@ -3539,6 +3545,7 @@ klask - port and search manager for switches, map management
  klask vlan-getname switch vlan-id
  klask vlan-list switch
 
+ klask resolve-arp ipv4_addr* computer*
 
 =head1 DESCRIPTION
 
