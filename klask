@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.22');
+use version; our $VERSION = version->declare('0.7.23');
 
 use Readonly;
 use FileHandle;
@@ -472,7 +472,17 @@ sub digit_hex2dec {
    }
 
 #---------------------------------------------------------------
+sub control_syntax_mac_address {
+   my $mac_address = shift;
 
+   if (scalar(split /:/, $mac_address) == 6 and $mac_address =~ $RE::MAC_ADDRESS) {
+      return 1;
+      }
+
+   return 0;
+   }
+
+#---------------------------------------------------------------
 sub normalize_mac_address {
    my $mac_address = shift;
 
@@ -3072,6 +3082,13 @@ sub cmd_search_mac_on_switch {
       }
 
    $mac_address = normalize_mac_address($mac_address);
+   if (not control_syntax_mac_address($mac_address)) {
+      my %resol_arp = resolve_ip_arp_host($mac_address);             # resolution arp
+      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
+      my $vlan_id   = get_current_vlan_id($vlan_name);
+      $mac_address = $resol_arp{'mac_address'};
+      control_syntax_mac_address($mac_address) || die "Usage: klask search-mac-on-switch SWITCH_NAME MAC_ADDRESS\n";
+      }
    $switch_name = join(',', map {$_->{'hostname'}} @SWITCH_LIST) if $switch_name eq q{*} or $switch_name eq q{all};
 
    for my $sw_name (split /,/, $switch_name) {
