@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.25');
+use version; our $VERSION = version->declare('0.7.26');
 
 use Readonly;
 use FileHandle;
@@ -285,9 +285,11 @@ sub resolve_ip_arp_host {
    my $already          = shift || q{yes};
 
    my %ret = (
-      hostname_fq  => 'unknow',
-      ipv4_address => '0.0.0.0',
-      mac_address  => 'unknow',
+      'hostname_fq'  => 'unknow',
+      'ipv4_address' => '0.0.0.0',
+      'mac_address'  => 'unknow',
+      'interface'    => '',
+      'timestamp'    => 0,
       );
 
    # perl -MSocket -E 'say inet_ntoa(scalar gethostbyname("tech7meylan.hmg.inpg.fr"))'
