@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.23');
+use version; our $VERSION = version->declare('0.7.24');
 
 use Readonly;
 use FileHandle;
@@ -705,7 +705,8 @@ sub get_current_interface {
 sub get_current_vlan_id {
    my $vlan_name = shift;
 
-   return 0 if not exists $KLASK_CFG->{'network'}{$vlan_name};
+   return 0 if $vlan_name eq ''
+      or not exists $KLASK_CFG->{'network'}{$vlan_name};
    return $KLASK_CFG->{'network'}{$vlan_name}{'vlan-id'};
    }
 
@@ -720,10 +721,14 @@ sub get_current_scan_mode {
 sub get_current_vlan_name_for_interface {
    my $interface = shift;
 
+   return '' if $interface eq '';
+
    for my $vlan_name (keys %{$KLASK_CFG->{'network'}}) {
       next if $KLASK_CFG->{'network'}{$vlan_name}{'interface'} ne $interface;
       return $vlan_name;
       }
+
+   return '';
    }
 
 #---------------------------------------------------------------
