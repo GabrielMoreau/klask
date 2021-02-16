@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.29');
+use version; our $VERSION = version->declare('0.7.30');
 
 use Readonly;
 use FileHandle;
@@ -1112,7 +1112,7 @@ sub update_switchdb {
    my $maybe_more_than_one_switch_connected = 'yes';
    my $cloop                                = 0;
 
-   while ($maybe_more_than_one_switch_connected eq 'yes' and $cloop < 100) {
+   while ($maybe_more_than_one_switch_connected eq 'yes' and $cloop < 200) {
       $cloop++;
       print "VERBOSE_9: cloop reduction step: $cloop\n" if $args{'verbose'};
       for my $sw (keys %db_switch_link_with) {
@@ -3095,7 +3095,7 @@ sub cmd_resolve_arp {
          $resol_arp{'hostname_fq'},
          $resol_arp{'mac_address'},
          $resol_arp{'interface'},
-         $resol_arp{'timestamp'};
+         $resol_arp{'timestamp'};   
       }
    }
 
