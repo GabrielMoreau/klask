@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.30');
+use version; our $VERSION = version->declare('0.7.31');
 
 use Readonly;
 use FileHandle;
@@ -147,7 +147,7 @@ Readonly my %SWITCH_KIND => (
    'N3483G'         => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
    'N3483P'         => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
    'N5541G'         => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
-   'N5542G'         => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI 54VDC',revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
+   'N5542G'         => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI .+VDC',revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
    # DELL
    'PC7024'         => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
    'N1524'          => { type => 2, model => 'DN1524',         match => 'Dell.+?Networking N1524,',            revision => qr{Dell.* Networking .*?, (\d[\d\.]+?), Linux}, },
@@ -3745,6 +3745,10 @@ With C<--shift> egual to 2, the shift will be to two column to the left.
 With 3, it will be 1 to the left and 2 to the left one time over two !
 In practise, we just add virtuals nodes in the dot file,
 that means the result graph is generated with theses virtuals but invisibles nodes...
+
+By default, the switch export is in C<all> mode,
+i.e. the C<--way> option enables the C<desc>, C<child> and C<parent> options.
+With the parameter C<sys>, the real switch description will be displayed.
 
 =head2 ip-free
 
