@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2005-2020 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2021 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later
 #
 # 2007/10/23 Gabriel Moreau
@@ -87,7 +87,7 @@ cat <<END > ${CACHE_FOLDER}/index.html
  <noscript>
  </noscript>
  <script src="sorttable-klask.js"></script>
- <script src="svg-pan-zoom-klask.js"></script>
+ <script src="svg-pan-zoom.js"></script>
  <script>
 function delayedRefresh() {
  setTimeout( "refresh()", 1800*1000 );
@@ -189,7 +189,8 @@ Tool for <a href="switch-map.png">mapping</a> the local network - site ${SITE_NA
   <li class="selectableTabButton" name="IP_detected"   onclick="selectTab(event, 'IP_detected')" id="selected">IP detected</li>
   <li class="selectableTabButton" name="IP_available"  onclick="selectTab(event, 'IP_available')">IP available</li>
   <li class="selectableTabButton" name="VLAN_mismatch" onclick="selectTab(event, 'VLAN_mismatch')">VLAN mismatch</li>
-  <li class="selectableTabButton" name="MAP"           onclick="selectTab(event, 'MAP')">MAP (png)</li>
+  <li class="selectableTabButton" name="MAP"           onclick="selectTab(event, 'MAP_png')">MAP (png)</li>
+  <li class="selectableTabButton" name="MAP"           onclick="selectTab(event, 'MAP_svg')">MAP (svg)</li>
   <li class="selectableTabButton" name="RAW_data"      onclick="selectTab(event, 'RAW_data')">RAW data</li>
  </ul>
 </div>
@@ -233,22 +234,29 @@ klask bad-vlan-id --format html >> ${CACHE_FOLDER}/index.html
 cat <<END >> ${CACHE_FOLDER}/index.html
  </div>
 
- <div id="MAP" class="selectableTabContent" style="display:none">
+ <div id="MAP_png" class="selectableTabContent" style="display:none">
    <p>
    Direct link to local network map in the formats <a href="switch-map.png">png</a> and <a href="switch-map.svg">svg</a>.
    Because the map could be big,
    you will have a better web experience with
-   <a href="https://addons.mozilla.org/en-US/firefox/addon/image-zoom/">Image Zoom<a> plugin (or equivalent) installed.
+   <a href="https://addons.mozilla.org/fr/firefox/addon/zoom-image/">Image Zoom<a> plugin (or equivalent) installed.
    </p>
-   
-   <embed type="image/svg+xml" src="switch-map.svg" id="my-embed-switch-map">
+   <a href="switch-map.png"><img class="map" src="switch-map.png"></a>
+ </div>
+
+ <div id="MAP_svg" class="selectableTabContent" style="display:none">
+   <p>
+   Direct link to local network map in the formats <a href="switch-map.png">png</a> and <a href="switch-map.svg">svg</a>.
+   </p>
+
+   <embed type="image/svg+xml" src="switch-map.svg" id="embed-svg-map">
+
    <script>
-      document.getElementById('my-embed-switch-map').addEventListener('load', function(){
+      document.getElementById('embed-svg-map').addEventListener('load', function(){
          // Will get called after embed element was loaded
-         svgPanZoom(document.getElementById('my-embed-switch-map')); 
+         svgPanZoom(document.getElementById('embed-svg-map')); 
          })
    </script>
-   <img class="map" src="switch-map.png">
  </div>
 
  <div id="RAW_data" class="selectableTabContent" style="display:none">
@@ -280,7 +288,7 @@ if [ "${REMOTE_SERVER}" = "localhost" ]
 then
    rsync --times \
       /usr/share/klask/sorttable-klask.js \
-      /usr/share/klask/svg-pan-zoom-klask.js \
+      /usr/share/klask/svg-pan-zoom.js \
       /usr/share/klask/style-klask.css \
       ${CACHE_FOLDER}/index.html \
       ${CACHE_FOLDER}/*-db.txt \
@@ -295,7 +303,7 @@ then
 else
    rsync --links --times \
       /usr/share/klask/sorttable-klask.js \
-      /usr/share/klask/svg-pan-zoom-klask.js \
+      /usr/share/klask/svg-pan-zoom.js \
       /usr/share/klask/style-klask.css \
       ${CACHE_FOLDER}/index.html \
       ${CACHE_FOLDER}/*-db.txt \

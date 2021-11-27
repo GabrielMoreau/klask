@@ -29,6 +29,7 @@ cp klask.1.gz              ${tmp_folder}/usr/share/man/man1/
 cp LICENSE.txt             ${tmp_folder}/usr/share/klask/
 cp sorttable-klask.js      ${tmp_folder}/usr/share/klask/
 cp style-klask.css         ${tmp_folder}/usr/share/klask/
+cp svg-pan-zoom.js         ${tmp_folder}/usr/share/klask/
 cp klask-sample.conf       ${tmp_folder}/etc/klask/
 cp push-web-sample.conf    ${tmp_folder}/etc/klask/
 cp klask.cron              ${tmp_folder}/etc/klask/
