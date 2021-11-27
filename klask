@@ -3253,11 +3253,14 @@ sub cmd_exportsw_txt {
       my $tb_desc = Text::Table->new(
          {align => 'left',   align_title => 'left',   title => 'Switch'},
          {align => 'center', align_title => 'center', title => 'Is'},
+         {align => 'left',   align_title => 'left',   title => 'Model'},
          {align => 'left',   align_title => 'left',   title => 'Sys-Description'},
          );
 
       for my $sw (values %db_switch_global) {
-         $tb_desc->add($sw->{'hostname'}, $arrow, $sw->{'sys_description'});
+         my $model = $sw->{'model'};
+         $model = 'unknow' if $model eq $sw->{'sys_description'};
+         $tb_desc->add($sw->{'hostname'}, $arrow, $model, $sw->{'sys_description'});
          }
 
       print $tb_desc->title()   unless $args{'no-header'};
