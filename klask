@@ -1678,8 +1678,8 @@ sub cmd_insertdb {
    $computerdb->{$ip} = {
       hostname_fq        => $resol_arp{'hostname_fq'},
       mac_address        => $mac,
-      switch_hostname    => 'Unknow',
-      switch_description => 'Unknow',
+      switch_hostname    => 'unknow',
+      switch_description => 'unknow',
       switch_port_id     => 0,
       switch_port_hr     => 0,
       timestamp          => $timestamp,
