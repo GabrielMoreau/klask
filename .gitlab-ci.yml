@@ -3,7 +3,7 @@ image: debian:latest
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq perl make binutils findutils tar wget
+  - apt-get install -yqq perl make binutils findutils tar gzip wget
 
 pages:
   stage: build
