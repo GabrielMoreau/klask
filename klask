@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.1');
+use version; our $VERSION = version->declare('0.8.2');
 
 use Readonly;
 use FileHandle;
@@ -991,10 +991,13 @@ sub get_switchdb_checksum {
 #---------------------------------------------------------------
 sub update_switchdb {
    my %args = (
-      verbose => 0,
+      'verbose'            => 0,
+      'verb-description'   => 0,
+      'check-hostname'     => 0,
+      'check-location'     => 0,
       @_);
 
-   init_switch_names('yes'); # name the switches
+   init_switch_names('yes', $args{'verb-description'}, $args{'check-hostname'}, $args{'check-location'}); # name the switches
    print "\n";
 
    my %where = ();
@@ -1224,13 +1227,13 @@ klask - port and search manager for switches, map management
  klask version
  klask help
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
  klask removedb ipv4_addr* computer*
  klask insertdb --ip ipv4_addr --mac mac_addr --network vlan_name
  klask cleandb  [--verbose|-v] [--day number_of_day] [--repair-dns]
 
- klask updatesw [--verbose|-v]
+ klask updatesw [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l]
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
@@ -1391,8 +1394,8 @@ sub cmd_updatedb {
    GetOptions(
       'verbose|v'          => \$verbose,
       'verb-description|d' => \$verb_description,
-      'chk-hostname|h'     => \$check_hostname,
-      'chk-location|l'     => \$check_location,
+      'check-hostname|h'   => \$check_hostname,
+      'check-location|l'   => \$check_location,
       'no-rebuildsw|R'     => \$no_rebuildsw,
       );
 
@@ -3170,13 +3173,21 @@ sub cmd_search_mac_on_switch {
 sub cmd_updatesw {
    local @ARGV = @_;
 
-   my $verbose;
+   my ($verbose, $verb_description, $check_hostname, $check_location);
 
    GetOptions(
-      'verbose|v' => \$verbose,
+      'verbose|v'          => \$verbose,
+      'verb-description|d' => \$verb_description,
+      'check-hostname|h'   => \$check_hostname,
+      'check-location|l'   => \$check_location,
       );
    
-   update_switchdb(verbose => $verbose);
+   update_switchdb(
+      'verbose'            => $verbose,
+      'verb-description'   => $verb_description,
+      'check-hostname'     => \$check_hostname,
+      'check-location'     => \$check_location,
+      );
    }
 
 #---------------------------------------------------------------
@@ -3523,13 +3534,13 @@ klask - port and search manager for switches, map management
  klask version
  klask help
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l] [--no-rebuildsw|-R]
  klask exportdb [--format|-f txt|html]
  klask removedb ipv4_addr* computer*
  klask insertdb --ip ipv4_addr --mac mac_addr --network vlan_name
  klask cleandb  [--verbose|-v] [--day number_of_day] [--repair-dns]
 
- klask updatesw [--verbose|-v]
+ klask updatesw [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l]
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
@@ -3638,7 +3649,7 @@ it's always possible to have the port status even for bridge agrregate port.
 
 =head2 updatedb
 
- klask updatedb [--verbose|-v] [--verb-description|-d] [--chk-hostname|-h] [--chk-location|-l] [--no-rebuildsw|-R]
+ klask updatedb [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l] [--no-rebuildsw|-R]
 
 This command will scan networks and update the computer database.
 To know which are the cmputer scanned, you have to configure the file F</etc/klask/klask.conf>.
@@ -3707,7 +3718,7 @@ When reverse DNS has not been done by the past, option C<--repair-dns> force a r
 
 =head2 updatesw
 
- klask updatesw [--verbose|-v]
+ klask updatesw [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l]
 
 This command build a map of your manageable switch on your network.
 The list of the switches must be given in the file F</etc/klask/klask.conf> (see L</CONFIGURATION>).
