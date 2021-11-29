@@ -621,10 +621,10 @@ sub find_switch_port {
       $session->close;
 
       # IMPORTANT !!
-      # ceci empeche la detection sur certains port ...
-      # en effet les switch sont relies entre eux par un cable reseau et du coup
-      # tous les arp de toutes les machines sont presentes sur ces ports (ceux choisis ici sont les miens)
-      # cette partie est a ameliore, voir a configurer dans l'entete
+      # this prevents detection on some ports ...
+      # in fact the switches are linked together by a network cable and so
+      # all the arp of all the machines are present on these ports (those chosen here are mine)
+      # this part is to be improved, see to configure in the header
       # 21->24 45->48
       SWITCH_PORT_IGNORE:
       for my $portignore (@{$sw->{'portignore'}}) {
@@ -738,7 +738,7 @@ sub get_current_vlan_name_for_interface {
    }
 
 #---------------------------------------------------------------
-# liste l'ensemble des adresses ip d'un réseau
+# lists all ip addresses of a network
 sub get_list_ip {
    my @vlan_name = @_;
 
@@ -767,7 +767,7 @@ sub get_list_ip {
    }
 
 #---------------------------------------------------------------
-# liste l'ensemble des routeurs du réseau
+# list all routers in the network
 sub get_list_main_router {
    my @vlan_name = @_;
 
@@ -994,7 +994,7 @@ sub update_switchdb {
       verbose => 0,
       @_);
 
-   init_switch_names('yes'); # nomme les switchs
+   init_switch_names('yes'); # name the switches
    print "\n";
 
    my %where = ();
@@ -1017,7 +1017,7 @@ sub update_switchdb {
    ALL_ROUTER_IP_ADDRESS:
    for my $ip_router (Net::Netmask::sort_by_ip_address(keys %where)) { # '194.254.66.254')) {
 
-      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip_router}; # /a priori/ idiot car ne sers à rien...
+      next ALL_ROUTER_IP_ADDRESS if not exists $where{$ip_router}; # /a priori/ stupid because it's useless...
 
       ALL_SWITCH_CONNECTED:
       for my $switch_detected (keys %{$where{$ip_router}}) {
@@ -1275,7 +1275,7 @@ END
 sub cmd_search {
    my @computer = @_;
 
-   init_switch_names(); # nomme les switchs
+   init_switch_names(); # name the switches
    fast_ping(@computer);
 
    LOOP_ON_COMPUTER:
@@ -1414,11 +1414,11 @@ sub cmd_updatedb {
    my $i                 = 0;
    my $detected_computer = 0;
 
-   init_switch_names('yes', $verb_description, $check_hostname, $check_location); # nomme les switchs
+   init_switch_names('yes', $verb_description, $check_hostname, $check_location); # name the switches
 
    {
       my $switch_checksum = get_switchdb_checksum(%SWITCH_DB);
-      # Remplis le champs portignore des ports d'inter-connection pour chaque switch
+      # Fill in the port number field of the interconnecting ports for each switch
       my $switch_connection = YAML::Syck::LoadFile("$KLASK_SW_FILE");
       if ($switch_checksum ne $switch_connection->{'checksum'}) { # Verify checksum
          if ($no_rebuildsw) {
@@ -1557,14 +1557,14 @@ sub cmd_updatedb {
                };
             }
 
-         # mise a jour du nom de la machine si modification dans le dns
+         # update of the name of the machine if modification in the dns
          $computerdb->{$resol_arp{'ipv4_address'}}{'hostname_fq'} = $resol_arp{'hostname_fq'};
 
-         # mise à jour de la date de détection si détection plus récente par arpwatch
+         # update of the detection date if more recent detection by arpwatch
          $computerdb->{$resol_arp{'ipv4_address'}}{'timestamp'}   = $resol_arp{'timestamp'}
             if exists $resol_arp{'timestamp'} and $computerdb->{$resol_arp{'ipv4_address'}}{'timestamp'} < $resol_arp{'timestamp'};
 
-         # relance un arping sur la machine si celle-ci n'a pas été détectée depuis plus d'une semaine
+         # restart an arping on the machine if it has not been detected for more than a week
          $computer_not_detected{$resol_arp{'ipv4_address'}} = $current_net
             if $computerdb->{$resol_arp{'ipv4_address'}}{'timestamp'} < $timestamp_last_week;
 
