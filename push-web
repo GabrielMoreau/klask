@@ -89,13 +89,13 @@ cat <<END > ${CACHE_FOLDER}/index.html
  <script src="sorttable-klask.js"></script>
  <script src="svg-pan-zoom.js"></script>
  <script>
-function delayedRefresh() {
- setTimeout( "refresh()", 1800*1000 );
- }
-
-function refresh() {
- history.go(0);
- }
+// function delayedRefresh() {
+//  setTimeout( "refresh()", 1800*1000 );
+//  }
+// 
+// function refresh() {
+//  history.go(0);
+//  }
  
 function selectTab(event, tabName) {
  var i;
@@ -139,7 +139,7 @@ window.onload = function() {
  if (typeof(Storage) !== "undefined") {
   // Code for localStorage/sessionStorage.
   var tabName = localStorage.getItem('navbar-selected');
-  if (tabName == "undefined") { return; }
+  if (tabName == "undefined") { tabName = "IP_detected"; }
   var navbar = document.getElementById('navbar');
   var tab = getByName(tabName, navbar);
   var i;
@@ -254,7 +254,7 @@ cat <<END >> ${CACHE_FOLDER}/index.html
    <script>
       document.getElementById('embed-svg-map').addEventListener('load', function(){
          // Will get called after embed element was loaded
-         svgPanZoom(document.getElementById('embed-svg-map')); 
+         svgPanZoom(document.getElementById('embed-svg-map', {minZoom: 0.1, maxZoom: 10})); 
          })
    </script>
  </div>
