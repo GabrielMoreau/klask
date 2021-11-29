@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.33');
+use version; our $VERSION = version->declare('0.7.34');
 
 use Readonly;
 use FileHandle;
@@ -146,7 +146,7 @@ Readonly my %SWITCH_KIND => (
    # Nexans
    'N3483G'         => { type => 2, model => 'NA3483-6G',      match => 'GigaSwitch V3 TP SFP-I 48.+ ES3',     revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
    'N3483P'         => { type => 2, model => 'NA3483-6P',      match => 'GigaSwitch V3 TP.PSE.+ 48/54V ES3',   revision => qr{(?:/SECURITY/|-OFFICE-)V(\d[\d\.]+\w?)\)},   },
-   'N5541G'         => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI 54VDC',       revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
+   'N5541G'         => { type => 2, model => 'NA5541-6G',      match => 'GigaSwitch V5 TP SFP-VI .+VDC',       revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
    'N5542G'         => { type => 2, model => 'NA5542-7G',      match => 'GigaSwitch V5 TP.PSE.+ SFP-2VI .+VDC',revision => qr{-OFFICE-V(\d[\d\.]+\w+?)\)},                 },
    # DELL
    'PC7024'         => { type => 2, model => 'DPC7024',        match => 'PowerConnect 7024,.+?VxWorks',        revision => qr{PowerConnect .*?, (\d[\d\.]+?), VxWorks},    },
