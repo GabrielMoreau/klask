@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.34');
+use version; our $VERSION = version->declare('0.7.35');
 
 use Readonly;
 use FileHandle;
@@ -271,7 +271,7 @@ sub shell_command {
    my $fh     = new FileHandle;
    my $result = '';
    open $fh, q{-|}, "LANG=C $cmd" or die "Can't exec $cmd\n";
-   $result .= <$fh>;
+   $result .= <$fh> || '';
    close $fh;
    chomp $result;
    return $result;
