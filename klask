@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.7.35');
+use version; our $VERSION = version->declare('0.8.1');
 
 use Readonly;
 use FileHandle;
@@ -78,9 +78,6 @@ my %CMD_DB = (
    'insertdb'             => \&cmd_insertdb,
    'cleandb'              => \&cmd_cleandb,
    'search'               => \&cmd_search,
-   'enable'               => \&cmd_enable,
-   'disable'              => \&cmd_disable,
-   'status'               => \&cmd_status,
    'updatesw'             => \&cmd_updatesw,
    'exportsw'             => \&cmd_exportsw,
    'iplocation'           => \&cmd_ip_location,
@@ -90,6 +87,9 @@ my %CMD_DB = (
    'poe-enable'           => \&cmd_poe_enable,
    'poe-disable'          => \&cmd_poe_disable,
    'poe-status'           => \&cmd_poe_status,
+   'port-enable'          => \&cmd_port_enable,
+   'port-disable'         => \&cmd_port_disable,
+   'port-status'          => \&cmd_port_status,
    'port-setvlan'         => \&cmd_port_setvlan,
    'port-getvlan'         => \&cmd_port_getvlan,
    'resolve-arp'          => \&cmd_resolve_arp,
@@ -1241,9 +1241,9 @@ klask - port and search manager for switches, map management
 
  klask bad-vlan-id [--day|-d days_before_alert] [--format|-f txt|html]
 
- klask enable  [--verbose|-v] switch port
- klask disable [--verbose|-v] switch port
- klask status  [--verbose|-v] switch port
+ klask port-enable  [--verbose|-v] switch port
+ klask port-disable [--verbose|-v] switch port
+ klask port-status  [--verbose|-v] switch port
 
  klask poe-enable  [--verbose|-v] switch port
  klask poe-disable [--verbose|-v] switch port
@@ -2942,7 +2942,7 @@ END_HTML
    }
 
 #---------------------------------------------------------------
-sub cmd_enable {
+sub cmd_port_enable {
    local @ARGV = @_;
 
    my $verbose;
@@ -2955,7 +2955,7 @@ sub cmd_enable {
    my $port_hr     = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $port_hr eq q{}) {
-      die "Usage: klask disable SWITCH_NAME PORT\n";
+      die "Usage: klask port-disable SWITCH_NAME PORT\n";
       }
 
    if (not defined $SWITCH_DB{$switch_name}) {
@@ -2987,7 +2987,7 @@ sub cmd_enable {
    }
 
 #---------------------------------------------------------------
-sub cmd_disable {
+sub cmd_port_disable {
    local @ARGV = @_;
 
    my $verbose;
@@ -3000,7 +3000,7 @@ sub cmd_disable {
    my $port_hr     = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $port_hr eq q{}) {
-      die "Usage: klask disable SWITCH_NAME PORT\n";
+      die "Usage: klask port-disable SWITCH_NAME PORT\n";
       }
 
    if (not defined $SWITCH_DB{$switch_name}) {
@@ -3030,7 +3030,7 @@ sub cmd_disable {
    }
 
 #---------------------------------------------------------------
-sub cmd_status {
+sub cmd_port_status {
    local @ARGV = @_;
 
    my $verbose;
@@ -3043,7 +3043,7 @@ sub cmd_status {
    my $port_hr     = shift @ARGV || q{};
 
    if ($switch_name eq q{} or $port_hr eq q{}) {
-      die "Usage: klask status SWITCH_NAME PORT\n";
+      die "Usage: klask port-status SWITCH_NAME PORT\n";
       }
 
    if (not defined $SWITCH_DB{$switch_name}) {
@@ -3540,9 +3540,9 @@ klask - port and search manager for switches, map management
 
  klask bad-vlan-id [--day|-d days_before_alert] [--format|-f txt|html]
 
- klask enable  [--verbose|-v] switch port
- klask disable [--verbose|-v] switch port
- klask status  [--verbose|-v] switch port
+ klask port-enable  [--verbose|-v] switch port
+ klask port-disable [--verbose|-v] switch port
+ klask port-status  [--verbose|-v] switch port
 
  klask poe-enable  [--verbose|-v] switch port
  klask poe-disable [--verbose|-v] switch port
@@ -3600,9 +3600,9 @@ To search on all switch, you could put C<'*'> or C<all>.
 The VLAN parameter could help.
 
 
-=head2 enable
+=head2 port-enable
 
- klask enable  [--verbose|-v] switch port
+ klask port-enable  [--verbose|-v] switch port
 
 This command activate a port (or an agrregate bridge port) on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
@@ -3611,9 +3611,9 @@ See L</ABBREVIATION FOR PORT>.
 Warning: You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
-=head2 disable
+=head2 port-disable
 
- klask disable [--verbose|-v] switch port
+ klask port-disable [--verbose|-v] switch port
 
 This command deactivate a port (or an agrregate bridge port) on a switch by SNMP.
 So you need to give the switch name and a port on the command line.
@@ -3622,16 +3622,16 @@ See L</ABBREVIATION FOR PORT>.
 Warning: You need to have the SNMP write access on the switch in order to modify it's configuration.
 
 
-=head2 status
+=head2 port-status
 
- klask status  [--verbose|-v] switch port
+ klask port-status  [--verbose|-v] switch port
 
 This command return the status of a port number on a switch by SNMP.
 The return value could be C<enable> or C<disable> word.
 So you need to give the switch name and a port on the command line.
 See L</ABBREVIATION FOR PORT>.
 
-If it's not possible to change port status with command L</enable> and L</disable>
+If it's not possible to change port status with command L</port-enable> and L</port-disable>
 (SNMP community read write access),
 it's always possible to have the port status even for bridge agrregate port.
 
@@ -3897,7 +3897,7 @@ Just put the ports numbers between switch.
 The C<community> parameter is use to get SNMP data on switch.
 It could be overload for each switch.
 By default, it's value is C<public> and you have to configure a readonly word for safety reason.
-Some few command change the switch state as the commands L</enable> and L</disable>.
+Some few command change the switch state as the commands L</port-enable> and L</port-disable>.
 In theses rares cases, you need a readwrite SNMP community word define in your configuration file.
 Klask then use since version C<0.6.2> the C<community-rw> parameter which by default is egal to C<private>.
 
