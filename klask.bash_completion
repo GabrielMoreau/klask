@@ -18,7 +18,7 @@ _klask() {
          return 0
          ;;
       -i|--vlan)
-         COMPREPLY=($(compgen -W "$(grep vlan-id: /etc/klask/klask.conf|awk '{print $2}'|xargs echo -n)" -- "$cur"))
+         COMPREPLY=($(compgen -W "$(grep 'vlan-id:' /etc/klask/klask.conf|awk '{print $2}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
       -s|--shift)
@@ -33,8 +33,22 @@ _klask() {
 
    if [[ "$cur" == '-*' || $COMP_CWORD -gt 1 ]]
    then
-      #COMPREPLY=($(compgen -W '-v --verbose -k --kind -f --format -d --day -i --vlan -m --modulo -s --shift' -- "$cur"))
-      COMPREPLY=($(compgen -W "$(klask  help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'|xargs echo -n)" -- "$cur"))
+      if [[ "$cur" == '-*' ]]
+      then
+         COMPREPLY=($(compgen -W "$(klask help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'|xargs echo -n)" -- "$cur"))
+      else
+         case "${COMP_WORDS[1]}" in
+            port-*|poe-*|search-mac-on-switch)
+               COMPREPLY=($(compgen -W "$((
+                  grep 'hostname:' /etc/klask/klask.conf |cut -f 2 -d ':';
+                  klask help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'
+                  ) | xargs echo -n)" -- "$cur"))
+               ;;
+            *)
+               COMPREPLY=($(compgen -W "$(klask help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'|xargs echo -n)" -- "$cur"))
+               ;;
+         esac
+      fi
    else
       COMPREPLY=($(compgen -W "$($(which klask || echo /usr/bin/klask) help|grep '^ klask'|awk '{print $2}'|xargs echo -n)" -- "$cur"))
    fi
