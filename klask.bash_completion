@@ -29,6 +29,14 @@ _klask() {
          COMPREPLY=($(compgen -W "all desc child parent sys" -- "$cur"))
          return 0
          ;;
+      --ip)
+         COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $5}'|xargs echo -n)" -- "$cur"))
+         return 0
+         ;;
+      --mac
+         COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $6}'|xargs echo -n)" -- "$cur"))
+         return 0
+         ;;
    esac
 
    if [[ "$cur" == '-*' || $COMP_CWORD -gt 1 ]]
@@ -43,6 +51,9 @@ _klask() {
                   grep 'hostname:' /etc/klask/klask.conf |cut -f 2 -d ':';
                   klask help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'
                   ) | xargs echo -n)" -- "$cur"))
+               ;;
+            removedb|resolve-arp)
+               COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $4" "$5}'|xargs echo -n)" -- "$cur"))
                ;;
             *)
                COMPREPLY=($(compgen -W "$(klask help|grep "^ klask ${COMP_WORDS[1]}" | sed -e 's/[\[]/\n/g;'|grep -- '^-'|cut -f 1 -d ']'|cut -f 1 -d ' '|sed -e 's/|/ /g;'|xargs echo -n)" -- "$cur"))
