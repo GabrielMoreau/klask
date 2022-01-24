@@ -37,6 +37,10 @@ _klask() {
          COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $6}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
+      --network
+         COMPREPLY=($(compgen -W "$(klask vlan-table|awk '{print $2}'|xargs echo -n)" -- "$cur"))
+         return 0
+         ;;
    esac
 
    if [[ "$cur" == '-*' || $COMP_CWORD -gt 1 ]]
