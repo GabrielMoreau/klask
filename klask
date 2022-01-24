@@ -96,6 +96,7 @@ my %CMD_DB = (
    'vlan-setname'         => \&cmd_vlan_setname,
    'vlan-getname'         => \&cmd_vlan_getname,
    'vlan-list'            => \&cmd_vlan_list,
+   'vlan-table'           => \&cmd_vlan_table,
    'host-setlocation'     => \&cmd_host_setlocation,
    'rebootsw'             => \&cmd_rebootsw,
    );
@@ -1254,6 +1255,7 @@ klask - port and search manager for switches, map management
 
  klask vlan-getname switch vlan-id
  klask vlan-list switch
+ klask vlan-table
 
  klask resolve-arp ipv4_addr* computer*
 END
@@ -2758,6 +2760,16 @@ sub cmd_vlan_list {
    }
 
 #---------------------------------------------------------------
+
+sub cmd_vlan_table {
+   for my $vlan_name (keys %{$KLASK_CFG->{'network'}}) {
+      my $vlan_id = $KLASK_CFG->{'network'}{$vlan_name}{'vlan-id'};
+      printf "%7i - %s\n", $vlan_id, $vlan_name;
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
 sub cmd_ip_location {
    my $computerdb = computerdb_load();
 
@@ -3561,6 +3573,7 @@ klask - port and search manager for switches, map management
 
  klask vlan-getname switch vlan-id
  klask vlan-list switch
+ klask vlan-table
 
  klask resolve-arp ipv4_addr* computer*
 
