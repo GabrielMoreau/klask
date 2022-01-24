@@ -38,7 +38,7 @@ _klask() {
          return 0
          ;;
       --network)
-         COMPREPLY=($(compgen -W "$(klask vlan-table|awk '{print $2}'|xargs echo -n)" -- "$cur"))
+         COMPREPLY=($(compgen -W "$(klask vlan-table|awk '{print $3}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
    esac

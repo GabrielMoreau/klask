@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.6');
+use version; our $VERSION = version->declare('0.8.7');
 
 use Readonly;
 use FileHandle;
@@ -2762,7 +2762,7 @@ sub cmd_vlan_list {
 #---------------------------------------------------------------
 
 sub cmd_vlan_table {
-   for my $vlan_name (keys %{$KLASK_CFG->{'network'}}) {
+   for my $vlan_name (sort {$KLASK_CFG->{'network'}{$a}{'vlan-id'} <=> $KLASK_CFG->{'network'}{$b}{'vlan-id'}} keys %{$KLASK_CFG->{'network'}}) {
       my $vlan_id = $KLASK_CFG->{'network'}{$vlan_name}{'vlan-id'};
       printf "%7i - %s\n", $vlan_id, $vlan_name;
       }
