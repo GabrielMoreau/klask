@@ -33,11 +33,11 @@ _klask() {
          COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $5}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
-      --mac
+      --mac)
          COMPREPLY=($(compgen -W "$(klask exportdb|awk '{print $6}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
-      --network
+      --network)
          COMPREPLY=($(compgen -W "$(klask vlan-table|awk '{print $2}'|xargs echo -n)" -- "$cur"))
          return 0
          ;;
