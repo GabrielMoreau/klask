@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2022 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later and Perl equivalent
 #
 # $Id$
@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.7');
+use version; our $VERSION = version->declare('0.8.8');
 
 use Readonly;
 use FileHandle;
@@ -1236,6 +1236,7 @@ klask - port and search manager for switches, map management
 
  klask updatesw [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l]
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
+ klask host-setlocation switch location
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -1267,7 +1268,7 @@ sub cmd_version {
 
    print <<'END';
 klask - port and search manager for switches, map management
-Copyright (C) 2005-2022 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 License GNU GPL version 2 or later and Perl equivalent
 END
 
@@ -3554,6 +3555,7 @@ klask - port and search manager for switches, map management
 
  klask updatesw [--verbose|-v] [--verb-description|-d] [--check-hostname|-h] [--check-location|-l]
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
+ klask host-setlocation switch location
 
  klask searchdb [--kind|-k host|mac] computer [mac-address]
  klask search   computer
@@ -3776,6 +3778,16 @@ that means the result graph is generated with theses virtuals but invisibles nod
 By default, the switch export is in C<all> mode,
 i.e. the C<--way> option enables the C<desc>, C<child> and C<parent> options.
 With the parameter C<sys>, the real switch description will be displayed.
+
+=head2 host-setlocation
+
+ klask host-setlocation switch location
+
+This command defines the location of a switch using the SNMP OID.
+You can use the following command to help you find the correct location of a switch.
+It compares the value written in the F</etc/klask/klask.conf> file with the OID.
+
+ klask updatesw --check-location
 
 =head2 ip-free
 
@@ -4034,4 +4046,4 @@ Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno, David Gras.
 
 License GNU GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2022 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
+Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
