@@ -15,6 +15,7 @@ SITE_NAME=''
 REMOTE_SERVER=localhost
 REMOTE_USER=''
 REMOTE_FOLDER=/var/www/klask/
+KEEP_MAX=180
 
 GRAPH_MODULO=9
 GRAPH_SHIFT=1
@@ -314,5 +315,6 @@ else
 
    ssh ${REMOTE_USER}@${REMOTE_SERVER} "(cd ${REMOTE_FOLDER};
       [ switch-map.txt -nt switch-map.svg -o ! -s switch-map.svg -o ! -e switch-map.svg ] && ${DOT} -T svg switch-map.txt > switch-map.svg;
-      [ switch-map.txt -nt switch-map.png -o ! -s switch-map.png -o ! -e switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png)"
+      [ switch-map.txt -nt switch-map.png -o ! -s switch-map.png -o ! -e switch-map.png ] && ${DOT} -T png switch-map.txt > switch-map.png);
+      find ${REMOTE_FOLDER} -name '*.txt' -a -mtime +${KEEP_MAX} -delete"
 fi
