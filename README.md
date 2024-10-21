@@ -1,20 +1,28 @@
 # Klask : un outil dédié à la cartographie du réseau local
 
+The main site (forge) is https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask
+
 ## Introduction
 
-De très nombreux outils réseaux existent mais la plupart permettent de tracer des cartographies de réseau basées sur la notion de route. Au niveau d'un réseau local commuté, cette notion de route n'apporte rien et ce genre d'outil n'est en général pas capable de structurer la carte locale des machines. L'administrateur d'un site de taille moyenne, quelques bâtiments, une quinzaine de commutateurs, se retrouvent rapidement devant les problématiques suivantes : 
+De très nombreux outils réseaux existent mais la plupart permettent de tracer des cartographies de réseau basées sur la notion de route.
+Au niveau d'un réseau local commuté, cette notion de route n'apporte rien et ce genre d'outil n'est en général pas capable de structurer la carte locale des machines.
+L'administrateur d'un site de taille moyenne, quelques bâtiments, une quinzaine de commutateurs, se retrouvent rapidement devant les problématiques suivantes : 
 
  * Où est positionnée la machine X ? Elle est à l'origine d'un problème réseau urgent à traiter, quitte à la déconnecter en désactivant le port du commutateur ;
 
  * Deux machines A et B de mon réseau local ne dialoguent pas. Quel est le chemin physique menant de la machine A vers la machine B ?
 
-Rapidement, lorsque son parc machine augmente, il devient difficile de maintenir une version papier à jour de son réseau local, notamment s'il y a des mouvements de personnel... Il est possible d'améliorer les choses en configurant le matériel actif de manière à n'associer certaines adresses physiques (MAC) de machine qu'à certains ports de commutateur.
+Rapidement, lorsque son parc machine augmente, il devient difficile de maintenir une version papier à jour de son réseau local, notamment s'il y a des mouvements de personnel...
+Il est possible d'améliorer les choses en configurant le matériel actif de manière à n'associer certaines adresses physiques (MAC) de machine qu'à certains ports de commutateur.
 
 Cependant, cela ne résout pas forcément tous les problèmes, notamment le second.
 
 Les deux problématiques énoncées sont liées et une solution simple consiste à savoir sur quels ports des commutateurs sont connectés les machines et les matériels actifs dans un réseau local.
 
-Des outils comme traceroute ne sont d'aucune aide sur le réseau local car l'information sur les routes ne permet pas d'en déduire les commutateurs par lequel transite les flux. Nous avons donc développé un outil nommé Klask. Ce mot signifie en Breton : **rechercher** et c'est exactement ce que nous voulions. Klask est un outil dont les deux principales fonctions sont :
+Des outils comme traceroute ne sont d'aucune aide sur le réseau local car l'information sur les routes ne permet pas d'en déduire les commutateurs par lequel transite les flux.
+Nous avons donc développé un outil nommé Klask.
+Ce mot signifie en Breton : **rechercher** et c'est exactement ce que nous voulions.
+Klask est un outil dont les deux principales fonctions sont :
 
  * trouver les connexions entre commutateurs et de dessiner une carte du matériel actif sur le réseau local ;
 
@@ -22,8 +30,11 @@ Des outils comme traceroute ne sont d'aucune aide sur le réseau local car l'inf
 
 **Klask** est un petit outil, dans l'esprit des outils UNIX, de ne se préoccuper que des connections sur le réseau local.
 La page [MapSample](./doc/MapSample.md) a un résultat de la carte donnée par ```Klask```.
+Il s'agit d'un programme qui fonctionne toujours, et qui a commencé autour de l'année 2004.
+Le code est ancien, certaines parties sont plus lisibles que d'autres !
 
-Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN. Pour configurer Klask, consulter la page [MultiVlan](./doc/MultiVlan.md).
+Cependant, Klask fonctionne sur un réseau comportant plusieurs classe réseau et plusieurs VLAN.
+Pour configurer Klask, consulter la page [MultiVlan](./doc/MultiVlan.md).
 
 Il existe une documentation en ligne extraite du code source de [klask](https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/).
 
@@ -32,27 +43,28 @@ Il existe une documentation en ligne extraite du code source de [klask](https://
 Il existe maintenant deux interfaces Web pour Klask. 
 
  * une première interface est intégrée dans la branche principale.
-   Il s'agit d'une interface très simple permettant de faire une page web statique
-   utilisant un peu de javascript pour trier dynamiquement les tableaux.
-   Le script ```Bash``` est ```/usr/lib/klask/push-web```
-   et se configure via le fichier ```/etc/klask/push-web.conf```.
-   L'ojectif de ce script est de créer les pages web statiques
-   puis de les pousser sur un site distant.
-   Le site distant doit avoir les commandes ```rsync``` et ```dot``` (paquetage [graphivz](http://www.graphviz.org/)) ;
+   Il s'agit d'une interface très simple permettant de faire une page web statique utilisant un peu (le minimum) de javascript pour trier dynamiquement les tableaux.
+   Le script ```Bash``` est ```/usr/lib/klask/push-web``` et il se configure via le fichier ```/etc/klask/push-web.conf```.
+   L'ojectif de ce script est de créer les pages web statiques puis de les pousser sur un site distant.
+   Le site distant doit avoir les commandes ```rsync``` pour la copie des fichiers et ```dot``` (paquetage [graphivz](http://www.graphviz.org/)) pour la création des graphes ;
 
  * une seconde interface a été écrite à Lyon en PHP.
-   Cette interface est un projet à part entière,
-   elle a donc sa propre page [WebKlask](https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask-webphp) !
+   Cette interface est un projet à part entière, elle a donc sa propre page [WebKlask](https://gricad-gitlab.univ-grenoble-alpes.fr/legi/soft/trokata/klask-webphp) !
+   Elle n'est plus maintenue depuis des années.
 
 ## Téléchargement et Installation
 
-On des paquetages pour Debian sur la page [download](https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/download/)
+On des paquetages pour Debian sur la page [download](https://legi.gricad-pages.univ-grenoble-alpes.fr/soft/trokata/klask/download/).
 
 ## Auteur et Licence
 
-Klask a été conçu et développé par Gabriel Moreau. Il y a de nombreuses choses à améliorer qui sont prévus... Celle-ci seront faites au fur et à mesure du temps disponible et de l'urgence des demandes !
+Klask a été conçu et développé par Gabriel Moreau.
+Il y a de nombreuses choses à améliorer qui sont prévus...
+Celle-ci seront faites au fur et à mesure du temps disponible et de l'urgence des demandes !
 
-Klask est développé en Perl. Il est publié sous la même licence libre que Perl ; la **Perl Artistic License**. Pour avoir une liste des licences libres, voir http://www.gnu.org/licenses/license-list.fr.html et http://fr.wikipedia.org/wiki/Licence_libre
+Klask est développé en Perl.
+Il est publié sous la même licence libre que Perl ; la **Perl Artistic License**.
+Pour avoir une liste des licences libres, voir http://www.gnu.org/licenses/license-list.fr.html et http://fr.wikipedia.org/wiki/Licence_libre
 
 
 ## Cartographie des commutateurs
