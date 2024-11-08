@@ -89,7 +89,8 @@ cat <<END > ${CACHE_FOLDER}/index.html
  </noscript>
  <script src="sorttable-klask.js"></script>
  <script src="svg-pan-zoom.js"></script>
- <script>
+ <script src="ui.js"></script>
+<script>
 // function delayedRefresh() {
 //  setTimeout( "refresh()", 1800*1000 );
 //  }
@@ -290,6 +291,7 @@ then
    rsync --times \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/svg-pan-zoom.js \
+      /usr/share/klask/ui.js \
       /usr/share/klask/style-klask.css \
       ${CACHE_FOLDER}/index.html \
       ${CACHE_FOLDER}/*-db.txt \
@@ -305,6 +307,7 @@ else
    rsync --links --times \
       /usr/share/klask/sorttable-klask.js \
       /usr/share/klask/svg-pan-zoom.js \
+      /usr/share/klask/ui.js \
       /usr/share/klask/style-klask.css \
       ${CACHE_FOLDER}/index.html \
       ${CACHE_FOLDER}/*-db.txt \
