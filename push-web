@@ -97,12 +97,12 @@ Tool for <a href="switch-map.png">mapping</a> the local network - site ${SITE_NA
 
 <div id="navbar">
  <ul>
-  <li class="selectableTabButton" name="IP_detected"   onclick="selectTab(event, 'IP_detected')" id="selected">IP detected</li>
-  <li class="selectableTabButton" name="IP_available"  onclick="selectTab(event, 'IP_available')">IP available</li>
-  <li class="selectableTabButton" name="VLAN_mismatch" onclick="selectTab(event, 'VLAN_mismatch')">VLAN mismatch</li>
-  <li class="selectableTabButton" name="MAP"           onclick="selectTab(event, 'MAP_png')">MAP (png)</li>
-  <li class="selectableTabButton" name="MAP"           onclick="selectTab(event, 'MAP_svg')">MAP (svg)</li>
-  <li class="selectableTabButton" name="RAW_data"      onclick="selectTab(event, 'RAW_data')">RAW data</li>
+  <li class="selectableTabButton" data-tab="IP_detected" id="selected">IP detected</li>
+  <li class="selectableTabButton" data-tab="IP_available">IP available</li>
+  <li class="selectableTabButton" data-tab="VLAN_mismatch">VLAN mismatch</li>
+  <li class="selectableTabButton" data-tab="MAP_png">MAP (png)</li>
+  <li class="selectableTabButton" data-tab="MAP_svg">MAP (svg)</li>
+  <li class="selectableTabButton" data-tab="RAW_data">RAW data</li>
  </ul>
 </div>
 
@@ -161,13 +161,6 @@ cat <<END >> ${CACHE_FOLDER}/index.html
    </p>
 
    <embed type="image/svg+xml" src="switch-map.svg" id="embed-svg-map">
-
-   <script>
-      document.getElementById('embed-svg-map').addEventListener('load', function(){
-         // Will get called after embed element was loaded
-         svgPanZoom(document.getElementById('embed-svg-map', {minZoom: 0.1, maxZoom: 10})); 
-         })
-   </script>
  </div>
 
  <div id="RAW_data" class="selectableTabContent" style="display:none">
