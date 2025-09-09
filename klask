@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2025 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later and Perl equivalent
 #
 # $Id$
@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.10');
+use version; our $VERSION = version->declare('0.8.11');
 
 use Readonly;
 use FileHandle;
@@ -1268,7 +1268,7 @@ sub cmd_version {
 
    print <<'END';
 klask - port and search manager for switches, map management
-Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+Copyright (C) 2005-2025 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 License GNU GPL version 2 or later and Perl equivalent
 END
 
@@ -4046,4 +4046,4 @@ Kevin Reverchon, Olivier De Marchi, Patrick Begou, Herve Colasuonno, David Gras.
 
 License GNU GPL version 2 or later and Perl equivalent
 
-Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.
+Copyright (C) 2005-2025 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>.

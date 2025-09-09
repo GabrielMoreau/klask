@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2005-2024 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
+# Copyright (C) 2005-2025 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 # License GNU GPL version 2 or later
 #
 # 2007/10/23 Gabriel Moreau
@@ -85,12 +85,11 @@ cat <<END > ${CACHE_FOLDER}/index.html
  <link rel="stylesheet" type="text/css" href="style-klask.css" />
  <!-- <meta http-equiv="refresh" content="1800"> -->
  <title>Klask mapping net-tools</title>
- <noscript>
- </noscript>
+ <noscript></noscript>
  <script src="sorttable-klask.js"></script>
- <script src="svg-pan-zoom.js"></script>
+ <!-- <script src="svg-pan-zoom.js"></script> -->
  <script src="ui.js"></script>
-<script>
+<!-- <script>
 // function delayedRefresh() {
 //  setTimeout( "refresh()", 1800*1000 );
 //  }
@@ -177,7 +176,7 @@ window.onbeforeunload = function() {
   // Sorry! No Web Storage support..
   }
  }
- </script>
+ </script> -->
 </head>
 <body> <!-- onload="delayedRefresh" -->
 <h1>
