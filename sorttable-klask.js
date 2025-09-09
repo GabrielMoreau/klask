@@ -366,11 +366,11 @@ if (document.addEventListener) {
 
 /* for Safari */
 if (/WebKit/i.test(navigator.userAgent)) { // sniff
-    var _timer = setInterval(function() {
-        if (/loaded|complete/.test(document.readyState)) {
-            sorttable.init(); // call the onload handler
-        }
-    }, 10);
+	var _timer = setInterval(function() {
+		if (/loaded|complete/.test(document.readyState)) {
+			sorttable.init(); // call the onload handler
+		}
+	}, 10);
 }
 
 /* for other browsers */

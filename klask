@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.11');
+use version; our $VERSION = version->declare('0.8.12');
 
 use Readonly;
 use FileHandle;

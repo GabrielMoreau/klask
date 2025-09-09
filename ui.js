@@ -32,6 +32,7 @@ function getById(id, context) {
  var el = document.getElementById(id);
  return context.contains(el) ? el : null;
  }
+
 function getByName(name, context) {
  var i;
  var x = document.getElementsByName(name);
@@ -43,6 +44,7 @@ function getByName(name, context) {
  return null;
  }
 
+/*
 // Run on page load
 window.onload = function() {
  if (typeof(Storage) !== "undefined") {
@@ -84,3 +86,4 @@ window.onbeforeunload = function() {
   // Sorry! No Web Storage support..
   }
  }
+*/
