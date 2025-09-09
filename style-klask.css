@@ -89,6 +89,7 @@ td.bklask-arrow {
    text-align      : left;
    text-indent     : -5.5ex;
    padding-left    : 6.5ex !important;
+   width           : 3ex;
    }
 
 a.circle {
