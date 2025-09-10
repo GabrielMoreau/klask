@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.22');
+use version; our $VERSION = version->declare('0.8.23');
 
 use Readonly;
 use FileHandle;
@@ -1272,8 +1272,7 @@ Copyright (C) 2005-2025 Gabriel Moreau <Gabriel.Moreau(A)univ-grenoble-alpes.fr>
 License GNU GPL version 2 or later and Perl equivalent
 END
 
-   print "Version $VERSION\n\n";
-   print ' $Id$'."\n";
+   print "Version $VERSION\n";
    return;
    }
 
