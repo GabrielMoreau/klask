@@ -3646,6 +3646,19 @@ Theses could be not well defined, not finished, not well tested...
 You can read the source code and use them at your own risk
 (like for all the Klask code).
 
+=head2 searchdb
+
+ klask searchdb [--kind|-k host|mac|regex] computer [mac-address] [regex]
+
+This command searches for a computer in the database.
+The search is performed either on the PC's DNS name (C<host>), the machine's MAC address (C<mac>), or a regular expression (C<regex>).
+
+In the latter case, the C<regex> is compared to the following elements:
+computer name, MAC address and IP address, date of last detection, "switch:port" of last connection
+(a colon separates the fully qualified name of the switch from the port in the search).
+
+If you want an exact match for the entire pattern, remember to put a C<^> at the beginning of the regex and a C<$> at the end.
+
 =head2 search
 
  klask search   computer
