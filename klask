@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.18');
+use version; our $VERSION = version->declare('0.8.19');
 
 use Readonly;
 use FileHandle;
@@ -1409,7 +1409,7 @@ sub cmd_searchdb_regex {
             or $computerdb->{$ip}{'hostname_fq'} =~ m/$regex/
             or $date =~ m/$regex/
             or "$computerdb->{$ip}{'switch_hostname'}:$computerdb->{$ip}{'switch_port_hr'}" =~ m/$regex/
-            )
+            );
 
          printf "%-22s %2s %-30s %-15s %-18s %s\n",
             $computerdb->{$ip}{'switch_hostname'},
