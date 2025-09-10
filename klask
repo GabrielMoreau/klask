@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.17');
+use version; our $VERSION = version->declare('0.8.18');
 
 use Readonly;
 use FileHandle;
@@ -1238,7 +1238,7 @@ klask - port and search manager for switches, map management
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
  klask host-setlocation switch location
 
- klask searchdb [--kind|-k host|mac] computer [mac-address]
+ klask searchdb [--kind|-k host|mac|regex] computer [mac-address] [regex]
  klask search   computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
@@ -1317,8 +1317,9 @@ sub cmd_searchdb {
       );
 
    my %possible_search = (
-      host => \&cmd_searchdb_host,
-      mac  => \&cmd_searchdb_mac,
+      host  => \&cmd_searchdb_host,
+      mac   => \&cmd_searchdb_mac,
+      regex => \&cmd_searchdb_regex,
       );
 
    $kind = 'host' if not defined $possible_search{$kind};
@@ -1381,7 +1382,42 @@ sub cmd_searchdb_mac {
             $ip,
             $computerdb->{$ip}{'mac_address'},
             $date;
-         #next LOOP_ON_MAC;
+         }
+
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
+sub cmd_searchdb_regex {
+   my @regex = @_;
+
+   my $computerdb = computerdb_load();
+
+   LOOP_ON_MAC:
+   for my $regex (@regex) {
+      LOOP_ON_COMPUTER:
+      for my $ip (keys %{$computerdb}) {
+         my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime $computerdb->{$ip}{'timestamp'};
+         $year += 1900;
+         $mon++;
+         my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
+
+         next LOOP_ON_COMPUTER if not (
+            $computerdb->{$ip}{'mac_address'} =~ m/$regex/
+            or $computerdb->{$ip} =~ m/$regex/
+            or $computerdb->{$ip}{'hostname_fq'} =~ m/$regex/
+            or $date =~ m/$regex/
+            or "$computerdb->{$ip}{'switch_hostname'}:$computerdb->{$ip}{'switch_port_hr'}" =~ m/$regex/
+            )
+
+         printf "%-22s %2s %-30s %-15s %-18s %s\n",
+            $computerdb->{$ip}{'switch_hostname'},
+            $computerdb->{$ip}{'switch_port_hr'},
+            $computerdb->{$ip}{'hostname_fq'},
+            $ip,
+            $computerdb->{$ip}{'mac_address'},
+            $date;
          }
 
       }
@@ -3557,7 +3593,7 @@ klask - port and search manager for switches, map management
  klask exportsw [--format|-f txt|dot] [--modulo|-m XX] [--shift|-s YY] [--way all|desc|child|parent|sys] [--no-header|-H]
  klask host-setlocation switch location
 
- klask searchdb [--kind|-k host|mac] computer [mac-address]
+ klask searchdb [--kind|-k host|mac|regex] computer [mac-address] [regex]
  klask search   computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
