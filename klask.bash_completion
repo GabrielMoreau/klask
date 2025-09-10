@@ -14,7 +14,7 @@ _klask() {
          return 0
          ;;
       -k|--kind)
-         COMPREPLY=($(compgen -W "host mac" -- "$cur"))
+         COMPREPLY=($(compgen -W "host mac regex" -- "$cur"))
          return 0
          ;;
       -i|--vlan)
