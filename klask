@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.21');
+use version; our $VERSION = version->declare('0.8.22');
 
 use Readonly;
 use FileHandle;
@@ -77,11 +77,11 @@ my %CMD_DB = (
    'removedb'             => \&cmd_removedb,
    'insertdb'             => \&cmd_insertdb,
    'cleandb'              => \&cmd_cleandb,
-   'search'               => \&cmd_search,
    'updatesw'             => \&cmd_updatesw,
    'exportsw'             => \&cmd_exportsw,
    'iplocation'           => \&cmd_ip_location,
    'ip-free'              => \&cmd_ip_free,
+   'search-on-switches'   => \&cmd_search_on_switches,
    'search-mac-on-switch' => \&cmd_search_mac_on_switch,
    'bad-vlan-id'          => \&cmd_bad_vlan_id,
    'poe-enable'           => \&cmd_poe_enable,
@@ -1239,7 +1239,7 @@ klask - port and search manager for switches, map management
  klask host-setlocation switch location
 
  klask searchdb [--kind|-k host|mac|regex] computer [mac-address] [regex]
- klask search   computer
+ klask search-on-switches computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
  klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
@@ -1274,35 +1274,6 @@ END
 
    print "Version $VERSION\n\n";
    print ' $Id$'."\n";
-   return;
-   }
-
-#---------------------------------------------------------------
-sub cmd_search {
-   my @computer = @_;
-
-   init_switch_names(); # name the switches
-   fast_ping(@computer);
-
-   LOOP_ON_COMPUTER:
-   for my $clientname (@computer) {
-      my %resol_arp = resolve_ip_arp_host($clientname);                          # resolution arp
-      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
-      my $vlan_id   = get_current_vlan_id($vlan_name);
-      my %where     = find_switch_port($resol_arp{'mac_address'}, '', $vlan_id); # retrouve l'emplacement
-
-      next LOOP_ON_COMPUTER
-         if $where{'switch_description'} eq 'unknow'
-         or $resol_arp{'hostname_fq'}    eq 'unknow'
-         or $resol_arp{'mac_address'}    eq 'unknow';
-
-      printf '%-22s %2s %-30s %-15s %18s',
-         $where{'switch_hostname'},
-         $where{'switch_port_hr'},
-         $resol_arp{'hostname_fq'},
-         $resol_arp{'ipv4_address'},
-         $resol_arp{'mac_address'} . "\n";
-      }
    return;
    }
 
@@ -3156,6 +3127,35 @@ sub cmd_resolve_arp {
    }
 
 #---------------------------------------------------------------
+sub cmd_search_on_switches {
+   my @computer = @_;
+
+   init_switch_names(); # name the switches
+   fast_ping(@computer);
+
+   LOOP_ON_COMPUTER:
+   for my $clientname (@computer) {
+      my %resol_arp = resolve_ip_arp_host($clientname);                          # resolution arp
+      my $vlan_name = get_current_vlan_name_for_interface($resol_arp{'interface'});
+      my $vlan_id   = get_current_vlan_id($vlan_name);
+      my %where     = find_switch_port($resol_arp{'mac_address'}, '', $vlan_id); # retrouve l'emplacement
+
+      next LOOP_ON_COMPUTER
+         if $where{'switch_description'} eq 'unknow'
+         or $resol_arp{'hostname_fq'}    eq 'unknow'
+         or $resol_arp{'mac_address'}    eq 'unknow';
+
+      printf '%-22s %2s %-30s %-15s %18s',
+         $where{'switch_hostname'},
+         $where{'switch_port_hr'},
+         $resol_arp{'hostname_fq'},
+         $resol_arp{'ipv4_address'},
+         $resol_arp{'mac_address'} . "\n";
+      }
+   return;
+   }
+
+#---------------------------------------------------------------
 sub cmd_search_mac_on_switch {
    local @ARGV = @_;
 
@@ -3598,7 +3598,7 @@ klask - port and search manager for switches, map management
  klask host-setlocation switch location
 
  klask searchdb [--kind|-k host|mac|regex] computer [mac-address] [regex]
- klask search   computer
+ klask search-on-switches computer
  klask search-mac-on-switch [--verbose|-v] [--vlan|-i vlan-id] switch mac_addr
 
  klask ip-free [--verbose|-v] [--day|-d days-to-death] [--format|-f txt|html] [vlan_name]
@@ -3665,10 +3665,10 @@ If you want an exact match for the entire pattern, remember to put a C<^> at the
 
 =head2 search
 
- klask search   computer
+ klask search-on-switches computer
 
 This command takes one or more computer in argument.
-It search a computer on the network and give the port and the switch on which the computer is connected.
+It searches for a computer on the network and indicates all switches and ports on which the computer is detected.
 
 =head2 search-mac-on-switch
 
