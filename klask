@@ -13,7 +13,7 @@
 
 use strict;
 use warnings;
-use version; our $VERSION = version->declare('0.8.20');
+use version; our $VERSION = version->declare('0.8.21');
 
 use Readonly;
 use FileHandle;
@@ -1403,12 +1403,16 @@ sub cmd_searchdb_regex {
          $mon++;
          my $date = sprintf '%04i-%02i-%02i %02i:%02i', $year, $mon, $mday, $hour, $min;
 
+         my $switchport = 'unknow';
+         $switchport = $computerdb->{$ip}{'switch_hostname'} if exists $computerdb->{$ip}{'switch_hostname'};
+         $switchport .= ':' . $computerdb->{$ip}{'switch_port_hr'};
+
          next LOOP_ON_COMPUTER if not (
             $computerdb->{$ip}{'mac_address'} =~ m/$regex/
             or $ip =~ m/$regex/
             or $computerdb->{$ip}{'hostname_fq'} =~ m/$regex/
             or $date =~ m/$regex/
-            or "$computerdb->{$ip}{'switch_hostname'}:$computerdb->{$ip}{'switch_port_hr'}" =~ m/$regex/
+            or $switchport =~ m/$regex/
             );
 
          printf "%-22s %2s %-30s %-15s %-18s %s\n",
